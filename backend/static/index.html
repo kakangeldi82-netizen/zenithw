@@ -95,6 +95,11 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
       </button>
     </div>
+    <div class="clip-hint" id="clipHint" onclick="useClipboardHint()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="clipHintTxt">panonda bir link var, yapıştırmak ister misin?</span>
+      <button class="clip-hint-close" onclick="event.stopPropagation();dismissClipboardHint()">✕</button>
+    </div>
     <div class="mode-row">
       <button class="bulk-toggle" id="bulkToggle" onclick="toggleBulkMode()">toplu</button>
       <button class="mode-btn active" id="modeAuto" onclick="setMode('auto')">
@@ -150,39 +155,6 @@
     </div>
   </div>
 </div>
-
-<!-- SEO CONTENT — statik, tarayıcı tarafından okunabilir içerik -->
-<section style="position:relative;z-index:1;max-width:720px;margin:0 auto;padding:40px 20px calc(var(--bar-height) + 60px);color:var(--text2);font-size:13px;line-height:1.8;">
-  <h2 style="color:var(--text);font-size:18px;margin-bottom:10px;">Pornhub Video Downloader — ZenithW</h2>
-  <p>ZenithW, Pornhub başta olmak üzere YouTube, TikTok, İnstagram, X/Twitter, Reddit, Pinterest, SoundCloud, Facebook, Twitch, Vimeo ve 20'den fazla platformdan video ve ses indirmenizi sağlayan ücretsiz bir video downloader aracıdır. Link yapıştırın, format seçin, indirin — kayıt, uygulama ya da uzantı gerekmez.</p>
-
-  <h2 style="color:var(--text);font-size:16px;margin:24px 0 10px;">ZenithW: Better Than Cobalt.tools, Better Than SaveFrom, Better Than Y2mate</h2>
-
-  <h3 style="color:var(--text);font-size:14px;margin:16px 0 6px;">ZenithW — Better Than Cobalt.tools</h3>
-  <p>ZenithW is better than cobalt.tools because it supports platforms Cobalt doesn't, including Pornhub and Xvideos, plus bulk link downloading and download history — all in a faster, ad-free interface.</p>
-
-  <h3 style="color:var(--text);font-size:14px;margin:16px 0 6px;">ZenithW — Better Than SaveFrom</h3>
-  <p>ZenithW is better than savefrom.net because it has no redirect ads, no fake download buttons, and no pop-ups — just one real download button and a clean, modern interface.</p>
-
-  <h3 style="color:var(--text);font-size:14px;margin:16px 0 6px;">ZenithW — Better Than Y2mate</h3>
-  <p>ZenithW is better than y2mate because it processes videos faster, supports format conversion, and offers a modern MIUI-inspired interface with no sketchy redirects.</p>
-
-  <h2 style="color:var(--text);font-size:16px;margin:24px 0 10px;">Sıkça Sorulan Sorular</h2>
-  <div style="display:flex;flex-direction:column;gap:14px;">
-    <div>
-      <strong style="color:var(--text);display:block;margin-bottom:4px;">ZenithW ile Pornhub'dan video nasıl indirilir?</strong>
-      <span>Pornhub video linkini yukarıdaki kutuya yapıştırın ve indir butonuna basın; video birkaç saniye içinde işlenip cihazınıza iner.</span>
-    </div>
-    <div>
-      <strong style="color:var(--text);display:block;margin-bottom:4px;">ZenithW ücretsiz mi?</strong>
-      <span>Evet, ZenithW tamamen ücretsizdir ve kayıt gerektirmez.</span>
-    </div>
-    <div>
-      <strong style="color:var(--text);display:block;margin-bottom:4px;">Hangi platformlar destekleniyor?</strong>
-      <span>YouTube, TikTok, İnstagram, X/Twitter, Pornhub, Xvideos, Reddit, Pinterest, SoundCloud, Facebook, Snapchat, Vimeo, Dailymotion, Bilibili, Bluesky, Tumblr, Streamable, Rutube, OK.ru, VK, Loom, Twitch clips ve daha fazlası.</span>
-    </div>
-  </div>
-</section>
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
@@ -476,11 +448,11 @@
         <div class="st-section">
           <div class="st-section-label" id="stLblAccent">renk teması</div>
           <div class="st-chips" id="stAccentChips">
-            <div class="chip active" data-v="default" onclick="setAccent('default')">klasik</div>
-            <div class="chip" data-v="purple" onclick="setAccent('purple')" style="border-color: rgba(188,52,250,0.4);">neon mor</div>
-            <div class="chip" data-v="gray" onclick="setAccent('gray')" style="border-color: rgba(160,160,160,0.4);">gri</div>
-            <div class="chip" data-v="pink" onclick="setAccent('pink')" style="border-color: rgba(255,74,151,0.4);">pembe</div>
-            <div class="chip" data-v="cobalt" onclick="setAccent('cobalt')" style="border-color: rgba(0,86,255,0.4);">cobalt</div>
+            <div class="chip active" data-v="default" onclick="setAccent('default')" id="accDefault">klasik</div>
+            <div class="chip" data-v="purple" onclick="setAccent('purple')" id="accPurple" style="border-color: rgba(188,52,250,0.4);">neon mor</div>
+            <div class="chip" data-v="gray" onclick="setAccent('gray')" id="accGray" style="border-color: rgba(160,160,160,0.4);">gri</div>
+            <div class="chip" data-v="pink" onclick="setAccent('pink')" id="accPink" style="border-color: rgba(255,74,151,0.4);">pembe</div>
+            <div class="chip" data-v="cobalt" onclick="setAccent('cobalt')" id="accCobalt" style="border-color: rgba(0,86,255,0.4);">cobalt</div>
           </div>
           <div class="st-note" id="stNoteAccent">arayüzün vurgu renklerini değiştirebilirsiniz.</div>
         </div>
@@ -611,6 +583,7 @@ const TX={
     placeholder:'bir video linki yapıştır…',bulkPlaceholder:'linkleri her satıra bir tane olacak şekilde yapıştır... (Enter ile indir, Shift+Enter ile yeni satır)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'sessiz',paste:'yapıştır',
     vcDl:'indir',dlBtn:'indir',dlCancel:'iptal',
     bbSave:'kaydet',bbHistory:'geçmiş',bbRemux:'remux',bbConvert:'dönüştür',bbSettings:'ayarlar',bbUpdates:'güncel',bbAbout:'hakkında',bbMore:'diğer',bbDonate:'destek ol',
+    accDefault:'klasik',accPurple:'neon mor',accGray:'gri',accPink:'pembe',
     saveTitleTxt:'nasıl kaydetmek istersin?',saveDlTxt:'indir',saveShareTxt:'paylaş',saveCopyTxt:'kopyala',
     saveNoteTxt:'tarayıcı pop-up\'ları engelliyorsa "indir" butonunu kullanın.',saveDoneTxt:'tamam',
     stNavVideo:'video',stNavAudio:'ses',stNavAppearance:'görünüm',stNavMeta:'metadata',stNavFilename:'dosya adı',stNavClose:'kapat',
@@ -632,7 +605,8 @@ const TX={
     remuxTitleTxt:'remux',remuxDropTitle:'dosya sürükle veya seç',remuxDropSub:'mp4, webm, mp3, ogg, opus, wav, m4a',
     updTitle:'güncellemeler',
     servicesChipTxt:'desteklenen servisler',servicesTitleTxt:'desteklenen platformlar',
-    servicesNoteTxt:'bir platformu desteklemek, teknik uyumluluk dışında ilişki anlamına gelmez.',
+    servicesNoteTxt:'bir platformu desteklemek, teknik uyumluluk dışında ilişki anlamına gelmez. tüm sorumluluk kullanıcıdadır.',
+    clipHintTxt:'panonda bir link var, yapıştırmak ister misin?',
     ytWarn:'youtube desteği beta — IP kısıtlamaları nedeniyle hata verebilir.',
     ytErrTitle:'youtube videosu bulunamadı',ytErrTxt:'youtube bot engelleme aktif olabilir. birkaç dakika bekleyip tekrar deneyin.',
     enterLink:'önce link gir',connErr:'bağlantı hatası',igBusy:'instagram yoğun, 2-3 dk bekle',
@@ -669,6 +643,7 @@ const TX={
     placeholder:'paste link here',bulkPlaceholder:'paste links, one per line... (Enter to download, Shift+Enter for a new line)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'mute',paste:'paste',
     vcDl:'download',dlBtn:'download',dlCancel:'cancel',
     bbSave:'save',bbHistory:'history',bbRemux:'remux',bbConvert:'convert',bbSettings:'settings',bbUpdates:'updates',bbAbout:'about',bbMore:'more',bbDonate:'support us',
+    accDefault:'classic',accPurple:'neon purple',accGray:'gray',accPink:'pink',
     saveTitleTxt:'choose how to save',saveDlTxt:'download',saveShareTxt:'share',saveCopyTxt:'copy',
     saveNoteTxt:'if your browser blocked the popup, use the download button.',saveDoneTxt:'done',
     stNavVideo:'video',stNavAudio:'audio',stNavAppearance:'appearance',stNavMeta:'metadata',stNavFilename:'filename',stNavClose:'close',
@@ -691,6 +666,7 @@ const TX={
     updTitle:'updates',
     servicesChipTxt:'supported services',servicesTitleTxt:'supported platforms',
     servicesNoteTxt:'supporting a service does not imply affiliation beyond technical compatibility.',
+    clipHintTxt:'found a link in your clipboard — want to paste it?',
     ytWarn:'youtube support is beta — may fail due to ip restrictions.',
     ytErrTitle:'youtube video not found',ytErrTxt:"youtube's bot detection may be active. please wait a few minutes and try again.",
     enterLink:'enter a link first',connErr:'connection error',igBusy:'instagram is busy, wait 2-3 min',
@@ -727,6 +703,7 @@ const TX={
     placeholder:'collez un lien vidéo…',bulkPlaceholder:'collez les liens, un par ligne... (Entrée pour télécharger, Maj+Entrée pour une nouvelle ligne)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'muet',paste:'coller',
     vcDl:'télécharger',dlBtn:'télécharger',dlCancel:'annuler',
     bbSave:'enregistrer',bbHistory:'historique',bbRemux:'remux',bbConvert:'convertir',bbSettings:'paramètres',bbUpdates:'nouveautés',bbAbout:'à propos',bbMore:'plus',bbDonate:'soutenir',
+    accDefault:'classique',accPurple:'violet néon',accGray:'gris',accPink:'rose',
     saveTitleTxt:'comment voulez-vous enregistrer ?',saveDlTxt:'télécharger',saveShareTxt:'partager',saveCopyTxt:'copier',
     saveNoteTxt:'si votre navigateur bloque la fenêtre pop-up, utilisez le bouton "télécharger".',saveDoneTxt:'terminé',
     stNavVideo:'vidéo',stNavAudio:'audio',stNavAppearance:'apparence',stNavMeta:'métadonnées',stNavFilename:'nom de fichier',stNavClose:'fermer',
@@ -749,6 +726,7 @@ const TX={
     updTitle:'nouveautés',
     servicesChipTxt:'services pris en charge',servicesTitleTxt:'plateformes prises en charge',
     servicesNoteTxt:'la prise en charge d\'une plateforme n\'implique aucune affiliation au-delà de la compatibilité technique.',
+    clipHintTxt:'un lien a été trouvé dans votre presse-papiers — voulez-vous le coller ?',
     ytWarn:'le support youtube est en bêta — peut échouer en raison de restrictions ip.',
     ytErrTitle:'vidéo youtube introuvable',ytErrTxt:'la détection anti-bot de youtube est peut-être active. réessayez dans quelques minutes.',
     enterLink:'entrez d\'abord un lien',connErr:'erreur de connexion',igBusy:'instagram est occupé, attendez 2-3 min',
@@ -785,6 +763,7 @@ const TX={
     placeholder:'video-link hier einfügen…',bulkPlaceholder:'links einfügen, einen pro Zeile... (Enter zum Herunterladen, Umschalt+Enter für neue Zeile)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'stumm',paste:'einfügen',
     vcDl:'herunterladen',dlBtn:'herunterladen',dlCancel:'abbrechen',
     bbSave:'speichern',bbHistory:'verlauf',bbRemux:'remux',bbConvert:'konvertieren',bbSettings:'einstellungen',bbUpdates:'neuigkeiten',bbAbout:'über',bbMore:'mehr',bbDonate:'unterstützen',
+    accDefault:'klassisch',accPurple:'neon-lila',accGray:'grau',accPink:'pink',
     saveTitleTxt:'wie möchtest du speichern?',saveDlTxt:'herunterladen',saveShareTxt:'teilen',saveCopyTxt:'kopieren',
     saveNoteTxt:'wenn dein browser das pop-up blockiert, nutze den "herunterladen"-button.',saveDoneTxt:'fertig',
     stNavVideo:'video',stNavAudio:'audio',stNavAppearance:'erscheinungsbild',stNavMeta:'metadaten',stNavFilename:'dateiname',stNavClose:'schließen',
@@ -807,6 +786,7 @@ const TX={
     updTitle:'neuigkeiten',
     servicesChipTxt:'unterstützte dienste',servicesTitleTxt:'unterstützte plattformen',
     servicesNoteTxt:'die unterstützung einer plattform bedeutet keine zusammenarbeit über die technische kompatibilität hinaus.',
+    clipHintTxt:'ein link wurde in deiner zwischenablage gefunden — möchtest du ihn einfügen?',
     ytWarn:'youtube-unterstützung ist beta — kann aufgrund von ip-beschränkungen fehlschlagen.',
     ytErrTitle:'youtube-video nicht gefunden',ytErrTxt:'youtubes bot-erkennung ist möglicherweise aktiv. bitte warte ein paar minuten und versuche es erneut.',
     enterLink:'zuerst einen link eingeben',connErr:'verbindungsfehler',igBusy:'instagram ist ausgelastet, 2-3 min warten',
@@ -938,7 +918,7 @@ function setAccent(acc){
   const texOrange=glowTexture('rgba(255,175,110,0.9)','rgba(255,130,60,0.12)');
 
   // ── starfield ──
-  const starCount=isMobile?500:(lowEnd?1200:5200);
+  const starCount=isMobile?320:(lowEnd?1200:5200);
   const starGeo=new THREE.BufferGeometry();
   const starPos=new Float32Array(starCount*3);
   const starCol=new Float32Array(starCount*3);
@@ -959,7 +939,7 @@ function setAccent(acc){
   scene.add(starField);
 
   // ── twinkling bright stars (small extra layer, opacity pulses for a lively sky) ──
-  const twinkleCount=isMobile?20:(lowEnd?60:280);
+  const twinkleCount=isMobile?12:(lowEnd?60:280);
   const twGeo=new THREE.BufferGeometry();
   const twPos=new Float32Array(twinkleCount*3);
   const twCol=new Float32Array(twinkleCount*3);
@@ -982,7 +962,7 @@ function setAccent(acc){
   scene.add(twinkleField);
 
   // ── floating particles (closer, larger, orange-tinted) ──
-  const partCount=isMobile?10:(lowEnd?25:150);
+  const partCount=isMobile?6:(lowEnd?25:150);
   const partGeo=new THREE.BufferGeometry();
   const partPos=new Float32Array(partCount*3);
   for(let i=0;i<partCount;i++){
@@ -1090,11 +1070,11 @@ function setAccent(acc){
   let t=0,frameN=0;
   function animate(){
     frameN++;
-    // Real phones: render roughly 1 of every 3 frames (~20fps) — the biggest single win for
+    // Real phones: render roughly 1 of every 4 frames (~15fps) — the biggest single win for
     // battery/heat, since every skipped frame skips a full backdrop-filter composite too.
     // Other low-end machines (old/low-core desktops): render every other frame (~30fps).
     // Regular desktop: full 60fps, every frame.
-    if(isMobile&&(frameN%3!==0)){if(!reduceMotion)requestAnimationFrame(animate);return;}
+    if(isMobile&&(frameN%4!==0)){if(!reduceMotion)requestAnimationFrame(animate);return;}
     if(!isMobile&&lowEnd&&(frameN%2===0)){if(!reduceMotion)requestAnimationFrame(animate);return;}
     t+=isMobile?0.0096:(lowEnd?0.0064:0.0032);
     px+=(tpx-px)*0.04;py+=(tpy-py)*0.04;
@@ -1237,6 +1217,58 @@ async function fetchBulkVideos(){
 }
 function showErr(icon,msg){document.getElementById('errIcon').textContent=icon;document.getElementById('errTxt').textContent=msg;document.getElementById('errorWrap').classList.add('show');}
 async function pasteAndFetch(){try{const tx=await navigator.clipboard.readText();if(tx){document.getElementById('urlInput').value=tx;onInput();if(tx.startsWith('http'))fetchVideo();}}catch(e){document.getElementById('urlInput').focus();}}
+
+// ── panoyu otomatik algılama ──
+// Sekme yeniden odaklanınca panoda video linkine benzer bir şey var mı diye sessizce bakar.
+// Varsa küçük, kapatılabilir bir öneri çubuğu gösterir; hiçbir şeyi otomatik doldurmaz/indirmez,
+// karar her zaman kullanıcıya ait. Aynı link bir kere kapatılırsa bu oturumda bir daha sorulmaz.
+let _clipHintUrl='';
+function _looksLikeVideoLink(s){
+  if(!s||s.length>600)return false;
+  s=s.trim();
+  if(!/^https?:\/\//i.test(s))return false;
+  if(/\s/.test(s))return false; // toplu link listesi değil, tek link olsun
+  return true;
+}
+async function checkClipboardForLink(){
+  try{
+    if(document.getElementById('bulkToggle').classList.contains('active'))return;
+    const ai=document.activeElement;
+    if(ai&&(ai.id==='urlInput'||ai.id==='urlTextarea'))return; // kullanıcı zaten yazıyor
+    if(document.getElementById('urlInput').value.trim())return; // kutuda zaten bir şey var
+    if(!navigator.clipboard||!navigator.clipboard.readText)return;
+    const perm=navigator.permissions&&navigator.permissions.query?await navigator.permissions.query({name:'clipboard-read'}).catch(()=>null):null;
+    if(perm&&perm.state==='denied')return;
+    const tx=await navigator.clipboard.readText();
+    if(!_looksLikeVideoLink(tx))return;
+    let dismissed=[];try{dismissed=JSON.parse(sessionStorage.getItem('zw_clip_dismissed')||'[]');}catch(e){}
+    if(dismissed.includes(tx))return;
+    _clipHintUrl=tx;
+    let host='';try{host=new URL(tx).hostname.replace(/^www\./,'');}catch(e){}
+    document.getElementById('clipHintTxt').textContent=t('clipHintTxt').replace('{host}',host||'link');
+    document.getElementById('clipHint').classList.add('show');
+  }catch(e){/* izin yok ya da okunamadı — sessizce vazgeç */}
+}
+function useClipboardHint(){
+  if(!_clipHintUrl)return;
+  document.getElementById('urlInput').value=_clipHintUrl;
+  onInput();
+  document.getElementById('clipHint').classList.remove('show');
+  fetchVideo();
+}
+function dismissClipboardHint(){
+  document.getElementById('clipHint').classList.remove('show');
+  if(_clipHintUrl){
+    try{
+      const d=JSON.parse(sessionStorage.getItem('zw_clip_dismissed')||'[]');
+      d.push(_clipHintUrl);
+      sessionStorage.setItem('zw_clip_dismissed',JSON.stringify(d.slice(-10)));
+    }catch(e){}
+  }
+  _clipHintUrl='';
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkClipboardForLink();});
+window.addEventListener('focus',checkClipboardForLink);
 
 async function fetchVideo(){
   const url=document.getElementById('urlInput').value.trim();

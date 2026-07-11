@@ -15,12 +15,31 @@
 .legal-lang-toggle button{border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;transition:all .15s;}
 .legal-lang-toggle button.active{background:var(--text);color:var(--bg);}
 .legal-nav{gap:10px;flex-wrap:wrap;}
-/* upd-entry/badge/accordion classes are already defined in style.css and work fine outside the overlay */
-.upd-entry{scroll-margin-top:24px;}
-.upd-entry.highlight{border-color:var(--accent,#3bba64);box-shadow:0 0 0 1px var(--accent,#3bba64);}
-.upd-nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
-.upd-nav-link{font-size:11px;font-weight:600;color:var(--text2);background:var(--chip-bg);border:1px solid var(--border);border-radius:8px;padding:6px 11px;cursor:pointer;transition:all .15s;}
+
+.upd-top-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.upd-ver-badge{background:var(--text);color:var(--bg);font-size:11px;font-weight:800;padding:5px 10px;border-radius:8px;letter-spacing:.3px;}
+.upd-ver-badge.is-latest{background:var(--accent,#3bba64);color:#fff;}
+.upd-top-date{color:var(--text3);font-size:12px;}
+.upd-pick{margin-left:auto;position:relative;}
+.upd-pick select{background:var(--chip-bg);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:11.5px;padding:7px 10px;border-radius:8px;cursor:pointer;outline:none;}
+
+.upd-post-title{font-size:20px;font-weight:800;letter-spacing:-.3px;line-height:1.3;margin:0 0 22px;color:var(--text);}
+
+.upd-intro p{font-size:13.5px;line-height:1.8;color:var(--text2);margin:0 0 14px;}
+.upd-intro{margin-bottom:8px;}
+
+.upd-section{margin-top:26px;}
+.upd-section h2{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.upd-section p{font-size:13px;line-height:1.8;color:var(--text2);margin:0;}
+
+.upd-outro{margin-top:32px;font-size:13px;line-height:1.8;color:var(--text2);}
+.upd-signoff{margin-top:18px;font-size:13px;color:var(--text3);}
+
+.upd-nav-row{display:flex;align-items:stretch;gap:10px;margin-top:40px;padding-top:20px;border-top:1px solid var(--border);}
+.upd-nav-link{flex:1;font-size:12px;font-weight:600;color:var(--text2);background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s;text-align:left;}
+.upd-nav-link.next{text-align:right;}
 .upd-nav-link:hover{color:var(--text);border-color:var(--border2);}
+.upd-nav-label{display:block;font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
 </style>
 </head>
 <body>
@@ -35,193 +54,341 @@
       <a href="/" class="legal-back" id="pgBack">← ana sayfa</a>
     </div>
   </div>
-  <div class="legal-hero">
-    <h1 id="pgH1">Güncellemeler</h1>
-    <div class="legal-updated" id="pgSub">ZenithW'nin sürüm geçmişi ve yayınlanan tüm değişiklikler.</div>
+
+  <div class="legal-body" style="max-width:640px;margin:0 auto;padding:24px 20px 80px;">
+    <div class="upd-top-row">
+      <span class="upd-ver-badge" id="updBadge">v5.6</span>
+      <span class="upd-top-date" id="updDate">temmuz 2026</span>
+      <div class="upd-pick">
+        <select id="verPicker" onchange="jumpTo(this.value)"></select>
+      </div>
+    </div>
+    <h1 class="upd-post-title" id="updPostTitle"></h1>
+    <div class="upd-intro" id="updIntro"></div>
+    <div id="updSections"></div>
+    <div class="upd-outro" id="updOutro"></div>
+    <div class="upd-signoff" id="updSignoff">~ ZenithW ekibi 🤍</div>
+    <div class="upd-nav-row" id="updNavRow"></div>
   </div>
-  <div id="updEntries"></div>
-  <div class="legal-footer" id="pgFooter" style="margin-top:20px;"></div>
 </div>
 
 <script>
 const UPDATES=[
-  {ver:'v5.6',badges:['new','fix'],latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
-    introTr:'Bir yandan kahve yudumlayıp bir yandan da sitede gezinirken karşınıza çıkabilecek pürüzleri düzeltmekle uğraştık — özellikle diğer dillerde takılan yazılarla. Küçük ama can sıkıcı şeyleri hallettik, işte detaylar:',
-    introEn:'Sipped some coffee, poked around the site, and fixed the little things that were bugging people — especially text that got stuck in the wrong language. Small stuff, but it adds up. Here\'s what changed:',
-    bulletsTr:[
-      '<strong>Çok dilli deneyim iyileştirildi:</strong> Güncellemeler, remux, playlist ve geçmiş gibi bölümlerdeki metinler artık İngilizce\'de de eksiksiz görünüyor.',
-      '<strong>Yeni diller yolda:</strong> Dil listesine Fransızca ve Almanca eklendi; şu an seçildiklerinde "yakında geliyor" uyarısı gösteriliyor.',
-      '<strong>Performans iyileştirmeleri:</strong> Arka plan animasyonları hem masaüstünde hem mobilde daha akıcı çalışacak şekilde yeniden ayarlandı.',
-      '<strong>Küçük hatalar giderildi.</strong>'
-    ],
-    bulletsEn:[
-      '<strong>Multilingual experience improved:</strong> Text across the updates, remux, playlist, and history sections now displays fully in English.',
-      '<strong>New languages on the way:</strong> French and German were added to the language list; selecting them currently shows a "coming soon" notice.',
-      '<strong>Performance improvements:</strong> Background animations were retuned to run more smoothly on both desktop and mobile.',
-      '<strong>Minor bug fixes.</strong>'
-    ]
-  },
-  {ver:'v5.5',badges:['new','fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
-    introTr:'Güneşli bir günde arka planı boyayan ressamlar gibi çalıştık; siteyi baştan aşağı uzay temasına büründürdük ve cam gibi yumuşak bir görünüm kattık. Kahveni al, otur, aşağıya bak neler değişmiş:',
-    introEn:'We spent a sunny afternoon repainting the background like it owed us money — full space theme, glassy smooth windows, the works. Grab a coffee and scroll down to see what changed:',
-    bulletsTr:[
-      '<strong>Yeni uzay temalı tasarım:</strong> Arka plan tamamen yenilendi; yıldızlar, yumuşak bulutsular ve hafif bir hareket efekti eklendi.',
-      '<strong>Sade siyah-gri palet:</strong> Renk şeması sadeleştirildi, gereksiz renk kirliliği kaldırıldı.',
-      '<strong>Cam efektli (glassmorphism) tasarım:</strong> Pencerelere yumuşak blur, ince kenarlık ve akıcı geçiş animasyonları eklendi.',
-      '<strong>Küçük etkileşim dokunuşları:</strong> Butonlara tıklama efekti ve masaüstünde imleç takibi eklendi.',
-      '<strong>Desteklenen platformlar penceresi yenilendi.</strong>',
-      '<strong>YouTube uyarı kutusu yenilendi.</strong>',
-      '<strong>Masaüstü ve mobil uyum iyileştirildi:</strong> Menüler ve pencereler artık her ekran boyutunda daha düzgün görünüyor.',
-      '<strong>Hakkında bölümü genişletildi.</strong>',
-      '<strong>Menü konumu düzeltildi.</strong>'
-    ],
-    bulletsEn:[
-      '<strong>New space-themed design:</strong> The background got a full overhaul with stars, soft clouds, and a gentle motion effect.',
-      '<strong>Cleaner black-and-gray palette:</strong> Simplified the color scheme and removed unnecessary color noise.',
-      '<strong>Glassmorphism design:</strong> Windows now have soft blur, thin borders, and smooth transition animations.',
-      '<strong>Small interaction touches:</strong> Added a tap effect on buttons and cursor-following hover on desktop.',
-      '<strong>Refreshed the supported-platforms window.</strong>',
-      '<strong>Redesigned the YouTube warning box.</strong>',
-      '<strong>Better desktop/mobile compatibility:</strong> Menus and windows now look right at every screen size.',
-      '<strong>Expanded the about section.</strong>',
-      '<strong>Fixed the menu position.</strong>'
-    ]
-  },
-  {ver:'v5.4',badges:['fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
-    introTr:'Sessiz sedasız arka planda birkaç cıvatayı sıkıştırdık — kimse fark etmese de biz farkındaydık. Renklere de biraz keyif kattık madem elimiz değmişken. Detaylar aşağıda:',
-    introEn:'Quietly tightened a few bolts behind the scenes — nobody would\'ve noticed, but we did. Threw in some fresh colors too, since we were already in there. Details below:',
-    bulletsTr:[
-      '<strong>Renkli tema seçenekleri:</strong> Mor, mavi, gri ve pembe gibi yeni vurgu renkleri eklendi.',
-      '<strong>Sessiz mod düzeltmesi:</strong> Sessiz indirmelerde format seçimiyle ilgili bir hata giderildi.',
-      '<strong>Dönüştürücü güvenilirliği artırıldı:</strong> Dosya dönüştürmede nadir görülen bir hata giderildi.',
-      '<strong>Hız iyileştirmesi:</strong> İndirme öncesi gereksiz bir adım kaldırılarak süreç hızlandırıldı.',
-      '<strong>Arka planda küçük kararlılık düzeltmeleri yapıldı.</strong>',
-      '<strong>Görsel ince ayarlar:</strong> Radar efekti, kademeli pencere geçişleri ve daha tutarlı tıklama geri bildirimi eklendi.'
-    ],
-    bulletsEn:[
-      '<strong>Color accent options:</strong> Added new accent colors — purple, blue, gray, and pink.',
-      '<strong>Mute mode fix:</strong> Fixed a format-selection bug affecting mute downloads.',
-      '<strong>Converter reliability improved:</strong> Fixed a rare bug in file conversion.',
-      '<strong>Faster downloads:</strong> Removed an unnecessary step before downloads to speed things up.',
-      '<strong>Small stability fixes behind the scenes.</strong>',
-      '<strong>Visual polish:</strong> Added a radar effect, staggered window transitions, and more consistent tap feedback.'
-    ]
-  },
-  {ver:'v5.3',badges:['fix','new'],latest:false,dateTr:'haziran 2026',dateEn:'June 2026',
-    bulletsTr:[
-      '<strong>Toplu indirme:</strong> Artık tek seferde birden fazla link ekleyip hepsini birden indirebilirsiniz.',
-      '<strong>YouTube güvenilirliği artırıldı:</strong> Bazı videolarda yaşanan erişim sorunları giderildi.',
-      '<strong>Arayüz iyileştirmeleri:</strong> Alt menüye hızlı erişim sekmeleri eklendi.'
-    ],
-    bulletsEn:[
-      '<strong>Bulk download:</strong> Add multiple links at once and download them all together.',
-      '<strong>YouTube reliability improved:</strong> Fixed access issues affecting some videos.',
-      '<strong>UI improvements:</strong> Added quick-access tabs to the bottom menu.'
-    ]
-  },
-  {ver:'v5.2',badges:['fix','new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>Dinamik Dil Desteği:</strong> Dil değiştirme sistemi iyileştirildi; metinler sayfayı yenilemeden anlık güncelleniyor.',
-      '<strong>Mobil Ayarlar Paneli:</strong> Kaydırmalı sekme tasarımı ile dar ekranlarda kullanım optimize edildi.',
-      '<strong>Görünüm Optimizasyonu:</strong> Açık tema renk paleti yenilendi; modallar ve okunabilirlik geliştirildi.',
-      '<strong>Hata Giderimleri:</strong> Audio ve Mute indirmelerindeki kesinti sorunları giderildi.'
-    ],
-    bulletsEn:[
-      '<strong>Dynamic language support:</strong> Improved the language-switching system; text updates instantly without a page reload.',
-      '<strong>Mobile settings panel:</strong> Optimized for narrow screens with a scrollable tab design.',
-      '<strong>Appearance optimization:</strong> Refreshed the light theme color palette; improved modals and readability.',
-      '<strong>Bug fixes:</strong> Fixed interruption issues in audio and mute downloads.'
-    ]
-  },
-  {ver:'v5.1',badges:['fix'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>Modern indirme penceresi:</strong> Daha şık, sade bir "nasıl kaydetmek istersin?" arayüzüne geçildi.',
-      '<strong>YouTube başarı oranı arttı:</strong> Video yakalama kararlılığı iyileştirildi.',
-      '<strong>Daha hızlı indirme:</strong> Arka plandaki işleyiş sadeleştirilerek hız kazandırıldı.'
-    ],
-    bulletsEn:[
-      '<strong>Modern download window:</strong> Switched to a sleeker, simpler "how would you like to save?" interface.',
-      '<strong>YouTube success rate improved:</strong> Better video-capture stability.',
-      '<strong>Faster downloads:</strong> Streamlined the underlying process for better speed.'
-    ]
-  },
-  {ver:'v5.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>PWA Desteği:</strong> Uygulamayı ana ekrana ekleyerek native bir deneyim yaşayabilirsiniz.',
-      '<strong>Yeni Araçlar:</strong> Dosya dönüştürücü ve QR kod ile telefona hızlı aktarım eklendi.',
-      '<strong>Metadata:</strong> Dosya adı formatını özelleştirme özelliği aktif edildi.'
-    ],
-    bulletsEn:[
-      '<strong>PWA support:</strong> Add the app to your home screen for a native-like experience.',
-      '<strong>New tools:</strong> Added a file converter and QR code for quick transfer to your phone.',
-      '<strong>Metadata:</strong> Enabled custom filename formatting.'
-    ]
-  },
-  {ver:'v4.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>Format Çeşitliliği:</strong> FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV desteği eklendi.',
-      '<strong>İleri Düzey Kodlama:</strong> AV1 + OPUS ve VP9 + OPUS desteğiyle 8K ve HDR video indirme aktif edildi.'
-    ],
-    bulletsEn:[
-      '<strong>Format variety:</strong> Added support for FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV.',
-      '<strong>Advanced encoding:</strong> Enabled 8K and HDR video downloads with AV1+OPUS and VP9+OPUS support.'
-    ]
-  }
+{ver:'v6.1',latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
+  titleTr:'artık linki panonuzdan okuyoruz, siz istemeden bir şey yapmadan',
+  titleEn:'we now peek at your clipboard, but only when you say so',
+  introTr:[
+    'İtiraf edelim: bazen bir video linkini kopyalayıp siteye gelip "şimdi nereye yapıştıracaktım" diye bir saniye duraksadığımız oluyor. Sizin de başınıza geliyorsa artık bir çözümümüz var.',
+    'Ayrıca desteklenen platformlar penceresindeki o küçük uyarı yazısını da az önce fark ettik — çok soluk kalmış, neredeyse görünmez gibiydi. Onu da gün yüzüne çıkardık.'
+  ],
+  introEn:[
+    'Let\'s be honest: sometimes you copy a video link, land on the site, and pause for a second wondering "wait, where do I paste this again?" If that sounds familiar, we\'ve got you covered now.',
+    'Also, we just noticed that little disclaimer text in the supported-platforms window was basically invisible — so faint it might as well have been in witness protection. Brought it back out into the light.'
+  ],
+  sections:[
+    {hTr:'panoyu otomatik algılama',hEn:'clipboard auto-detection',
+     pTr:'Siteye döndüğünüzde panonuzda bir video linki varsa, üstte küçük ve kapatılabilir bir öneri çubuğu beliriyor: "panonda bir link var, yapıştırmak ister misin?" Tıklarsanız link otomatik yapıştırılıp indirme başlıyor, isterseniz görmezden gelip çarpıya basabilirsiniz. Hiçbir şey sizin onayınız olmadan otomatik olarak indirilmiyor — sadece bir hatırlatma, bir seçenek. Bir kez kapattığınız link, o oturumda bir daha sormuyor.',
+     pEn:'When you come back to the tab and there\'s a video link sitting in your clipboard, a small, dismissable hint pops up: "found a link in your clipboard — want to paste it?" Tap it and the link fills in and downloads right away, or just tap the X and ignore it entirely. Nothing downloads automatically without your say-so — it\'s just a nudge, not a decision made for you. Once you dismiss a link, it won\'t ask about that same one again this session.'},
+    {hTr:'desteklenen platformlar uyarısı artık görünür',hEn:'the supported-platforms notice is actually visible now',
+     pTr:'"bir platformu desteklemek, teknik uyumluluk dışında ilişki anlamına gelmez" yazısı zaten oradaydı, ama o kadar soluktu ki muhtemelen fark etmemişsinizdir. Şimdi biraz daha belirgin, küçük bir simgeyle birlikte duruyor — artık gerçekten okunabiliyor.',
+     pEn:'The "supporting a service does not imply affiliation beyond technical compatibility" note was already there, it was just so faint you probably never noticed it. It now stands out a bit more, with a small icon next to it — actually readable this time.'}
+  ],
+  outroTr:'Küçük ama can alıcı iki düzeltme — hayatınızı biraz kolaylaştırsın diye.',
+  outroEn:'Two small but meaningful fixes — here to make your life a little easier.'
+},
+{ver:'v6.0',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+  titleTr:'artık her şey dört dilde, telefon da eskisinden hafif',
+  titleEn:'now fully in four languages, and lighter on your phone',
+  introTr:[
+    'Bir önceki sürümde "Fransızca ve Almanca yakında geliyor" demiştik, sözümüzü tuttuk. Bu sefer sadece birkaç buton değil, sitenin her köşesini — güncellemeler, ayarlar, tema isimleri, ne varsa — dört dilde de eksiksiz hale getirdik.',
+    'Bir de telefonu olan herkes için küçük bir hediyemiz var: arka plandaki animasyonları biraz daha hafiflettik, artık pil ve ısınma konusunda daha cömert davranıyor.'
+  ],
+  introEn:[
+    'Last time we said "French and German are coming soon" — we kept that promise. This round it is not just a few buttons; every corner of the site, from updates to settings to theme names, is now fully translated across all four languages.',
+    'Also a small gift for everyone on a phone: we lightened the background animations a bit further, so it is easier on your battery and a lot less warm in your hand.'
+  ],
+  sections:[
+    {hTr:'fransızca ve almanca artık tam destekli',hEn:'french and german now fully supported',
+     pTr:'Dil listesine geçen sürümde eklediğimiz Fransızca ve Almanca artık "yakında geliyor" uyarısı göstermiyor — tüm arayüz, güncelleme sayfaları ve tema isimleri dahil olmak üzere baştan sona bu dillerde de eksiksiz çalışıyor.',
+     pEn:'French and German, which we added to the language list last time, no longer show a "coming soon" notice — the entire interface, including the updates pages and theme names, now works fully in these languages too.'},
+    {hTr:'tema renk isimleri düzeltildi',hEn:'theme color names fixed',
+     pTr:'"neon mor", "pembe" gibi renk teması isimleri daha önce hangi dili seçerseniz seçin Türkçe kalıyordu. Artık her dilde kendi karşılığıyla görünüyorlar.',
+     pEn:'Theme color names like "neon purple" and "pink" used to stay in Turkish no matter which language you picked. They now show up properly translated in every language.'},
+    {hTr:'mobilde daha hafif',hEn:'lighter on mobile',
+     pTr:'Arka plandaki yıldız ve parçacık sayısını telefonlarda daha da azalttık, kare hızını biraz daha kıstık. Gözle görülür bir fark yaratmadan pil ve ısınma tarafında rahatlama sağlıyor.',
+     pEn:'Reduced the number of background stars and particles even further on phones, and trimmed the frame rate a bit more. It is a difference you will feel in battery life and heat, not one you will notice visually.'},
+    {hTr:'sadeleşen ana sayfa',hEn:'a cleaner home page',
+     pTr:'Ana sayfanın altındaki sıkça sorulan sorular bölümünü kaldırdık — sayfa artık daha kısa, daha odaklı ve daha hızlı yükleniyor.',
+     pEn:'Removed the FAQ section from the bottom of the home page — the page is now shorter, more focused, and loads a little faster.'}
+  ],
+  outroTr:'Kısacası: dil artık gerçek anlamda bir engel değil, telefon da eskisi kadar ısınmıyor.',
+  outroEn:'In short: language is no longer a real barrier, and your phone will not get as warm as before.'
+},
+{ver:'v5.6',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+  titleTr:'küçük pürüzler, büyük rahatlık',
+  titleEn:'small rough edges, a lot more comfort',
+  introTr:[
+    'Bir yandan kahve yudumlayıp bir yandan da siteyi baştan aşağı gezdik — özellikle diğer dillerde takılıp kalan, yanlış yerde İngilizce ya da Türkçe çıkan metinleri tek tek avladık. Sıkıcı ama gerekli bir iş, birinin yapması lazımdı.',
+    'İşte bu sürümde arka planda uğraştığımız şeyler ve önümüzdeki dönemde gelecek diller hakkında küçük bir müjde.'
+  ],
+  introEn:[
+    'Spent a good chunk of time sipping coffee and poking through every corner of the site — hunting down text that got stuck in the wrong language, one stubborn string at a time. Not glamorous work, but somebody had to do it.',
+    'Here is what we tidied up this round, plus a small heads-up about languages that are on the way.'
+  ],
+  sections:[
+    {hTr:'çok dilli deneyim iyileştirildi',hEn:'multilingual experience improved',
+     pTr:'Güncellemeler, remux, playlist ve geçmiş gibi bölümlerdeki metinler artık seçtiğiniz dilde eksiksiz görünüyor. Daha önce bazı köşelerde unutulmuş İngilizce ya da Türkçe metinler kalıyordu, onları temizledik.',
+     pEn:'Text across the updates, remux, playlist, and history sections now displays fully and consistently in the language you have picked. A few corners used to quietly fall back to English or Turkish — those are cleaned up now.'},
+    {hTr:'yeni diller yolda',hEn:'new languages on the way',
+     pTr:'Dil listesine Fransızca ve Almanca eklendi. Şu an için seçtiğinizde küçük bir "yakında geliyor" uyarısı göreceksiniz — çevirileri özenle hazırlıyoruz, yakında tam destekle geliyor olacaklar.',
+     pEn:'French and German have been added to the language list. Selecting them right now shows a small "coming soon" notice — we are carefully working through the translations and full support is on its way.'},
+    {hTr:'performans iyileştirmeleri',hEn:'performance improvements',
+     pTr:'Arka plan animasyonları hem masaüstünde hem mobilde daha akıcı çalışacak şekilde yeniden ayarlandı. Özellikle daha eski telefonlarda fark edilir bir rahatlama olacak.',
+     pEn:'Background animations were retuned to run more smoothly on both desktop and mobile — you should notice a real difference on older phones especially.'},
+    {hTr:'küçük hatalar',hEn:'minor bug fixes',
+     pTr:'Yol boyunca karşımıza çıkan birkaç küçük hatayı da giderdik. Hiçbiri büyük bir dram değildi ama hepsi tek tek düzeltilmeyi hak ediyordu.',
+     pEn:'A handful of small bugs got squashed along the way too. None of them were dramatic, but each one deserved to be fixed.'}
+  ],
+  outroTr:'Uzun lafın kısası: bu sürüm gösterişli değil, ama kullanırken hissedeceğiniz türden bir güncelleme.',
+  outroEn:'Long story short: this update is not flashy, but it is the kind you will feel while actually using the site.'
+},
+{ver:'v5.5',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+  titleTr:'uzay temalı yeni yüz, cam gibi pencereler',
+  titleEn:'a new space-themed face, windows made of glass',
+  introTr:[
+    'Güneşli bir günde arka planı yeniden boyayan ressamlar gibi çalıştık. Siteyi baştan aşağı elden geçirdik; artık ekranınızda yıldızlar süzülüyor, bulutsular yumuşakça geziniyor.',
+    'Kahveni al, rahat bir yere otur, aşağıda neler değiştiğine bir bak — bu sürümde görsel tarafa gerçekten çok emek verdik.'
+  ],
+  introEn:[
+    'We spent a sunny stretch repainting the background like a couple of overly dedicated artists. The whole site got a visual overhaul — stars drifting quietly, soft nebulae in the distance.',
+    'Grab a coffee, get comfortable, and take a look at what changed below — we put a lot of care into the visuals this time.'
+  ],
+  sections:[
+    {hTr:'yeni uzay temalı tasarım',hEn:'new space-themed design',
+     pTr:'Arka plan tamamen yenilendi: yıldızlar, yumuşak bulutsular ve hafif bir hareket efekti eklendi. Artık sitede gezinmek biraz daha keyifli, biraz daha ferah hissettiriyor.',
+     pEn:'The background got a complete overhaul with stars, soft clouds, and a gentle motion effect. Browsing the site now feels a little more alive, a little more spacious.'},
+    {hTr:'sade siyah-gri palet',hEn:'cleaner black-and-gray palette',
+     pTr:'Renk şemasını sadeleştirdik ve gereksiz renk kirliliğini kaldırdık. Göz artık nereye bakması gerektiğini daha kolay buluyor.',
+     pEn:'We simplified the color scheme and removed unnecessary color noise. Your eyes now find what they are looking for a lot faster.'},
+    {hTr:'cam efektli tasarım',hEn:'glassmorphism design',
+     pTr:'Pencerelere yumuşak blur, ince kenarlık ve akıcı geçiş animasyonları eklendi. Modallar artık havada asılı duran ince bir cam parçası gibi görünüyor.',
+     pEn:'Windows now have a soft blur, thin borders, and smooth transition animations. Modals feel like thin panes of glass floating in front of the page.'},
+    {hTr:'küçük etkileşim dokunuşları',hEn:'small interaction touches',
+     pTr:'Butonlara tıklama efekti ve masaüstünde imleç takibi eklendi — küçük ama fark edilen detaylar.',
+     pEn:'Added a tap effect on buttons and cursor-following hover on desktop — small details, but ones you will notice.'},
+    {hTr:'genel arayüz iyileştirmeleri',hEn:'general interface improvements',
+     pTr:'Desteklenen platformlar penceresi ve YouTube uyarı kutusu yeniden tasarlandı, masaüstü ve mobil uyumu iyileştirildi, hakkında bölümü genişletildi ve menü konumundaki küçük bir yerleşim hatası düzeltildi.',
+     pEn:'Refreshed the supported-platforms window and the YouTube warning box, improved desktop and mobile compatibility, expanded the about section, and fixed a small menu-positioning bug.'}
+  ],
+  outroTr:'Kısacası: aynı hızlı araç, ama artık gökyüzüne bakar gibi kullanıyorsunuz.',
+  outroEn:'In short: same fast tool, but now it feels like you are looking up at the sky while using it.'
+},
+{ver:'v5.4',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+  titleTr:'sessizce sıkılan birkaç cıvata',
+  titleEn:'a few bolts quietly tightened',
+  introTr:[
+    'Bu sefer gösterişli bir şey duyurmuyoruz. Arka planda birkaç cıvatayı sıkıştırdık, kimse fark etmese de biz farkındaydık.',
+    'Madem elimiz değmişken, renklere de biraz keyif kattık. İşte kısa ve öz bir sürüm.'
+  ],
+  introEn:[
+    'No big announcement this time. We quietly tightened a few bolts behind the scenes — nobody would have noticed, but we did.',
+    'Since we were already in there, we threw in some fresh colors too. Here is a short and sweet one.'
+  ],
+  sections:[
+    {hTr:'renkli tema seçenekleri',hEn:'color accent options',
+     pTr:'Mor, mavi, gri ve pembe gibi yeni vurgu renkleri eklendi — sitenin havasını kendi zevkinize göre biraz değiştirebilirsiniz.',
+     pEn:'Added new accent colors — purple, blue, gray, and pink — so you can give the site a bit of your own personality.'},
+    {hTr:'sessiz mod düzeltmesi',hEn:'mute mode fix',
+     pTr:'Sessiz indirmelerde format seçimiyle ilgili can sıkıcı bir hata vardı, onu giderdik.',
+     pEn:'Fixed an annoying format-selection bug that was affecting mute downloads.'},
+    {hTr:'dönüştürücü ve hız iyileştirmeleri',hEn:'converter and speed improvements',
+     pTr:'Dosya dönüştürmede nadir görülen bir hatayı giderdik ve indirme öncesindeki gereksiz bir adımı kaldırarak süreci hızlandırdık. Arka planda birkaç küçük kararlılık düzeltmesi de yaptık.',
+     pEn:'Fixed a rare bug in file conversion and removed an unnecessary step before downloads to speed things up. Also made a few small stability fixes behind the scenes.'},
+    {hTr:'görsel ince ayarlar',hEn:'visual polish',
+     pTr:'Radar efekti, kademeli pencere geçişleri ve daha tutarlı tıklama geri bildirimi eklendi.',
+     pEn:'Added a radar effect, staggered window transitions, and more consistent tap feedback.'}
+  ],
+  outroTr:'Küçük ama sağlam bir bakım sürümü — bir dahakine görüşürüz.',
+  outroEn:'A small but solid maintenance update — see you in the next one.'
+},
+{ver:'v5.3',latest:false,dateTr:'haziran 2026',dateEn:'June 2026',
+  titleTr:'artık tek tek link yapıştırmak yok',
+  titleEn:'no more pasting links one by one',
+  introTr:[
+    'Herkesin en çok istediği şeylerden biri sonunda geldi: tek tek link yapıştırıp beklemekten sizi kurtardık.',
+    'Ayrıca YouTube ile aramızda çıkan birkaç ufak tefek küslüğü de barıştırdık. İşte detaylar.'
+  ],
+  introEn:[
+    'One of the most-requested things finally landed: no more pasting one link at a time and waiting around.',
+    'We also patched things up with YouTube after a bit of a rough patch. Here is the rundown.'
+  ],
+  sections:[
+    {hTr:'toplu indirme',hEn:'bulk download',
+     pTr:'Artık tek seferde birden fazla link ekleyip hepsini birden indirebilirsiniz. Playlist harici, elinizdeki dağınık link listesi için de tam olarak bunu bekliyordunuz.',
+     pEn:'You can now add multiple links at once and download them all together. Beyond playlists, this is exactly what you needed for that messy list of links you had lying around.'},
+    {hTr:'youtube güvenilirliği artırıldı',hEn:'youtube reliability improved',
+     pTr:'Bazı videolarda yaşanan erişim sorunlarını giderdik — artık daha tutarlı bir şekilde çalışıyor.',
+     pEn:'Fixed access issues that were affecting some videos — things work more consistently now.'},
+    {hTr:'arayüz iyileştirmeleri',hEn:'interface improvements',
+     pTr:'Alt menüye hızlı erişim sekmeleri eklendi, sık kullandığınız yerlere artık daha az tıklamayla ulaşıyorsunuz.',
+     pEn:'Added quick-access tabs to the bottom menu, so the places you use most are now just a tap away.'}
+  ],
+  outroTr:'Bu sürüm gerçekten iş akışınızı hızlandıracak türden — umarız keyifle kullanırsınız.',
+  outroEn:'This one genuinely speeds up your workflow — hope you enjoy it.'
+},
+{ver:'v5.2',latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+  titleTr:'telefonda ayarlarla boğuşmaya son',
+  titleEn:'no more wrestling with settings on your phone',
+  introTr:[
+    'Dar bir telefon ekranında ayarlar menüsüyle boğuşan herkes için bu sürüm size özel — artık her şey parmağınızın altında akıcı bir şekilde kayıyor.',
+    'Açık tema da biraz makyaj yaptırdı, madem elimiz değmişken.'
+  ],
+  introEn:[
+    'This one is for everyone who has ever wrestled with a settings menu on a tiny phone screen — everything now glides smoothly under your thumb.',
+    'Light theme also got a bit of a makeover while we were at it.'
+  ],
+  sections:[
+    {hTr:'dinamik dil desteği',hEn:'dynamic language support',
+     pTr:'Dil değiştirme sistemini iyileştirdik; metinler artık sayfayı yenilemeden anında güncelleniyor.',
+     pEn:'Improved the language-switching system; text now updates instantly without needing a page reload.'},
+    {hTr:'mobil ayarlar paneli',hEn:'mobile settings panel',
+     pTr:'Kaydırmalı sekme tasarımıyla dar ekranlarda kullanım optimize edildi — artık her şeye rahatça ulaşabiliyorsunuz.',
+     pEn:'Optimized for narrow screens with a scrollable tab design — everything is now within easy reach.'},
+    {hTr:'görünüm ve hata düzeltmeleri',hEn:'appearance and bug fixes',
+     pTr:'Açık tema renk paleti yenilendi, modallar ve okunabilirlik geliştirildi. Ayrıca audio ve mute indirmelerinde yaşanan kesinti sorunları giderildi.',
+     pEn:'Refreshed the light theme color palette and improved modals and readability. Also fixed interruption issues affecting audio and mute downloads.'}
+  ],
+  outroTr:'Mobilde yaşadığınız o küçük can sıkıntıları artık geçmişte kaldı.',
+  outroEn:'Those small mobile annoyances are now a thing of the past.'
+},
+{ver:'v5.1',latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+  titleTr:'indirme penceresi yeni kıyafetini giydi',
+  titleEn:'the download window got a new outfit',
+  introTr:[
+    'İndirme penceresine yeni bir kıyafet giydirdik — daha şık, daha sade. Bir de YouTube ile aramızı biraz daha düzelttik.',
+    'Kısa ve öz bir sürüm, uzatmayalım.'
+  ],
+  introEn:[
+    'Gave the download window a fresh outfit — sleeker, simpler. Also smoothed things out a bit more with YouTube.',
+    'Short and sweet update, let us not drag it out.'
+  ],
+  sections:[
+    {hTr:'modern indirme penceresi',hEn:'modern download window',
+     pTr:'Daha şık, sade bir "nasıl kaydetmek istersin?" arayüzüne geçtik. Artık seçim yapmak daha az tıklama, daha az kafa karışıklığı demek.',
+     pEn:'Switched to a sleeker, simpler "how would you like to save?" interface. Making a choice now takes fewer clicks and less head-scratching.'},
+    {hTr:'youtube başarı oranı arttı',hEn:'youtube success rate improved',
+     pTr:'Video yakalama kararlılığını iyileştirdik — başarısız denemeler eskisinden daha az yaşanıyor.',
+     pEn:'Improved video-capture stability — failed attempts happen a lot less than before.'},
+    {hTr:'daha hızlı indirme',hEn:'faster downloads',
+     pTr:'Arka plandaki işleyişi sadeleştirerek genel hızı artırdık.',
+     pEn:'Streamlined the underlying process for better overall speed.'}
+  ],
+  outroTr:'Küçük ama etkisini hemen hissedeceğiniz bir güncelleme.',
+  outroEn:'Small update, but you will feel the difference right away.'
+},
+{ver:'v5.0',latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+  titleTr:'artık cebinizde gerçek bir uygulama gibi',
+  titleEn:'now it lives on your phone like a real app',
+  introTr:[
+    'Bu sefer büyük bir adım attık: siteyi telefonunuzun ana ekranına ekleyip gerçek bir uygulama gibi kullanabilirsiniz.',
+    'Birkaç yeni araç da cebimizden çıktı, hadi bakalım neler var.'
+  ],
+  introEn:[
+    'Took a bigger step this time: you can now add the site to your phone\'s home screen and use it like a real app.',
+    'Pulled a couple of new tools out of our sleeve too — let us take a look.'
+  ],
+  sections:[
+    {hTr:'pwa desteği',hEn:'pwa support',
+     pTr:'Uygulamayı ana ekrana ekleyerek native bir deneyim yaşayabilirsiniz — tarayıcı çubuğu yok, tam ekran, gerçek bir uygulama hissi.',
+     pEn:'Add the app to your home screen for a native-like experience — no browser bar, full screen, feels like a real app.'},
+    {hTr:'yeni araçlar',hEn:'new tools',
+     pTr:'Bir dosya dönüştürücü ve telefona hızlı aktarım için bir QR kod ekledik. Bilgisayarda indirdiğiniz bir dosyayı telefonunuza saniyeler içinde aktarabilirsiniz.',
+     pEn:'Added a file converter and a QR code for quick transfers to your phone. A file you downloaded on your computer can now land on your phone in seconds.'},
+    {hTr:'metadata',hEn:'metadata',
+     pTr:'Dosya adı formatını özelleştirme özelliğini aktif ettik — dosyalarınızı kendi düzeninize göre adlandırabilirsiniz.',
+     pEn:'Enabled custom filename formatting — name your files however makes sense to you.'}
+  ],
+  outroTr:'Artık ZenithW cebinizde, tek dokunuş uzağınızda.',
+  outroEn:'ZenithW is now in your pocket, just one tap away.'
+},
+{ver:'v4.0',latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+  titleTr:'format konusunda cimriliği bıraktık',
+  titleEn:'we stopped being stingy about formats',
+  introTr:[
+    'Format konusunda cimrilik yapmaktan vazgeçtik ve kapıları ardına kadar açtık.',
+    'Kaliteden asla ödün vermeyenler için de güzel bir sürpriz var. Detaylara bakalım.'
+  ],
+  introEn:[
+    'We stopped being stingy about formats and threw the doors wide open.',
+    'There is also a nice surprise for anyone who refuses to compromise on quality. Let us get into it.'
+  ],
+  sections:[
+    {hTr:'format çeşitliliği',hEn:'format variety',
+     pTr:'FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV desteği eklendi — hangi programı kullanıyor olursanız olun artık uyumlu bir format bulabilirsiniz.',
+     pEn:'Added support for FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV — whatever software you use, there is now a format that fits.'},
+    {hTr:'ileri düzey kodlama',hEn:'advanced encoding',
+     pTr:'AV1 + OPUS ve VP9 + OPUS desteğiyle 8K ve HDR video indirmeyi aktif ettik. Kaliteden asla ödün vermek istemeyenler için tam bize göre bir güncelleme.',
+     pEn:'Enabled 8K and HDR video downloads with AV1+OPUS and VP9+OPUS support. For anyone who refuses to compromise on quality, this one is for you.'}
+  ],
+  outroTr:'Artık format seçimi konusunda elleriniz çok daha serbest.',
+  outroEn:'You have got a lot more freedom when it comes to picking a format now.'
+}
 ];
 
 const TX={
   tr:{title:'Güncellemeler — ZenithW',desc:'ZenithW sürüm geçmişi ve güncelleme notları — yeni özellikler, hata düzeltmeleri ve iyileştirmeler.',
-    h1:'Güncellemeler',sub:'ZenithW\'nin sürüm geçmişi ve yayınlanan tüm değişiklikler.',back:'← ana sayfa',latestLabel:'GÜNCEL',
-    footer:'<a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/terms.html">kullanım koşulları</a>·<a href="/dmca.html">telif bildirimi</a>'},
+    back:'← ana sayfa',latestLabel:'GÜNCEL',signoff:'~ ZenithW ekibi 🤍'},
   en:{title:'Updates — ZenithW',desc:'ZenithW release history and changelog — new features, bug fixes, and improvements.',
-    h1:'Updates',sub:'ZenithW\'s release history and everything that\'s shipped so far.',back:'← home',latestLabel:'LATEST',
-    footer:'<a href="/">home</a>·<a href="/privacy.html">privacy</a>·<a href="/terms.html">terms of service</a>·<a href="/dmca.html">copyright notice</a>'}
+    back:'← home',latestLabel:'LATEST',signoff:'~ the ZenithW team 🤍'}
 };
 
 let CUR_LANG='tr';
 
-function jumpTo(ver,ev){
-  if(ev)ev.stopPropagation();
+function jumpTo(ver){
   history.pushState(null,'','#'+ver);
-  renderUpdates();
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function renderUpdates(){
+function findIndex(ver){return UPDATES.findIndex(u=>u.ver===ver);}
+
+function render(){
   const t=TX[CUR_LANG];
-  const targetHash=decodeURIComponent((location.hash||'').replace('#',''));
-  const container=document.getElementById('updEntries');
-  container.innerHTML=UPDATES.map((u,i)=>{
-    const badgesHtml=u.badges.map(b=>`<span class="badge badge-${b}">${b}</span>`).join('');
-    const date=CUR_LANG==='tr'?u.dateTr:u.dateEn;
-    const bullets=CUR_LANG==='tr'?u.bulletsTr:u.bulletsEn;
-    const items=bullets.map(b=>`<li>${b}</li>`).join('');
-    const id=u.ver;
-    const isTarget=(targetHash===id);
-    const openCls=(u.latest||isTarget)?' open':'';
-    const latestCls=u.latest?' latest':'';
-    const hlCls=isTarget?' highlight':'';
-    const latestBadge=u.latest?`<span class="badge" style="background:var(--accent,#3bba64);color:#fff;border:none;">${t.latestLabel}</span>`:'';
-    // UPDATES en yeniden en eskiye sıralı: bir önceki eleman (i-1) daha yeni, bir sonraki (i+1) daha eski.
-    const newer=UPDATES[i-1], older=UPDATES[i+1];
-    const navHtml=(newer||older)?`<div class="upd-nav-row">
-        ${newer?`<span class="upd-nav-link" onclick="jumpTo('${newer.ver}',event)">← ${newer.ver}</span>`:'<span></span>'}
-        ${older?`<span class="upd-nav-link" onclick="jumpTo('${older.ver}',event)">${older.ver} →</span>`:'<span></span>'}
-      </div>`:'';
-    return `<div class="upd-entry${latestCls}${hlCls} upd-accordion${openCls}" id="${id}" onclick="toggleAccordion(this)">
-      <div class="upd-accordion-header">
-        <div class="upd-ver-row"><span class="upd-ver">${u.ver}</span>${latestBadge}${badgesHtml}<span class="upd-date">${date}</span></div>
-        <span class="upd-accordion-icon">▼</span>
-      </div>
-      <div class="upd-accordion-content"><ul class="upd-list-simple">${items}</ul>${navHtml}</div>
-    </div>`;
-  }).join('');
-  if(targetHash){
-    const el=document.getElementById(targetHash);
-    if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),80);
-  }
-}
+  const hash=decodeURIComponent((location.hash||'').replace('#',''));
+  let idx=findIndex(hash);
+  if(idx===-1)idx=0;
+  const u=UPDATES[idx];
 
-function toggleAccordion(el){el.classList.toggle('open');}
+  document.getElementById('updBadge').textContent=u.ver;
+  document.getElementById('updBadge').classList.toggle('is-latest',!!u.latest);
+  document.getElementById('updDate').textContent=CUR_LANG==='tr'?u.dateTr:u.dateEn;
+  document.getElementById('updPostTitle').textContent=CUR_LANG==='tr'?u.titleTr:u.titleEn;
+
+  const intro=CUR_LANG==='tr'?u.introTr:u.introEn;
+  document.getElementById('updIntro').innerHTML=intro.map(p=>`<p>${p}</p>`).join('');
+
+  document.getElementById('updSections').innerHTML=u.sections.map(s=>`
+    <div class="upd-section">
+      <h2>${CUR_LANG==='tr'?s.hTr:s.hEn}</h2>
+      <p>${CUR_LANG==='tr'?s.pTr:s.pEn}</p>
+    </div>`).join('');
+
+  document.getElementById('updOutro').textContent=CUR_LANG==='tr'?u.outroTr:u.outroEn;
+  document.getElementById('updSignoff').textContent=t.signoff;
+
+  const picker=document.getElementById('verPicker');
+  picker.innerHTML=UPDATES.map(x=>`<option value="${x.ver}"${x.ver===u.ver?' selected':''}>${x.ver}${x.latest?' · '+t.latestLabel:''}</option>`).join('');
+
+  const newer=UPDATES[idx-1], older=UPDATES[idx+1];
+  let nav='';
+  if(newer)nav+=`<div class="upd-nav-link" onclick="jumpTo('${newer.ver}')"><span class="upd-nav-label">${CUR_LANG==='tr'?'yeni sürüm':'newer'}</span>← ${newer.ver}</div>`;
+  else nav+=`<div></div>`;
+  if(older)nav+=`<div class="upd-nav-link next" onclick="jumpTo('${older.ver}')"><span class="upd-nav-label">${CUR_LANG==='tr'?'eski sürüm':'older'}</span>${older.ver} →</div>`;
+  else nav+=`<div></div>`;
+  document.getElementById('updNavRow').innerHTML=nav;
+
+  document.title=`${u.ver} — ${CUR_LANG==='tr'?u.titleTr:u.titleEn} — ZenithW`;
+}
 
 function setLegalLang(l){
   const t=TX[l]||TX.en;
@@ -229,17 +396,14 @@ function setLegalLang(l){
   document.documentElement.lang=CUR_LANG;
   document.getElementById('pgTitle').textContent=t.title;
   document.getElementById('pgDesc').setAttribute('content',t.desc);
-  document.getElementById('pgH1').textContent=t.h1;
-  document.getElementById('pgSub').textContent=t.sub;
   document.getElementById('pgBack').textContent=t.back;
-  document.getElementById('pgFooter').innerHTML=t.footer;
   document.querySelectorAll('#legalLangToggle button').forEach(b=>b.classList.toggle('active',b.dataset.lang===CUR_LANG));
   try{localStorage.setItem('zw_lang',CUR_LANG);}catch(e){}
-  renderUpdates();
+  render();
 }
 
-window.addEventListener('popstate',renderUpdates);
-window.addEventListener('hashchange',renderUpdates);
+window.addEventListener('popstate',render);
+window.addEventListener('hashchange',render);
 
 (function(){
   let saved='tr';
