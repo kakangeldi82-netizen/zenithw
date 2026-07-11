@@ -1,0 +1,8 @@
+flask
+flask-cors
+flask-socketio
+gevent
+gevent-websocket
+gunicorn
+requests
+yt-dlp @ git+https://github.com/yt-dlp/yt-dlp.git

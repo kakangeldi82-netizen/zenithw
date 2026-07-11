@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZenithW — Pornhub Downloader | Better Than Cobalt.tools, SaveFrom, Y2mate</title>
+<meta name="description" content="ZenithW — better than cobalt.tools, better than savefrom, better than y2mate. Pornhub downloader ve YouTube, TikTok, İnstagram, X/Twitter için ücretsiz, reklamsız, filigransız video indirici.">
+<meta name="keywords" content="pornhub downloader, better than cobalt.tools, better than savefrom, better than y2mate, cobalt.tools alternative, savefrom alternative, y2mate alternative, video downloader, pornhub video indir, youtube video indir, tiktok video indir, instagram video indir, twitter video indir, ücretsiz video indirici">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://zenithw.space/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ZenithW — Pornhub Video Downloader ve Çoklu Platform Video İndirici">
+<meta property="og:description" content="Pornhub, YouTube, TikTok, İnstagram ve daha fazlasından ücretsiz video indir. Cobalt.tools ve SaveFrom'dan daha hızlı, reklamsız.">
+<meta property="og:url" content="https://zenithw.space/">
+<meta property="og:site_name" content="ZenithW">
+<meta property="og:locale" content="tr_TR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ZenithW — Pornhub Video Downloader ve Çoklu Platform Video İndirici">
+<meta name="twitter:description" content="Pornhub, YouTube, TikTok, İnstagram ve daha fazlasından ücretsiz, reklamsız video indir.">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zenith the goat">
+<link rel="manifest" id="pwa-manifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ZenithW",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any (Web-based)",
+  "url": "https://zenithw.space/",
+  "description": "Pornhub, YouTube, TikTok, İnstagram, X/Twitter, Reddit, Pinterest, SoundCloud ve daha fazla platformdan ücretsiz video ve ses indirme aracı.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Pornhub video indirme",
+    "YouTube video ve ses indirme",
+    "TikTok filigransız video indirme",
+    "İnstagram video/reels indirme",
+    "Toplu (bulk) link indirme",
+    "Format dönüştürme"
+  ]
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="space-canvas"></canvas>
+<div class="space-vignette"></div>
+<div class="page">
+  <div class="services-chip-wrap">
+    <div class="services-chip" id="servicesChip" onclick="toggleServices()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      <span id="servicesChipTxt">desteklenen servisler</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+  <div class="overlay tone-cool" id="servicesOverlay" onclick="handleOverlay(event,'servicesOverlay')">
+    <div class="modal-sheet services-modal">
+      <span class="handle"></span>
+      <div class="modal-header">
+        <div class="modal-title" id="servicesTitleTxt">desteklenen platformlar</div>
+        <button class="dl-close" onclick="closeOverlay('servicesOverlay')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="services-tags">
+          <span class="services-tag">youtube</span><span class="services-tag">tiktok</span><span class="services-tag">instagram</span><span class="services-tag">twitter / x</span><span class="services-tag">twitch clips</span><span class="services-tag">reddit</span><span class="services-tag">pinterest</span><span class="services-tag">soundcloud</span><span class="services-tag">facebook</span><span class="services-tag">snapchat</span><span class="services-tag">vimeo</span><span class="services-tag">dailymotion</span><span class="services-tag">bilibili</span><span class="services-tag">bluesky</span><span class="services-tag">tumblr</span><span class="services-tag">streamable</span><span class="services-tag">rutube</span><span class="services-tag">ok.ru</span><span class="services-tag">vk</span><span class="services-tag">loom</span><span class="services-tag">pornhub</span><span class="services-tag">xvideos</span>
+        </div>
+        <div class="services-note" id="servicesNoteTxt">bir platformu desteklemek, teknik uyumluluk dışında ilişki anlamına gelmez. tüm sorumluluk kullanıcıdadır.</div>
+      </div>
+    </div>
+  </div>
+  <div class="logo-wrap" onclick="scrollToTop()"><h1 class="logo-name" style="font-size:30px;font-weight:700;letter-spacing:-1.5px;">ZenithW<span>.</span></h1></div>
+  <div class="url-form">
+    <div class="url-field">
+      <div class="radar-pulse-wrap"><div class="radar-ring" id="radarRing"></div></div>
+      <div class="url-spinner-wrap" id="urlSpinWrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3)"><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <input class="url-input" id="urlInput" data-i18n-ph="placeholder" type="url" placeholder="bir video linki yapıştır…" autocomplete="off" spellcheck="false" oninput="onInput()"/>
+      <textarea class="url-textarea" id="urlTextarea" data-i18n-ph="bulkPlaceholder" placeholder="linkleri her satıra bir tane olacak şekilde yapıştır... (Enter ile indir, Shift+Enter ile yeni satır)"></textarea>
+      <button class="url-clear" id="urlClear" onclick="clearUrl()">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+      </button>
+      <button class="url-go-btn" onclick="fetchVideo()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="mode-row">
+      <button class="bulk-toggle" id="bulkToggle" onclick="toggleBulkMode()">toplu</button>
+      <button class="mode-btn active" id="modeAuto" onclick="setMode('auto')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span id="modeAutoTxt">auto</span>
+      </button>
+      <button class="mode-btn" id="modeAudio" onclick="setMode('audio')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span id="modeAudioTxt">audio</span>
+      </button>
+      <button class="mode-btn" id="modeMute" onclick="setMode('mute')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        <span id="modeMuteTxt">sessiz</span>
+      </button>
+      <div class="mode-spacer"></div>
+      <button class="btn-paste" onclick="pasteAndFetch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        <span id="pasteTxt">yapıştır</span>
+      </button>
+    </div>
+    <div class="yt-warn" id="ytWarn">youtube desteği beta — IP kısıtlamaları nedeniyle hata verebilir.</div>
+    <div class="video-card" id="videoCard">
+      <div class="vc-inner">
+        <div class="vc-thumb" id="vcThumb">🎬</div>
+        <div class="vc-info"><div class="vc-title" id="vcTitle"></div><div class="vc-meta" id="vcMeta"></div></div>
+        <button class="vc-dl" onclick="openDlModal()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="vcDlTxt">indir</span>
+        </button>
+      </div>
+    </div>
+    <div class="playlist-card" id="playlistCard">
+      <div class="pl-header">
+        <div>
+          <div class="pl-title" id="plTitle">Playlist</div>
+          <div class="pl-meta" id="plMeta">0 video</div>
+        </div>
+        <div class="pl-actions">
+          <button class="pl-sel-btn" id="plSelAllBtn" onclick="toggleSelectAllPlaylist()">tümünü seç</button>
+        </div>
+      </div>
+      <div class="pl-list" id="plList"></div>
+      <button class="pl-dl-btn" id="plDlBtn" onclick="openPlaylistDlModal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="plDlBtnTxt">seçilenleri indir (0)</span>
+      </button>
+    </div>
+    <div class="error-wrap" id="errorWrap"><div class="error-icon" id="errIcon">❌</div><div class="error-txt" id="errTxt"></div></div>
+    <div class="qr-wrap" id="qrWrap">
+      <div class="qr-title" id="qrTitle">TELEFONA AKTAR</div>
+      <div class="qr-canvas-wrap"><canvas id="qrCanvas" width="120" height="120"></canvas></div>
+      <div class="qr-hint" id="qrHint">QR kodu telefonunuzla tarayın</div>
+    </div>
+  </div>
+</div>
+
+<!-- SEO CONTENT — statik, tarayıcı tarafından okunabilir içerik -->
+<section style="position:relative;z-index:1;max-width:720px;margin:0 auto;padding:40px 20px calc(var(--bar-height) + 60px);color:var(--text2);font-size:13px;line-height:1.8;">
+  <h2 style="color:var(--text);font-size:18px;margin-bottom:10px;">Pornhub Video Downloader — ZenithW</h2>
+  <p>ZenithW, Pornhub başta olmak üzere YouTube, TikTok, İnstagram, X/Twitter, Reddit, Pinterest, SoundCloud, Facebook, Twitch, Vimeo ve 20'den fazla platformdan video ve ses indirmenizi sağlayan ücretsiz bir video downloader aracıdır. Link yapıştırın, format seçin, indirin — kayıt, uygulama ya da uzantı gerekmez.</p>
+
+  <h2 style="color:var(--text);font-size:16px;margin:24px 0 10px;">ZenithW: Better Than Cobalt.tools, Better Than SaveFrom, Better Than Y2mate</h2>
+
+  <h3 style="color:var(--text);font-size:14px;margin:16px 0 6px;">ZenithW — Better Than Cobalt.tools</h3>
+  <p>ZenithW is better than cobalt.tools because it supports platforms Cobalt doesn't, including Pornhub and Xvideos, plus bulk link downloading and download history — all in a faster, ad-free interface.</p>
+
+  <h3 style="color:var(--text);font-size:14px;margin:16px 0 6px;">ZenithW — Better Than SaveFrom</h3>
+  <p>ZenithW is better than savefrom.net because it has no redirect ads, no fake download buttons, and no pop-ups — just one real download button and a clean, modern interface.</p>
+
+  <h3 style="color:var(--text);font-size:14px;margin:16px 0 6px;">ZenithW — Better Than Y2mate</h3>
+  <p>ZenithW is better than y2mate because it processes videos faster, supports format conversion, and offers a modern MIUI-inspired interface with no sketchy redirects.</p>
+
+  <h2 style="color:var(--text);font-size:16px;margin:24px 0 10px;">Sıkça Sorulan Sorular</h2>
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <strong style="color:var(--text);display:block;margin-bottom:4px;">ZenithW ile Pornhub'dan video nasıl indirilir?</strong>
+      <span>Pornhub video linkini yukarıdaki kutuya yapıştırın ve indir butonuna basın; video birkaç saniye içinde işlenip cihazınıza iner.</span>
+    </div>
+    <div>
+      <strong style="color:var(--text);display:block;margin-bottom:4px;">ZenithW ücretsiz mi?</strong>
+      <span>Evet, ZenithW tamamen ücretsizdir ve kayıt gerektirmez.</span>
+    </div>
+    <div>
+      <strong style="color:var(--text);display:block;margin-bottom:4px;">Hangi platformlar destekleniyor?</strong>
+      <span>YouTube, TikTok, İnstagram, X/Twitter, Pornhub, Xvideos, Reddit, Pinterest, SoundCloud, Facebook, Snapchat, Vimeo, Dailymotion, Bilibili, Bluesky, Tumblr, Streamable, Rutube, OK.ru, VK, Loom, Twitch clips ve daha fazlası.</span>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <button class="bar-btn active" onclick="scrollToTop()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="bbSave">kaydet</span></button>
+  <button class="bar-btn" onclick="openHistory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="bbHistory">geçmiş</span></button>
+  <button class="bar-btn" onclick="openUpdates()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="bbUpdates">güncel</span></button>
+  <button class="bar-btn" onclick="openConvert()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg><span id="bbConvert">dönüştür</span></button>
+  <div class="bar-divider"></div>
+  <button class="bar-btn" id="moreBtn" onclick="toggleMoreMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg><span id="bbMore">diğer</span></button>
+</div>
+
+<!-- MORE MENU POPUP -->
+<div class="more-popup" id="morePopup">
+  <button class="more-item" onclick="openRemux(); toggleMoreMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+    <span id="moreItemRemux">remux</span>
+  </button>
+  <button class="more-item" onclick="openSettings(); toggleMoreMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    <span id="moreItemSettings">ayarlar</span>
+  </button>
+  <button class="more-item" onclick="openAbout(); toggleMoreMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+    <span id="moreItemAbout">hakkında</span>
+  </button>
+  <button class="more-item" onclick="openDonate(); toggleMoreMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <span id="moreItemDonate">destek ol</span>
+  </button>
+</div>
+
+<div class="pwa-banner" id="pwaBanner">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+  <span id="pwaTxt">Ana ekrana ekle</span>
+  <button class="pwa-btn" onclick="installPWA()" id="pwaInstall">Ekle</button>
+  <button class="pwa-dismiss" onclick="dismissPWA()">✕</button>
+</div>
+
+<div class="yt-popup" id="ytPopup">
+  <span class="yt-popup-icon">📡</span>
+  <div class="yt-popup-title" id="ytErrTitle">youtube videosu bulunamadı</div>
+  <div class="yt-popup-txt" id="ytErrTxt">youtube bot engelleme aktif olabilir. birkaç dakika bekleyip tekrar deneyin.</div>
+</div>
+
+<!-- DL MODAL -->
+<div class="overlay tone-neutral" id="dlOverlay" onclick="handleOverlay(event,'dlOverlay')">
+  <div class="heart-bg"></div>
+  <div class="modal-sheet">
+    <div class="handle"></div>
+    <div class="dl-header">
+      <div class="dl-video-info">
+        <div class="dl-thumb" id="dlThumb">🎬</div>
+        <div><div class="dl-vtitle" id="dlVTitle"></div><div class="dl-vmeta" id="dlVMeta"></div></div>
+      </div>
+      <button class="dl-close" onclick="closeOverlay('dlOverlay')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="dl-body">
+      <div class="dl-prog-wrap" id="dlProgWrap">
+        <div class="dl-prog-top">
+          <div class="dl-prog-icon" id="dlProgIcon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="dl-prog-info"><div class="dl-prog-label" id="dlProgLabel"></div><div class="dl-prog-speed" id="dlProgSpeed"></div></div>
+          <div class="dl-prog-pct" id="dlProgPct">0%</div>
+        </div>
+        <div class="dl-bar-track"><div class="dl-bar-fill" id="dlBarFill"></div></div>
+      </div>
+      <button class="dl-btn" id="dlBtn" onclick="startDownload()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="dlBtnTxt">indir</span>
+      </button>
+      <button class="dl-cancel" id="dlCancel" onclick="cancelDownload()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+        <span id="dlCancelTxt">iptal</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="overlay tone-neutral" id="historyOverlay" onclick="handleOverlay(event,'historyOverlay')">
+  <div class="heart-bg"></div>
+  <div class="upd-modal" style="max-width:420px;">
+    <div class="handle" style="margin:-6px auto 12px;"></div>
+    <button class="modal-close-btn" onclick="closeOverlay('historyOverlay')">✕</button>
+    <div class="upd-title" id="historyTitle">indirme geçmişi</div>
+    <div id="historyList" style="max-height:60dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+      <div style="text-align:center;padding:40px;color:var(--text3);font-size:12px;">yükleniyor...</div>
+    </div>
+    <button class="action-btn" onclick="clearHistory()" style="margin-top:16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg><span id="clearHistoryTxt">geçmişi temizle</span></button>
+  </div>
+</div>
+
+<!-- PLAYLIST QUEUE MODAL -->
+<div class="overlay tone-neutral" id="plQueueOverlay" onclick="handleOverlay(event,'plQueueOverlay')">
+  <div class="heart-bg"></div>
+  <div class="upd-modal" style="max-width:420px;">
+    <div class="handle" style="margin:-6px auto 12px;"></div>
+    <button class="modal-close-btn" onclick="closePlaylistQueue()">✕</button>
+    <div class="upd-title" id="plQueueTitle">playlist indiriliyor</div>
+    <div class="pl-meta" id="plQueueProgress" style="margin-bottom:10px;">0 / 0</div>
+    <div id="plQueueList" style="max-height:50dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:10px;"></div>
+    <button class="action-btn" id="plQueueCancelBtn" onclick="cancelPlaylistQueue()" style="margin-top:16px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+      <span id="plQueueCancelTxt">durdur</span>
+    </button>
+  </div>
+</div>
+
+<!-- SAVE MODAL -->
+<div class="overlay tone-neutral" id="saveOverlay" onclick="handleOverlay(event,'saveOverlay')">
+  <div class="heart-bg"></div>
+  <div class="save-modal">
+    <div class="handle"></div>
+    <div class="save-title"><span>📥</span><span id="saveTitleTxt">nasıl kaydetmek istersin?</span></div>
+    <div class="save-btns">
+      <button class="save-btn" onclick="saveAction('download')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="saveDlTxt">indir</span></button>
+      <button class="save-btn" onclick="saveAction('share')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span id="saveShareTxt">paylaş</span></button>
+      <button class="save-btn" onclick="saveAction('copy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg><span id="saveCopyTxt">kopyala</span></button>
+    </div>
+    <div class="save-note" id="saveNoteTxt">tarayıcı pop-up'ları engelliyorsa "indir" butonunu kullanın.</div>
+    <button class="save-done" onclick="closeOverlay('saveOverlay')" id="saveDoneTxt">tamam</button>
+  </div>
+</div>
+
+<!-- REMUX MODAL -->
+<div class="overlay tone-neutral" id="remuxOverlay" onclick="handleOverlay(event,'remuxOverlay')">
+  <div class="heart-bg"></div>
+  <div class="remux-modal">
+    <div class="handle" style="margin:10px auto 0;"></div>
+    <div class="modal-header"><div class="modal-title" id="remuxTitleTxt">remux</div><button class="dl-close" onclick="closeOverlay('remuxOverlay')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg></button></div>
+    <div class="modal-body">
+      <div class="dropzone" id="remuxDrop" onclick="document.getElementById('remuxFileInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleRemuxDrop(event)">
+        <div class="drop-icon">📄</div><div class="drop-title" id="remuxDropTitle">dosya sürükle veya seç</div><div class="drop-sub" id="remuxDropSub">mp4, webm, mp3, ogg, opus, wav, m4a</div>
+        <input type="file" id="remuxFileInput" accept=".mp4,.webm,.mp3,.ogg,.opus,.wav,.m4a,video/*,audio/*" style="display:none" onchange="handleRemuxFile(this)"/>
+      </div>
+      <div class="remux-info">
+        <div class="remux-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg><div id="remuxInfo1"><strong>remux ne yapar?</strong> dosya konteynerindeki sorunları düzeltir.</div></div>
+        <div class="remux-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div id="remuxInfo2"><strong>kayıpsız:</strong> codec verisini yeni konteynere kopyalar.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONVERT MODAL -->
+<div class="overlay tone-neutral" id="convOverlay" onclick="handleOverlay(event,'convOverlay')">
+  <div class="heart-bg"></div>
+  <div class="conv-modal">
+    <div class="handle" style="margin:10px auto 0;"></div>
+    <div class="modal-header"><div class="modal-title" id="convTitleTxt">dönüştür</div><button class="dl-close" onclick="closeOverlay('convOverlay')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg></button></div>
+    <div class="modal-body">
+      <div class="dropzone" id="convDrop" onclick="document.getElementById('convFileInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleConvDrop(event)">
+        <div class="drop-icon">🎬</div><div class="drop-title" id="convDropTitle">dosya seç veya sürükle</div><div class="drop-sub" id="convDropSub">mp4, webm, mkv, mp3, flac, wav...</div>
+        <input type="file" id="convFileInput" accept="video/*,audio/*,.mp4,.webm,.mkv,.avi,.mov,.mp3,.flac,.wav,.ogg,.opus,.m4a" style="display:none" onchange="handleConvFile(this)"/>
+      </div>
+      <div class="conv-progress" id="convProgress">
+        <div class="dl-prog-top">
+          <div class="dl-prog-icon" id="convProgIcon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></div>
+          <div class="dl-prog-info"><div class="dl-prog-label" id="convProgLabel">dönüştürülüyor...</div><div class="dl-prog-speed" id="convProgSub"></div></div>
+          <div class="dl-prog-pct" id="convProgPct">—</div>
+        </div>
+      </div>
+      <div class="conv-fmt-row">
+        <div class="conv-fmt-label" id="convFmtLabel">ÇIKIŞ FORMATINI SEÇ</div>
+        <div class="conv-chips">
+          <div class="chip" data-v="mp4" onclick="setConvFmt(this)">mp4</div><div class="chip" data-v="webm" onclick="setConvFmt(this)">webm</div><div class="chip" data-v="mkv" onclick="setConvFmt(this)">mkv</div><div class="chip" data-v="avi" onclick="setConvFmt(this)">avi</div><div class="chip" data-v="mov" onclick="setConvFmt(this)">mov</div>
+          <div class="chip active" data-v="mp3" onclick="setConvFmt(this)">mp3</div><div class="chip" data-v="flac" onclick="setConvFmt(this)">flac</div><div class="chip" data-v="wav" onclick="setConvFmt(this)">wav</div><div class="chip" data-v="ogg" onclick="setConvFmt(this)">ogg</div><div class="chip" data-v="opus" onclick="setConvFmt(this)">opus</div><div class="chip" data-v="m4a" onclick="setConvFmt(this)">m4a</div>
+        </div>
+      </div>
+      <button class="action-btn" id="convBtn" onclick="startConvert()" disabled><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg><span id="convBtnTxt">dosya seçin</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay tone-neutral" id="stOverlay" onclick="handleOverlay(event,'stOverlay')">
+  <div class="heart-bg"></div>
+  <div class="st-modal">
+    <div class="st-sidebar">
+      <div class="st-title">settings</div>
+      <button class="st-nav-btn active" data-page="video" onclick="stTab(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3V9z"/></svg>
+        <span id="stNavVideo">video</span>
+      </button>
+      <button class="st-nav-btn" data-page="audio" onclick="stTab(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span id="stNavAudio">ses</span>
+      </button>
+      <button class="st-nav-btn" data-page="appearance" onclick="stTab(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2"/></svg>
+        <span id="stNavAppearance">görünüm</span>
+      </button>
+      <button class="st-nav-btn" data-page="meta" onclick="stTab(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span id="stNavMeta">metadata</span>
+      </button>
+      <button class="st-nav-btn" data-page="filename" onclick="stTab(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span id="stNavFilename">dosya adı</span>
+      </button>
+      <div class="st-close-wrap">
+        <button class="st-nav-btn" onclick="closeOverlay('stOverlay')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+          <span id="stNavClose">kapat</span>
+        </button>
+      </div>
+    </div>
+    <div class="st-content">
+      <!-- VIDEO -->
+      <div class="st-page active" id="stPageVideo">
+        <div class="st-section">
+          <div class="st-section-label" id="stLblQuality">video kalitesi</div>
+          <div class="st-chips" id="stQChips">
+            <div class="chip" data-v="4320" onclick="stChip(this,'quality')">8k+</div>
+            <div class="chip" data-v="2160" onclick="stChip(this,'quality')">4k</div>
+            <div class="chip" data-v="1440" onclick="stChip(this,'quality')">1440p</div>
+            <div class="chip active" data-v="1080" onclick="stChip(this,'quality')">1080p</div>
+            <div class="chip" data-v="720" onclick="stChip(this,'quality')">720p</div>
+            <div class="chip" data-v="480" onclick="stChip(this,'quality')">480p</div>
+            <div class="chip" data-v="360" onclick="stChip(this,'quality')">360p</div>
+            <div class="chip" data-v="240" onclick="stChip(this,'quality')">240p</div>
+            <div class="chip" data-v="144" onclick="stChip(this,'quality')">144p</div>
+            <div class="chip" data-v="9999" onclick="stChip(this,'quality')">max ✦</div>
+          </div>
+          <div class="st-note" id="stNoteQuality">tercih edilen kalite seçilir; bulunamazsa en yakın kullanılır.</div>
+        </div>
+        <div class="st-section">
+          <div class="st-section-label" id="stLblCodec">youtube codec</div>
+          <div class="st-chips" id="stCodecChips">
+            <div class="chip active" data-v="h264" onclick="stChip(this,'codec')">h264 + aac</div>
+            <div class="chip" data-v="av1" onclick="stChip(this,'codec')">av1 + opus</div>
+            <div class="chip" data-v="vp9" onclick="stChip(this,'codec')">vp9 + opus</div>
+          </div>
+          <div class="st-note" id="stNoteCodec">h264: max uyumluluk · av1: en iyi kalite, 8k & hdr · vp9: av1 kalitesi</div>
+        </div>
+        <div class="st-section">
+          <div class="st-section-label" id="stLblVFmt">video formatı</div>
+          <div class="st-chips" id="stVFmtChips">
+            <div class="chip active" data-v="mp4" onclick="stChip(this,'vfmt')">mp4</div>
+            <div class="chip" data-v="webm" onclick="stChip(this,'vfmt')">webm</div>
+            <div class="chip" data-v="mkv" onclick="stChip(this,'vfmt')">mkv</div>
+            <div class="chip" data-v="avi" onclick="stChip(this,'vfmt')">avi</div>
+            <div class="chip" data-v="mov" onclick="stChip(this,'vfmt')">mov</div>
+          </div>
+        </div>
+      </div>
+      <!-- AUDIO -->
+      <div class="st-page" id="stPageAudio">
+        <div class="st-section">
+          <div class="st-section-label" id="stLblAFmt">ses formatı</div>
+          <div class="st-chips" id="stAFmtChips">
+            <div class="chip active" data-v="mp3" onclick="stChip(this,'afmt')">mp3</div>
+            <div class="chip" data-v="flac" onclick="stChip(this,'afmt')">flac</div>
+            <div class="chip" data-v="wav" onclick="stChip(this,'afmt')">wav</div>
+            <div class="chip" data-v="ogg" onclick="stChip(this,'afmt')">ogg</div>
+            <div class="chip" data-v="opus" onclick="stChip(this,'afmt')">opus</div>
+            <div class="chip" data-v="m4a" onclick="stChip(this,'afmt')">m4a</div>
+          </div>
+          <div class="st-note" id="stNoteAFmt">flac, wav: kayıpsız · mp3, ogg, opus, m4a: kayıplı</div>
+        </div>
+        <div class="st-section">
+          <div class="st-section-label" id="stLblBitrate">ses bit hızı</div>
+          <div class="st-chips" id="stAQChips">
+            <div class="chip" data-v="320" onclick="stChip(this,'audioQ')">320 kbps</div>
+            <div class="chip active" data-v="256" onclick="stChip(this,'audioQ')">256 kbps</div>
+            <div class="chip" data-v="192" onclick="stChip(this,'audioQ')">192 kbps</div>
+            <div class="chip" data-v="128" onclick="stChip(this,'audioQ')">128 kbps</div>
+          </div>
+          <div class="st-note" id="stNoteBitrate">yalnızca kayıplı formatlar için geçerli.</div>
+        </div>
+      </div>
+      <!-- APPEARANCE -->
+      <div class="st-page" id="stPageAppearance">
+        <div class="st-section">
+          <div class="st-section-label" id="stLblTheme">tema</div>
+          <div class="theme-row">
+            <button class="theme-btn" id="themeAuto" onclick="setTheme('auto')">otomatik</button>
+            <button class="theme-btn" id="themeLight" onclick="setTheme('light')">açık</button>
+            <button class="theme-btn active" id="themeDark" onclick="setTheme('dark')">koyu</button>
+          </div>
+          <div class="st-note" id="stNoteTheme">otomatik tema cihaz ekran modunu takip eder.</div>
+        </div>
+        <div class="st-section">
+          <div class="st-section-label" id="stLblLang">dil</div>
+          <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+            <option value="tr">türkçe</option>
+            <option value="en">english</option>
+            <option value="fr">français</option>
+            <option value="de">deutsch</option>
+          </select>
+          <div class="st-note" id="stNoteLang">arayüz dili. tarayıcıdan otomatik algılanır.</div>
+        </div>
+        <div class="st-section">
+          <div class="st-section-label" id="stLblAccent">renk teması</div>
+          <div class="st-chips" id="stAccentChips">
+            <div class="chip active" data-v="default" onclick="setAccent('default')">klasik</div>
+            <div class="chip" data-v="purple" onclick="setAccent('purple')" style="border-color: rgba(188,52,250,0.4);">neon mor</div>
+            <div class="chip" data-v="gray" onclick="setAccent('gray')" style="border-color: rgba(160,160,160,0.4);">gri</div>
+            <div class="chip" data-v="pink" onclick="setAccent('pink')" style="border-color: rgba(255,74,151,0.4);">pembe</div>
+            <div class="chip" data-v="cobalt" onclick="setAccent('cobalt')" style="border-color: rgba(0,86,255,0.4);">cobalt</div>
+          </div>
+          <div class="st-note" id="stNoteAccent">arayüzün vurgu renklerini değiştirebilirsiniz.</div>
+        </div>
+      </div>
+      <!-- META -->
+      <div class="st-page" id="stPageMeta">
+        <div class="st-section">
+          <div class="st-section-label" id="stLblMeta">dosya metadatası</div>
+          <div class="st-toggle-row">
+            <div class="st-tl"><div class="st-tl-name" id="stMetaName">metadata göm</div><div class="st-tl-desc" id="stMetaDesc">dosyaya başlık, sanatçı ve platform bilgisi gömülür.</div></div>
+            <div class="toggle on" id="togMetadata" onclick="stToggle('metadata')"></div>
+          </div>
+        </div>
+      </div>
+      <!-- FILENAME -->
+      <div class="st-page" id="stPageFilename">
+        <div class="st-section">
+          <div class="st-section-label" id="stLblFnf">dosya adı formatı</div>
+          <input class="fnf-input" id="fnfInput" type="text" value="{title}.{ext}" oninput="updateFnfPreview()"/>
+          <div class="fnf-tags">
+            <span class="fnf-tag" onclick="insertFnfTag('{title}')">{title}</span>
+            <span class="fnf-tag" onclick="insertFnfTag('{artist}')">{artist}</span>
+            <span class="fnf-tag" onclick="insertFnfTag('{date}')">{date}</span>
+            <span class="fnf-tag" onclick="insertFnfTag('{platform}')">{platform}</span>
+            <span class="fnf-tag" onclick="insertFnfTag('{ext}')">{ext}</span>
+          </div>
+          <div class="fnf-preview" id="fnfPreview">Örnek: video_başlığı.mp4</div>
+          <div class="st-note" id="stNoteFnf">İndirme başlamadan önce dosya adı bu formata göre oluşturulur.</div>
+        </div>
+        <div class="st-section">
+          <div class="st-section-label" id="stLblFnfEx">örnek formatlar</div>
+          <div class="fnf-tags" style="flex-direction:column;gap:6px;">
+            <span class="fnf-tag" style="cursor:pointer" onclick="setFnfTemplate('{title}.{ext}')">{title}.{ext}</span>
+            <span class="fnf-tag" style="cursor:pointer" onclick="setFnfTemplate('{artist} - {title}.{ext}')">{artist} - {title}.{ext}</span>
+            <span class="fnf-tag" style="cursor:pointer" onclick="setFnfTemplate('{date} - {title}.{ext}')">{date} - {title}.{ext}</span>
+            <span class="fnf-tag" style="cursor:pointer" onclick="setFnfTemplate('[{platform}] {title}.{ext}')">[{platform}] {title}.{ext}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UPDATES -->
+<div class="overlay tone-neutral" id="updOverlay" onclick="handleOverlay(event,'updOverlay')">
+  <div class="heart-bg"></div>
+  <div class="upd-modal">
+    <div class="handle" style="margin:-6px auto 12px;"></div>
+    <button class="modal-close-btn" onclick="closeOverlay('updOverlay')">✕</button>
+    <div class="upd-header">
+      <div class="upd-badge" id="updBadge">LATEST</div>
+      <div class="upd-title" id="updTitle">güncellemeler</div>
+    </div>
+    <div id="updEntries"></div>
+  </div>
+</div>
+
+<!-- DONATE -->
+<div class="overlay tone-warm" id="donOverlay" onclick="handleOverlay(event,'donOverlay')">
+  <div class="heart-bg"></div>
+  <div class="don-modal">
+    <div class="handle" style="margin:-6px auto 12px;"></div>
+    <button class="modal-close-btn" onclick="closeOverlay('donOverlay')">✕</button>
+    <div class="don-title" id="donTitle">destek ol</div>
+    <div class="don-sub" id="donSub">zenithw'yi seviyorsan küçük bir destek sunucuların devam etmesine yardımcı olur.</div>
+    <div class="don-card">
+      <div class="don-card-row">
+        <div class="don-card-icon" style="background:linear-gradient(135deg,#6c3ce1,#a855f7);"><span style="color:white;font-weight:800;font-size:13px;">P</span></div>
+        <div><div class="don-card-name">papara</div><div class="don-card-sub" id="donPaparaSub">türkiye — anlık transfer</div></div>
+      </div>
+      <div class="don-copy-row"><span class="don-num">1479763319</span><button class="don-copy-btn" onclick="copyText('1479763319',this)" id="donCopyBtn">kopyala</button></div>
+    </div>
+    <div class="don-ig">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#e6683c,#cc2366);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+      <div style="flex:1;"><div class="don-ig-name">instagram</div><div class="don-ig-handle">@boranseason</div></div>
+      <a href="https://www.instagram.com/boranseason" target="_blank" class="don-ig-link" id="donFollowBtn">takip et</a>
+    </div>
+    <div class="don-contact">
+      <div class="don-contact-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+      </div>
+      <div style="flex:1;"><div class="don-contact-name" id="donContactName">iletişim</div><div class="don-contact-email">info@zenithw.space</div></div>
+      <a href="mailto:info@zenithw.space" class="don-contact-link" id="donContactBtn">e-posta gönder</a>
+    </div>
+    <div class="don-thanks" id="donThanks">her destek için teşekkür ederiz 🙏</div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="overlay tone-cool" id="aboutOverlay" onclick="handleOverlay(event,'aboutOverlay')">
+  <div class="heart-bg"></div>
+  <div class="about-modal">
+    <div class="handle" style="margin:-6px auto 12px;"></div>
+    <button class="modal-close-btn" onclick="closeOverlay('aboutOverlay')">✕</button>
+    <div class="about-name">ZenithW<span>.</span></div>
+    <div class="about-ver">v5.5 — temmuz 2026</div>
+    <div class="about-content-wrap" style="text-align:left; margin-top:20px; font-size:11px; line-height:1.65; display:flex; flex-direction:column; gap:16px; margin-bottom:20px;">
+      <div>
+        <h4 id="aboutWhatTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
+        <p id="aboutWhatText" style="color:var(--text2);"></p>
+      </div>
+      <div>
+        <h4 id="aboutTrustTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
+        <p id="aboutTrustText" style="color:var(--text2);"></p>
+      </div>
+      <div>
+        <h4 id="aboutCookiesTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
+        <p id="aboutCookiesText" style="color:var(--text2);"></p>
+      </div>
+      <div>
+        <h4 id="aboutHowTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
+        <p id="aboutHowText" style="color:var(--text2);"></p>
+      </div>
+    </div>
+    <div class="about-row"><span class="about-row-label" id="aboutDevLabel">geliştirici</span><span class="about-row-val"><a href="https://www.instagram.com/boranseason" target="_blank">@boranseason</a></span></div>
+    <div class="about-row"><span class="about-row-label" id="aboutContactLabel">iletişim</span><span class="about-row-val"><a href="mailto:info@zenithw.space">info@zenithw.space</a></span></div>
+    <div class="about-row"><span class="about-row-label" id="aboutStackLabel">teknoloji</span><span class="about-row-val">flask · yt-dlp · socket.io</span></div>
+    <div class="about-row"><span class="about-row-label" id="aboutHostLabel">hosting</span><span class="about-row-val">railway.app</span></div>
+    <div class="about-row"><span class="about-row-label" id="aboutLicLabel">lisans</span><span class="about-row-val">MIT</span></div>
+    <div class="about-stack"><span class="about-tag">python</span><span class="about-tag">flask</span><span class="about-tag">yt-dlp</span><span class="about-tag">ffmpeg</span><span class="about-tag">socket.io</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+      <a href="/privacy.html" id="aboutPrivacyLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">gizlilik</a>
+      <a href="/terms.html" id="aboutTermsLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">kullanım koşulları</a>
+      <a href="/dmca.html" id="aboutDmcaLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">telif bildirimi</a>
+      <a href="/status.html" id="aboutStatusLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">durum</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-dot" id="toastDot"></div><span id="toastTxt"></span></div>
+
+<script>
+const API="https://zenithw-production.up.railway.app";
+const socket=io(API);
+let socketId=null,videoInfo={},dlId=null,dlAbort=null,ytErrTimer=null,pendingBlob=null,pendingFilename=null;
+
+// ── i18n — defined FIRST so t() is available everywhere ──
+let LANG='tr';
+const TX={
+  tr:{
+    placeholder:'bir video linki yapıştır…',bulkPlaceholder:'linkleri her satıra bir tane olacak şekilde yapıştır... (Enter ile indir, Shift+Enter ile yeni satır)',modeAuto:'auto',modeAudio:'audio',modeMute:'sessiz',paste:'yapıştır',
+    vcDl:'indir',dlBtn:'indir',dlCancel:'iptal',
+    bbSave:'kaydet',bbHistory:'geçmiş',bbRemux:'remux',bbConvert:'dönüştür',bbSettings:'ayarlar',bbUpdates:'güncel',bbAbout:'hakkında',bbMore:'diğer',bbDonate:'destek ol',
+    saveTitleTxt:'nasıl kaydetmek istersin?',saveDlTxt:'indir',saveShareTxt:'paylaş',saveCopyTxt:'kopyala',
+    saveNoteTxt:'tarayıcı pop-up\'ları engelliyorsa "indir" butonunu kullanın.',saveDoneTxt:'tamam',
+    stNavVideo:'video',stNavAudio:'ses',stNavAppearance:'görünüm',stNavMeta:'metadata',stNavFilename:'dosya adı',stNavClose:'kapat',
+    stLblQuality:'video kalitesi',stNoteQuality:'tercih edilen kalite seçilir; bulunamazsa en yakın kullanılır.',
+    stLblCodec:'youtube codec',stNoteCodec:'h264: max uyumluluk · av1: en iyi kalite, 8k & hdr · vp9: av1 kalitesi',
+    stLblVFmt:'video formatı',stLblAFmt:'ses formatı',stNoteAFmt:'flac, wav: kayıpsız · mp3, ogg, opus, m4a: kayıplı',
+    stLblBitrate:'ses bit hızı',stNoteBitrate:'yalnızca kayıplı formatlar için geçerli.',
+    stLblTheme:'tema',themeAuto:'otomatik',themeLight:'açık',themeDark:'koyu',
+    stNoteTheme:'otomatik tema cihaz ekran modunu takip eder.',
+    stLblLang:'dil',stNoteLang:'arayüz dili. tarayıcıdan otomatik algılanır.',
+    stLblAccent:'renk teması',stNoteAccent:'arayüzün vurgu renklerini değiştirebilirsiniz.',
+    stLblMeta:'dosya metadatası',stMetaName:'metadata göm',stMetaDesc:'dosyaya başlık, sanatçı ve platform bilgisi gömülür.',
+    stLblFnf:'dosya adı formatı',stNoteFnf:'İndirme başlamadan önce dosya adı bu formata göre oluşturulur.',
+    stLblFnfEx:'örnek formatlar',
+    connecting:'bağlanıyor...',downloading:'indiriliyor...',merging:'birleştiriliyor...',done:'tamamlandı!',
+    found:'video bulundu ✓',downloaded:'indirildi ✓',cancelled:'iptal edildi',error:'hata',
+    convTitleTxt:'dönüştür',convDropTitle:'dosya seç veya sürükle',convDropSub:'mp4, webm, mkv, mp3, flac, wav...',
+    convFmtLabel:'ÇIKIŞ FORMATINI SEÇ',convBtnSel:'dosya seçin',
+    remuxTitleTxt:'remux',remuxDropTitle:'dosya sürükle veya seç',remuxDropSub:'mp4, webm, mp3, ogg, opus, wav, m4a',
+    updTitle:'güncellemeler',
+    servicesChipTxt:'desteklenen servisler',servicesTitleTxt:'desteklenen platformlar',
+    servicesNoteTxt:'bir platformu desteklemek, teknik uyumluluk dışında ilişki anlamına gelmez.',
+    ytWarn:'youtube desteği beta — IP kısıtlamaları nedeniyle hata verebilir.',
+    ytErrTitle:'youtube videosu bulunamadı',ytErrTxt:'youtube bot engelleme aktif olabilir. birkaç dakika bekleyip tekrar deneyin.',
+    enterLink:'önce link gir',connErr:'bağlantı hatası',igBusy:'instagram yoğun, 2-3 dk bekle',
+    remuxDone:'remux tamamlandı',convDone:'dönüştürüldü ✓',
+    uploading:'gönderiliyor...',converting:'dönüştürülüyor...',convDoneLabel:'tamamlandı!',
+    historyTitle:'indirme geçmişi',clearHistoryTxt:'geçmişi temizle',historyEmpty:'geçmiş boş',historyLoading:'yükleniyor...',
+    donTitle:'destek ol',donSub:'zenithw\'yi seviyorsan küçük bir destek sunucuların devam etmesine yardımcı olur.',
+    donPaparaSub:'türkiye — anlık transfer',donCopyBtn:'kopyala',donFollowBtn:'takip et',donThanks:'her destek için teşekkür ederiz 🙏',
+    donContactName:'iletişim',donContactBtn:'e-posta gönder',
+    aboutWhatTitle: 'ZenithW nedir?',
+    aboutWhatText: 'ZenithW; YouTube, TikTok, Instagram, X/Twitter, Reddit ve daha onlarca platformdan video, ses ve playlist indirmeni sağlayan bağımsız, reklamsız bir araçtır. Sunucu tarafında dünyanın en gelişmiş açık kaynak indirme motoru olan <strong>yt-dlp</strong>\'yi kullanır; bu sayede videoyu her zaman kaynağın kendisinden, en yüksek kalitede ve ekstra dönüştürme kaybı olmadan yakalar. Tek yapman gereken linki yapıştırmak — format ve kaliteyi sen seçersin, gerisini ZenithW halleder.',
+    aboutTrustTitle: 'Neden güvenebilirsin?',
+    aboutTrustText: 'Klasik "indirme" sitelerinin aksine burada seni takip eden reklam ağı, sahte indirme butonu, yönlendirme ya da pop-up yok. İndirme geçmişin sunucuda asla tutulmaz — sadece kendi tarayıcının belleğinde (localStorage) senin cihazında saklanır ve istediğin an tek tıkla silinebilir. Kod tarafı sürekli güvenlik açısından gözden geçiriliyor: yol geçişi (path traversal) engelleri, istek sınırlama (rate limiting) ve sahte IP koruması gibi önlemler baştan itibaren var.',
+    aboutCookiesTitle: 'Çerezlerle (cookies) ne yapıyoruz?',
+    aboutCookiesText: 'YouTube\'un botlara karşı uyguladığı sıkı korumaları, yaş kısıtlamalarını ve IP engellerini aşabilmek için sunucumuzda güvenli, izole bir çerez (cookies.txt) dosyası kullanılır. Bu çerezler yalnızca "bot olmadığımızı" YouTube\'a doğrulatmak için sunucu ortamında kullanılır; senin kişisel bilgilerinle, hesabınla ya da tarama geçmişinle hiçbir ilgisi yoktur ve hiçbir şekilde kaydedilmez.',
+    aboutHowTitle: 'Nasıl çalışır?',
+    aboutHowText: 'Linki yapıştırıyorsun → ZenithW videoyu analiz edip mevcut kalite ve format seçeneklerini önüne çıkarıyor → seçimini yapıp indiriyorsun. Video, ses (mp3/m4a), sessiz (mute) mod ve toplu (bulk/playlist) indirme destekleniyor; ayrıca sunucudaki dönüştürme (convert) ve remux araçlarıyla elindeki dosyaları da işleyebiliyorsun. Tüm süreç birkaç saniye içinde, sekmeden hiç ayrılmadan tamamlanır.',
+    aboutDevLabel:'geliştirici',aboutContactLabel:'iletişim',aboutStackLabel:'teknoloji',aboutHostLabel:'hosting',aboutLicLabel:'lisans',
+    aboutPrivacyLink:'gizlilik',aboutTermsLink:'kullanım koşulları',aboutDmcaLink:'telif bildirimi',aboutStatusLink:'durum',
+    pwaTxt:'Ana ekrana ekle',pwaInstall:'Ekle',
+    qrTitle:'TELEFONA AKTAR',qrHint:'QR kodu telefonunuzla tarayın',
+    remuxInfo1:'<strong>remux ne yapar?</strong> dosya konteynerindeki sorunları düzeltir.',
+    remuxInfo2:'<strong>kayıpsız:</strong> codec verisini yeni konteynere kopyalar.',
+    plQueueTitle:'playlist indiriliyor',
+    plQueueQueued:'sırada',plQueueDownloadingItem:'indiriliyor...',plQueueItemDone:'tamamlandı',plQueueItemErr:'hata',
+    plQueueCompletedWord:'tamamlandı',plQueueStopBtn:'durdur',plQueueCloseBtn:'kapat',
+    plQueueStoppedMsg:'playlist indirme durduruldu',plQueueDoneMsg:'playlist indirme tamamlandı',plQueueStoppingMsg:'durduruluyor, mevcut indirme tamamlanacak',
+    historyRedownload:'tekrar indir',historyCopyLink:'link kopyala',historyClearedMsg:'geçmiş temizlendi',
+    bulkNeedLink:'en az bir link gir',bulkMaxLinks:'en fazla 10 link aynı anda',bulkSuccessWord:'başarılı',bulkFailWord:'başarısız',
+    langComingSoon:'bu dil yakında geliyor 🚧',
+    updBadge:'GÜNCEL',
+  },
+  en:{
+    placeholder:'paste link here',bulkPlaceholder:'paste links, one per line... (Enter to download, Shift+Enter for a new line)',modeAuto:'auto',modeAudio:'audio',modeMute:'mute',paste:'paste',
+    vcDl:'download',dlBtn:'download',dlCancel:'cancel',
+    bbSave:'save',bbHistory:'history',bbRemux:'remux',bbConvert:'convert',bbSettings:'settings',bbUpdates:'updates',bbAbout:'about',bbMore:'more',bbDonate:'support us',
+    saveTitleTxt:'choose how to save',saveDlTxt:'download',saveShareTxt:'share',saveCopyTxt:'copy',
+    saveNoteTxt:'if your browser blocked the popup, use the download button.',saveDoneTxt:'done',
+    stNavVideo:'video',stNavAudio:'audio',stNavAppearance:'appearance',stNavMeta:'metadata',stNavFilename:'filename',stNavClose:'close',
+    stLblQuality:'video quality',stNoteQuality:'preferred quality is selected; closest available used if not found.',
+    stLblCodec:'youtube codec',stNoteCodec:'h264: max compatibility · av1: best quality, 8k & hdr · vp9: av1 quality',
+    stLblVFmt:'video format',stLblAFmt:'audio format',stNoteAFmt:'flac, wav: lossless · mp3, ogg, opus, m4a: lossy',
+    stLblBitrate:'audio bitrate',stNoteBitrate:'applies to lossy formats only.',
+    stLblTheme:'theme',themeAuto:'auto',themeLight:'light',themeDark:'dark',
+    stNoteTheme:'auto theme follows your device display mode.',
+    stLblLang:'language',stNoteLang:'interface language. auto-detected from browser.',
+    stLblAccent:'color accent',stNoteAccent:'change the interface accent colors.',
+    stLblMeta:'file metadata',stMetaName:'embed metadata',stMetaDesc:'title, artist, and platform info is embedded into the file.',
+    stLblFnf:'filename format',stNoteFnf:'File will be named using this template before download.',
+    stLblFnfEx:'example formats',
+    connecting:'connecting...',downloading:'downloading...',merging:'merging...',done:'done!',
+    found:'video found ✓',downloaded:'downloaded ✓',cancelled:'cancelled',error:'error',
+    convTitleTxt:'convert',convDropTitle:'select or drag file',convDropSub:'mp4, webm, mkv, mp3, flac, wav...',
+    convFmtLabel:'SELECT OUTPUT FORMAT',convBtnSel:'select a file',
+    remuxTitleTxt:'remux',remuxDropTitle:'drag & drop or select file',remuxDropSub:'supported: mp4, webm, mp3, ogg, opus, wav, m4a',
+    updTitle:'updates',
+    servicesChipTxt:'supported services',servicesTitleTxt:'supported platforms',
+    servicesNoteTxt:'supporting a service does not imply affiliation beyond technical compatibility.',
+    ytWarn:'youtube support is beta — may fail due to ip restrictions.',
+    ytErrTitle:'youtube video not found',ytErrTxt:"youtube's bot detection may be active. please wait a few minutes and try again.",
+    enterLink:'enter a link first',connErr:'connection error',igBusy:'instagram is busy, wait 2-3 min',
+    remuxDone:'remux done',convDone:'converted ✓',
+    uploading:'uploading...',converting:'converting...',convDoneLabel:'done!',
+    historyTitle:'download history',clearHistoryTxt:'clear history',historyEmpty:'history empty',historyLoading:'loading...',
+    donTitle:'support us',donSub:'if you enjoy zenithw, a small contribution helps keep servers running.',
+    donPaparaSub:'turkey — instant transfer',donCopyBtn:'copy',donFollowBtn:'follow',donThanks:'thank you for every bit of support 🙏',
+    donContactName:'contact',donContactBtn:'send email',
+    aboutWhatTitle: 'What is ZenithW & yt-dlp?',
+    aboutWhatText: 'ZenithW is an independent media tool focused on clean, modern design. In the background, it runs <strong>yt-dlp</strong>, the world\'s most advanced open-source download engine. This allows it to fetch high-quality audio and video streams directly from the source servers.',
+    aboutTrustTitle: 'Why should you trust us?',
+    aboutTrustText: 'Unlike traditional downloader sites, ZenithW has no tracking ad networks, redirects, or pop-ups. Your download history is never stored on the server; it remains strictly inside your browser\'s memory (localStorage).',
+    aboutCookiesTitle: 'What do we do with Cookies?',
+    aboutCookiesText: 'To bypass YouTube\'s strict bot protection, age restrictions, and IP blocks, we use a secure cookie structure (cookies.txt). These cookies are strictly isolated within the Railway server environment to authenticate YouTube requests. No personal user or account details are saved.',
+    aboutHowTitle: 'How does it work?',
+    aboutHowText: 'Paste the link → ZenithW analyzes the video and shows you the available quality and format options → pick one and download it. Video, audio (mp3/m4a), mute mode, and bulk/playlist downloads are all supported, plus the built-in convert and remux tools for files you already have. The whole process finishes in seconds, without ever leaving the tab.',
+    aboutDevLabel:'developer',aboutContactLabel:'contact',aboutStackLabel:'stack',aboutHostLabel:'hosting',aboutLicLabel:'license',
+    aboutPrivacyLink:'privacy',aboutTermsLink:'terms of service',aboutDmcaLink:'copyright notice',aboutStatusLink:'status',
+    pwaTxt:'Add to Home Screen',pwaInstall:'Add',
+    qrTitle:'SEND TO PHONE',qrHint:'Scan QR code with your phone',
+    remuxInfo1:'<strong>what does remux do?</strong> fixes issues in the file container.',
+    remuxInfo2:'<strong>lossless:</strong> copies the codec data into a new container without re-encoding.',
+    plQueueTitle:'downloading playlist',
+    plQueueQueued:'queued',plQueueDownloadingItem:'downloading...',plQueueItemDone:'done',plQueueItemErr:'error',
+    plQueueCompletedWord:'completed',plQueueStopBtn:'stop',plQueueCloseBtn:'close',
+    plQueueStoppedMsg:'playlist download stopped',plQueueDoneMsg:'playlist download completed',plQueueStoppingMsg:'stopping — current download will finish',
+    historyRedownload:'redownload',historyCopyLink:'copy link',historyClearedMsg:'history cleared',
+    bulkNeedLink:'enter at least one link',bulkMaxLinks:'max 10 links at once',bulkSuccessWord:'successful',bulkFailWord:'failed',
+    langComingSoon:'this language is coming soon 🚧',
+    updBadge:'LATEST',
+  },
+  fr:{
+    placeholder:'collez un lien vidéo…',bulkPlaceholder:'collez les liens, un par ligne... (Entrée pour télécharger, Maj+Entrée pour une nouvelle ligne)',modeAuto:'auto',modeAudio:'audio',modeMute:'muet',paste:'coller',
+    vcDl:'télécharger',dlBtn:'télécharger',dlCancel:'annuler',
+    bbSave:'enregistrer',bbHistory:'historique',bbRemux:'remux',bbConvert:'convertir',bbSettings:'paramètres',bbUpdates:'nouveautés',bbAbout:'à propos',bbMore:'plus',bbDonate:'soutenir',
+    saveTitleTxt:'comment voulez-vous enregistrer ?',saveDlTxt:'télécharger',saveShareTxt:'partager',saveCopyTxt:'copier',
+    saveNoteTxt:'si votre navigateur bloque la fenêtre pop-up, utilisez le bouton "télécharger".',saveDoneTxt:'terminé',
+    stNavVideo:'vidéo',stNavAudio:'audio',stNavAppearance:'apparence',stNavMeta:'métadonnées',stNavFilename:'nom de fichier',stNavClose:'fermer',
+    stLblQuality:'qualité vidéo',stNoteQuality:'la qualité préférée est sélectionnée ; la plus proche disponible est utilisée si introuvable.',
+    stLblCodec:'codec youtube',stNoteCodec:'h264 : compatibilité maximale · av1 : meilleure qualité, 8k & hdr · vp9 : qualité proche de av1',
+    stLblVFmt:'format vidéo',stLblAFmt:'format audio',stNoteAFmt:'flac, wav : sans perte · mp3, ogg, opus, m4a : avec perte',
+    stLblBitrate:'débit audio',stNoteBitrate:'s\'applique uniquement aux formats avec perte.',
+    stLblTheme:'thème',themeAuto:'auto',themeLight:'clair',themeDark:'sombre',
+    stNoteTheme:'le thème auto suit le mode d\'affichage de votre appareil.',
+    stLblLang:'langue',stNoteLang:'langue de l\'interface. détectée automatiquement depuis le navigateur.',
+    stLblAccent:'couleur d\'accent',stNoteAccent:'changez les couleurs d\'accent de l\'interface.',
+    stLblMeta:'métadonnées du fichier',stMetaName:'intégrer les métadonnées',stMetaDesc:'le titre, l\'artiste et la plateforme sont intégrés au fichier.',
+    stLblFnf:'format du nom de fichier',stNoteFnf:'le nom du fichier sera généré selon ce modèle avant le téléchargement.',
+    stLblFnfEx:'exemples de formats',
+    connecting:'connexion...',downloading:'téléchargement...',merging:'fusion...',done:'terminé !',
+    found:'vidéo trouvée ✓',downloaded:'téléchargé ✓',cancelled:'annulé',error:'erreur',
+    convTitleTxt:'convertir',convDropTitle:'choisir ou glisser un fichier',convDropSub:'mp4, webm, mkv, mp3, flac, wav...',
+    convFmtLabel:'CHOISIR LE FORMAT DE SORTIE',convBtnSel:'choisir un fichier',
+    remuxTitleTxt:'remux',remuxDropTitle:'glissez ou choisissez un fichier',remuxDropSub:'formats pris en charge : mp4, webm, mp3, ogg, opus, wav, m4a',
+    updTitle:'nouveautés',
+    servicesChipTxt:'services pris en charge',servicesTitleTxt:'plateformes prises en charge',
+    servicesNoteTxt:'la prise en charge d\'une plateforme n\'implique aucune affiliation au-delà de la compatibilité technique.',
+    ytWarn:'le support youtube est en bêta — peut échouer en raison de restrictions ip.',
+    ytErrTitle:'vidéo youtube introuvable',ytErrTxt:'la détection anti-bot de youtube est peut-être active. réessayez dans quelques minutes.',
+    enterLink:'entrez d\'abord un lien',connErr:'erreur de connexion',igBusy:'instagram est occupé, attendez 2-3 min',
+    remuxDone:'remux terminé',convDone:'converti ✓',
+    uploading:'envoi...',converting:'conversion...',convDoneLabel:'terminé !',
+    historyTitle:'historique des téléchargements',clearHistoryTxt:'effacer l\'historique',historyEmpty:'historique vide',historyLoading:'chargement...',
+    donTitle:'soutenir zenithw',donSub:'si vous aimez zenithw, une petite contribution aide à maintenir les serveurs en ligne.',
+    donPaparaSub:'turquie — virement instantané',donCopyBtn:'copier',donFollowBtn:'suivre',donThanks:'merci pour chaque soutien 🙏',
+    donContactName:'contact',donContactBtn:'envoyer un e-mail',
+    aboutWhatTitle: 'qu\'est-ce que zenithw ?',
+    aboutWhatText: 'ZenithW est un outil indépendant et sans publicité qui permet de télécharger des vidéos, de l\'audio et des playlists depuis YouTube, TikTok, Instagram, X/Twitter, Reddit et bien d\'autres plateformes. Côté serveur, il utilise <strong>yt-dlp</strong>, le moteur de téléchargement open-source le plus avancé au monde, ce qui lui permet de récupérer la vidéo directement depuis la source, dans la meilleure qualité, sans perte de conversion supplémentaire. Il vous suffit de coller le lien — vous choisissez le format et la qualité, ZenithW s\'occupe du reste.',
+    aboutTrustTitle: 'pourquoi nous faire confiance ?',
+    aboutTrustText: 'Contrairement aux sites de téléchargement classiques, il n\'y a ici aucun réseau publicitaire qui vous suit, aucun faux bouton de téléchargement, aucune redirection ni pop-up. Votre historique de téléchargement n\'est jamais stocké sur le serveur — il reste uniquement dans la mémoire de votre propre navigateur (localStorage) et peut être supprimé en un clic à tout moment. Le code est régulièrement revu pour la sécurité : protection contre le path traversal, limitation du débit de requêtes et protection anti-usurpation d\'ip sont en place dès le départ.',
+    aboutCookiesTitle: 'que faisons-nous des cookies ?',
+    aboutCookiesText: 'Pour contourner les protections anti-bot strictes de YouTube, les restrictions d\'âge et les blocages ip, notre serveur utilise un fichier de cookies sécurisé et isolé (cookies.txt). Ces cookies servent uniquement à prouver à YouTube que nous ne sommes pas un bot ; ils n\'ont aucun rapport avec vos informations personnelles, votre compte ou votre historique de navigation, et ne sont jamais enregistrés.',
+    aboutHowTitle: 'comment ça marche ?',
+    aboutHowText: 'Vous collez le lien → ZenithW analyse la vidéo et affiche les options de qualité et de format disponibles → vous choisissez et téléchargez. Vidéo, audio (mp3/m4a), mode muet et téléchargement groupé (playlist) sont pris en charge ; vous pouvez aussi convertir ou remuxer vos propres fichiers avec les outils intégrés. Tout le processus se termine en quelques secondes, sans jamais quitter l\'onglet.',
+    aboutDevLabel:'développeur',aboutContactLabel:'contact',aboutStackLabel:'technologies',aboutHostLabel:'hébergement',aboutLicLabel:'licence',
+    aboutPrivacyLink:'confidentialité',aboutTermsLink:'conditions d\'utilisation',aboutDmcaLink:'avis de droit d\'auteur',aboutStatusLink:'statut',
+    pwaTxt:'ajouter à l\'écran d\'accueil',pwaInstall:'ajouter',
+    qrTitle:'ENVOYER SUR TÉLÉPHONE',qrHint:'scannez le code qr avec votre téléphone',
+    remuxInfo1:'<strong>que fait le remux ?</strong> corrige les problèmes du conteneur du fichier.',
+    remuxInfo2:'<strong>sans perte :</strong> copie les données du codec dans un nouveau conteneur sans réencodage.',
+    plQueueTitle:'téléchargement de la playlist',
+    plQueueQueued:'en attente',plQueueDownloadingItem:'téléchargement...',plQueueItemDone:'terminé',plQueueItemErr:'erreur',
+    plQueueCompletedWord:'terminé',plQueueStopBtn:'arrêter',plQueueCloseBtn:'fermer',
+    plQueueStoppedMsg:'téléchargement de la playlist arrêté',plQueueDoneMsg:'téléchargement de la playlist terminé',plQueueStoppingMsg:'arrêt en cours — le téléchargement actuel va se terminer',
+    historyRedownload:'retélécharger',historyCopyLink:'copier le lien',historyClearedMsg:'historique effacé',
+    bulkNeedLink:'entrez au moins un lien',bulkMaxLinks:'10 liens maximum à la fois',bulkSuccessWord:'réussi',bulkFailWord:'échoué',
+    langComingSoon:'cette langue arrive bientôt 🚧',
+    updBadge:'RÉCENT',
+  },
+  de:{
+    placeholder:'video-link hier einfügen…',bulkPlaceholder:'links einfügen, einen pro Zeile... (Enter zum Herunterladen, Umschalt+Enter für neue Zeile)',modeAuto:'auto',modeAudio:'audio',modeMute:'stumm',paste:'einfügen',
+    vcDl:'herunterladen',dlBtn:'herunterladen',dlCancel:'abbrechen',
+    bbSave:'speichern',bbHistory:'verlauf',bbRemux:'remux',bbConvert:'konvertieren',bbSettings:'einstellungen',bbUpdates:'neuigkeiten',bbAbout:'über',bbMore:'mehr',bbDonate:'unterstützen',
+    saveTitleTxt:'wie möchtest du speichern?',saveDlTxt:'herunterladen',saveShareTxt:'teilen',saveCopyTxt:'kopieren',
+    saveNoteTxt:'wenn dein browser das pop-up blockiert, nutze den "herunterladen"-button.',saveDoneTxt:'fertig',
+    stNavVideo:'video',stNavAudio:'audio',stNavAppearance:'erscheinungsbild',stNavMeta:'metadaten',stNavFilename:'dateiname',stNavClose:'schließen',
+    stLblQuality:'videoqualität',stNoteQuality:'die bevorzugte qualität wird gewählt; falls nicht verfügbar, wird die nächstliegende genutzt.',
+    stLblCodec:'youtube-codec',stNoteCodec:'h264: maximale kompatibilität · av1: beste qualität, 8k & hdr · vp9: qualität nahe an av1',
+    stLblVFmt:'videoformat',stLblAFmt:'audioformat',stNoteAFmt:'flac, wav: verlustfrei · mp3, ogg, opus, m4a: verlustbehaftet',
+    stLblBitrate:'audio-bitrate',stNoteBitrate:'gilt nur für verlustbehaftete formate.',
+    stLblTheme:'design',themeAuto:'auto',themeLight:'hell',themeDark:'dunkel',
+    stNoteTheme:'das auto-design folgt dem anzeigemodus deines geräts.',
+    stLblLang:'sprache',stNoteLang:'sprache der oberfläche. wird automatisch vom browser erkannt.',
+    stLblAccent:'akzentfarbe',stNoteAccent:'ändere die akzentfarben der oberfläche.',
+    stLblMeta:'datei-metadaten',stMetaName:'metadaten einbetten',stMetaDesc:'titel, künstler und plattform werden in die datei eingebettet.',
+    stLblFnf:'dateinamenformat',stNoteFnf:'der dateiname wird vor dem download nach diesem muster erstellt.',
+    stLblFnfEx:'beispielformate',
+    connecting:'verbinde...',downloading:'lädt herunter...',merging:'wird zusammengeführt...',done:'fertig!',
+    found:'video gefunden ✓',downloaded:'heruntergeladen ✓',cancelled:'abgebrochen',error:'fehler',
+    convTitleTxt:'konvertieren',convDropTitle:'datei auswählen oder ablegen',convDropSub:'mp4, webm, mkv, mp3, flac, wav...',
+    convFmtLabel:'AUSGABEFORMAT WÄHLEN',convBtnSel:'datei auswählen',
+    remuxTitleTxt:'remux',remuxDropTitle:'datei per drag & drop oder auswählen',remuxDropSub:'unterstützt: mp4, webm, mp3, ogg, opus, wav, m4a',
+    updTitle:'neuigkeiten',
+    servicesChipTxt:'unterstützte dienste',servicesTitleTxt:'unterstützte plattformen',
+    servicesNoteTxt:'die unterstützung einer plattform bedeutet keine zusammenarbeit über die technische kompatibilität hinaus.',
+    ytWarn:'youtube-unterstützung ist beta — kann aufgrund von ip-beschränkungen fehlschlagen.',
+    ytErrTitle:'youtube-video nicht gefunden',ytErrTxt:'youtubes bot-erkennung ist möglicherweise aktiv. bitte warte ein paar minuten und versuche es erneut.',
+    enterLink:'zuerst einen link eingeben',connErr:'verbindungsfehler',igBusy:'instagram ist ausgelastet, 2-3 min warten',
+    remuxDone:'remux abgeschlossen',convDone:'konvertiert ✓',
+    uploading:'wird hochgeladen...',converting:'wird konvertiert...',convDoneLabel:'fertig!',
+    historyTitle:'downloadverlauf',clearHistoryTxt:'verlauf löschen',historyEmpty:'verlauf leer',historyLoading:'wird geladen...',
+    donTitle:'zenithw unterstützen',donSub:'wenn dir zenithw gefällt, hilft ein kleiner beitrag, die server am laufen zu halten.',
+    donPaparaSub:'türkei — sofortüberweisung',donCopyBtn:'kopieren',donFollowBtn:'folgen',donThanks:'danke für jede unterstützung 🙏',
+    donContactName:'kontakt',donContactBtn:'e-mail senden',
+    aboutWhatTitle: 'was ist zenithw?',
+    aboutWhatText: 'ZenithW ist ein unabhängiges, werbefreies Tool, mit dem du Videos, Audio und Playlists von YouTube, TikTok, Instagram, X/Twitter, Reddit und vielen weiteren Plattformen herunterladen kannst. Serverseitig nutzt es <strong>yt-dlp</strong>, die weltweit fortschrittlichste Open-Source-Download-Engine — dadurch wird das Video immer direkt von der Quelle, in bestmöglicher Qualität und ohne zusätzlichen Konvertierungsverlust erfasst. Du musst nur den Link einfügen — Format und Qualität wählst du, den Rest erledigt ZenithW.',
+    aboutTrustTitle: 'warum kannst du uns vertrauen?',
+    aboutTrustText: 'Anders als bei klassischen Download-Seiten gibt es hier kein Werbenetzwerk, das dich verfolgt, keine gefälschten Download-Buttons, keine Weiterleitungen oder Pop-ups. Dein Downloadverlauf wird niemals auf dem Server gespeichert — er bleibt ausschließlich im Speicher deines eigenen Browsers (localStorage) und kann jederzeit mit einem Klick gelöscht werden. Der Code wird laufend auf Sicherheit überprüft: Schutz vor Path Traversal, Rate Limiting und Schutz vor gefälschten IP-Adressen sind von Anfang an vorhanden.',
+    aboutCookiesTitle: 'was machen wir mit cookies?',
+    aboutCookiesText: 'Um YouTubes strenge Bot-Schutzmaßnahmen, Altersbeschränkungen und IP-Sperren zu umgehen, verwendet unser Server eine sichere, isolierte Cookie-Datei (cookies.txt). Diese Cookies dienen ausschließlich dazu, YouTube zu bestätigen, dass wir kein Bot sind; sie haben nichts mit deinen persönlichen Daten, deinem Konto oder deinem Browserverlauf zu tun und werden in keiner Weise gespeichert.',
+    aboutHowTitle: 'wie funktioniert es?',
+    aboutHowText: 'Du fügst den Link ein → ZenithW analysiert das Video und zeigt dir die verfügbaren Qualitäts- und Formatoptionen → du wählst aus und lädst herunter. Video, Audio (mp3/m4a), Stumm-Modus und Massen-/Playlist-Downloads werden unterstützt; außerdem kannst du mit den integrierten Convert- und Remux-Tools bereits vorhandene Dateien bearbeiten. Der gesamte Vorgang dauert nur wenige Sekunden, ohne den Tab je zu verlassen.',
+    aboutDevLabel:'entwickler',aboutContactLabel:'kontakt',aboutStackLabel:'technologie',aboutHostLabel:'hosting',aboutLicLabel:'lizenz',
+    aboutPrivacyLink:'datenschutz',aboutTermsLink:'nutzungsbedingungen',aboutDmcaLink:'urheberrechtshinweis',aboutStatusLink:'status',
+    pwaTxt:'zum Startbildschirm hinzufügen',pwaInstall:'hinzufügen',
+    qrTitle:'AUFS TELEFON SENDEN',qrHint:'qr-code mit deinem telefon scannen',
+    remuxInfo1:'<strong>was macht remux?</strong> behebt probleme im dateicontainer.',
+    remuxInfo2:'<strong>verlustfrei:</strong> kopiert die codec-daten in einen neuen container, ohne neu zu kodieren.',
+    plQueueTitle:'playlist wird heruntergeladen',
+    plQueueQueued:'wartet',plQueueDownloadingItem:'wird heruntergeladen...',plQueueItemDone:'fertig',plQueueItemErr:'fehler',
+    plQueueCompletedWord:'abgeschlossen',plQueueStopBtn:'stoppen',plQueueCloseBtn:'schließen',
+    plQueueStoppedMsg:'playlist-download gestoppt',plQueueDoneMsg:'playlist-download abgeschlossen',plQueueStoppingMsg:'wird gestoppt — aktueller download wird noch fertiggestellt',
+    historyRedownload:'erneut herunterladen',historyCopyLink:'link kopieren',historyClearedMsg:'verlauf gelöscht',
+    bulkNeedLink:'mindestens einen link eingeben',bulkMaxLinks:'maximal 10 links gleichzeitig',bulkSuccessWord:'erfolgreich',bulkFailWord:'fehlgeschlagen',
+    langComingSoon:'diese sprache kommt bald 🚧',
+    updBadge:'NEU',
+  }
+};
+function t(k){return(TX[LANG]||TX.tr)[k]||(TX.tr[k]||k);}
+function detectLang(){const l=(navigator.language||'tr').slice(0,2).toLowerCase();return['en','fr','de'].includes(l)?l:'tr';}
+
+// ── UPDATES CHANGELOG — bilingual (tr/en) data, rendered dynamically ──
+const UPDATES=[
+  {ver:'v5.6',badges:['new','fix'],latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
+    bulletsTr:[
+      '<strong>Çok dilli deneyim iyileştirildi:</strong> Güncellemeler, remux, playlist ve geçmiş gibi bölümlerdeki metinler artık İngilizce\'de de eksiksiz görünüyor.',
+      '<strong>Yeni diller yolda:</strong> Dil listesine Fransızca ve Almanca eklendi; şu an seçildiklerinde "yakında geliyor" uyarısı gösteriliyor.',
+      '<strong>Performans iyileştirmeleri:</strong> Arka plan animasyonları hem masaüstünde hem mobilde daha akıcı çalışacak şekilde yeniden ayarlandı.',
+      '<strong>Küçük hatalar giderildi.</strong>'
+    ],
+    bulletsEn:[
+      '<strong>Multilingual experience improved:</strong> Text across the updates, remux, playlist, and history sections now displays fully in English.',
+      '<strong>New languages on the way:</strong> French and German were added to the language list; selecting them currently shows a "coming soon" notice.',
+      '<strong>Performance improvements:</strong> Background animations were retuned to run more smoothly on both desktop and mobile.',
+      '<strong>Minor bug fixes.</strong>'
+    ]
+  },
+  {ver:'v5.5',badges:['new','fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+    bulletsTr:[
+      '<strong>Yeni uzay temalı tasarım:</strong> Arka plan tamamen yenilendi; yıldızlar, yumuşak bulutsular ve hafif bir hareket efekti eklendi.',
+      '<strong>Sade siyah-gri palet:</strong> Renk şeması sadeleştirildi, gereksiz renk kirliliği kaldırıldı.',
+      '<strong>Cam efektli (glassmorphism) tasarım:</strong> Pencerelere yumuşak blur, ince kenarlık ve akıcı geçiş animasyonları eklendi.',
+      '<strong>Küçük etkileşim dokunuşları:</strong> Butonlara tıklama efekti ve masaüstünde imleç takibi eklendi.',
+      '<strong>Desteklenen platformlar penceresi yenilendi.</strong>',
+      '<strong>YouTube uyarı kutusu yenilendi.</strong>',
+      '<strong>Masaüstü ve mobil uyum iyileştirildi:</strong> Menüler ve pencereler artık her ekran boyutunda daha düzgün görünüyor.',
+      '<strong>Hakkında bölümü genişletildi.</strong>',
+      '<strong>Menü konumu düzeltildi.</strong>'
+    ],
+    bulletsEn:[
+      '<strong>New space-themed design:</strong> The background got a full overhaul with stars, soft clouds, and a gentle motion effect.',
+      '<strong>Cleaner black-and-gray palette:</strong> Simplified the color scheme and removed unnecessary color noise.',
+      '<strong>Glassmorphism design:</strong> Windows now have soft blur, thin borders, and smooth transition animations.',
+      '<strong>Small interaction touches:</strong> Added a tap effect on buttons and cursor-following hover on desktop.',
+      '<strong>Refreshed the supported-platforms window.</strong>',
+      '<strong>Redesigned the YouTube warning box.</strong>',
+      '<strong>Better desktop/mobile compatibility:</strong> Menus and windows now look right at every screen size.',
+      '<strong>Expanded the about section.</strong>',
+      '<strong>Fixed the menu position.</strong>'
+    ]
+  },
+  {ver:'v5.4',badges:['fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+    bulletsTr:[
+      '<strong>Renkli tema seçenekleri:</strong> Mor, mavi, gri ve pembe gibi yeni vurgu renkleri eklendi.',
+      '<strong>Sessiz mod düzeltmesi:</strong> Sessiz indirmelerde format seçimiyle ilgili bir hata giderildi.',
+      '<strong>Dönüştürücü güvenilirliği artırıldı:</strong> Dosya dönüştürmede nadir görülen bir hata giderildi.',
+      '<strong>Hız iyileştirmesi:</strong> İndirme öncesi gereksiz bir adım kaldırılarak süreç hızlandırıldı.',
+      '<strong>Arka planda küçük kararlılık düzeltmeleri yapıldı.</strong>',
+      '<strong>Görsel ince ayarlar:</strong> Radar efekti, kademeli pencere geçişleri ve daha tutarlı tıklama geri bildirimi eklendi.'
+    ],
+    bulletsEn:[
+      '<strong>Color accent options:</strong> Added new accent colors — purple, blue, gray, and pink.',
+      '<strong>Mute mode fix:</strong> Fixed a format-selection bug affecting mute downloads.',
+      '<strong>Converter reliability improved:</strong> Fixed a rare bug in file conversion.',
+      '<strong>Faster downloads:</strong> Removed an unnecessary step before downloads to speed things up.',
+      '<strong>Small stability fixes behind the scenes.</strong>',
+      '<strong>Visual polish:</strong> Added a radar effect, staggered window transitions, and more consistent tap feedback.'
+    ]
+  },
+  {ver:'v5.3',badges:['fix','new'],latest:false,dateTr:'haziran 2026',dateEn:'June 2026',
+    bulletsTr:[
+      '<strong>Toplu indirme:</strong> Artık tek seferde birden fazla link ekleyip hepsini birden indirebilirsiniz.',
+      '<strong>YouTube güvenilirliği artırıldı:</strong> Bazı videolarda yaşanan erişim sorunları giderildi.',
+      '<strong>Arayüz iyileştirmeleri:</strong> Alt menüye hızlı erişim sekmeleri eklendi.'
+    ],
+    bulletsEn:[
+      '<strong>Bulk download:</strong> Add multiple links at once and download them all together.',
+      '<strong>YouTube reliability improved:</strong> Fixed access issues affecting some videos.',
+      '<strong>UI improvements:</strong> Added quick-access tabs to the bottom menu.'
+    ]
+  },
+  {ver:'v5.2',badges:['fix','new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>Dinamik Dil Desteği:</strong> Dil değiştirme sistemi iyileştirildi; metinler sayfayı yenilemeden anlık güncelleniyor.',
+      '<strong>Mobil Ayarlar Paneli:</strong> Kaydırmalı sekme tasarımı ile dar ekranlarda kullanım optimize edildi.',
+      '<strong>Görünüm Optimizasyonu:</strong> Açık tema renk paleti yenilendi; modallar ve okunabilirlik geliştirildi.',
+      '<strong>Hata Giderimleri:</strong> Audio ve Mute indirmelerindeki kesinti sorunları giderildi.'
+    ],
+    bulletsEn:[
+      '<strong>Dynamic language support:</strong> Improved the language-switching system; text updates instantly without a page reload.',
+      '<strong>Mobile settings panel:</strong> Optimized for narrow screens with a scrollable tab design.',
+      '<strong>Appearance optimization:</strong> Refreshed the light theme color palette; improved modals and readability.',
+      '<strong>Bug fixes:</strong> Fixed interruption issues in audio and mute downloads.'
+    ]
+  },
+  {ver:'v5.1',badges:['fix'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>Modern indirme penceresi:</strong> Daha şık, sade bir "nasıl kaydetmek istersin?" arayüzüne geçildi.',
+      '<strong>YouTube başarı oranı arttı:</strong> Video yakalama kararlılığı iyileştirildi.',
+      '<strong>Daha hızlı indirme:</strong> Arka plandaki işleyiş sadeleştirilerek hız kazandırıldı.'
+    ],
+    bulletsEn:[
+      '<strong>Modern download window:</strong> Switched to a sleeker, simpler "how would you like to save?" interface.',
+      '<strong>YouTube success rate improved:</strong> Better video-capture stability.',
+      '<strong>Faster downloads:</strong> Streamlined the underlying process for better speed.'
+    ]
+  },
+  {ver:'v5.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>PWA Desteği:</strong> Uygulamayı ana ekrana ekleyerek native bir deneyim yaşayabilirsiniz.',
+      '<strong>Yeni Araçlar:</strong> Dosya dönüştürücü ve QR kod ile telefona hızlı aktarım eklendi.',
+      '<strong>Metadata:</strong> Dosya adı formatını özelleştirme özelliği aktif edildi.'
+    ],
+    bulletsEn:[
+      '<strong>PWA support:</strong> Add the app to your home screen for a native-like experience.',
+      '<strong>New tools:</strong> Added a file converter and QR code for quick transfer to your phone.',
+      '<strong>Metadata:</strong> Enabled custom filename formatting.'
+    ]
+  },
+  {ver:'v4.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>Format Çeşitliliği:</strong> FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV desteği eklendi.',
+      '<strong>İleri Düzey Kodlama:</strong> AV1 + OPUS ve VP9 + OPUS desteğiyle 8K ve HDR video indirme aktif edildi.'
+    ],
+    bulletsEn:[
+      '<strong>Format variety:</strong> Added support for FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV.',
+      '<strong>Advanced encoding:</strong> Enabled 8K and HDR video downloads with AV1+OPUS and VP9+OPUS support.'
+    ]
+  }
+];
+function renderUpdates(){
+  const container=document.getElementById('updEntries');
+  if(!container)return;
+  container.innerHTML=UPDATES.map(u=>{
+    const badgesHtml=u.badges.map(b=>`<span class="badge badge-${b}">${b}</span>`).join('');
+    const date=LANG==='tr'?u.dateTr:u.dateEn;
+    const bullets=LANG==='tr'?u.bulletsTr:u.bulletsEn;
+    const items=bullets.map(b=>`<li>${b}</li>`).join('');
+    const openCls=u.latest?' open':'';
+    const latestCls=u.latest?' latest':'';
+    return `<div class="upd-entry${latestCls} upd-accordion${openCls}" onclick="toggleAccordion(this)">
+      <div class="upd-accordion-header">
+        <div class="upd-ver-row"><span class="upd-ver">${u.ver}</span>${badgesHtml}<span class="upd-date">${date}</span></div>
+        <span class="upd-accordion-icon">▼</span>
+      </div>
+      <div class="upd-accordion-content"><ul class="upd-list-simple">${items}</ul></div>
+    </div>`;
+  }).join('');
+}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  // All elements with matching IDs
+  const ids=Object.keys(TX.tr);
+  ids.forEach(k=>{const el=document.getElementById(k);if(el){if(el.tagName==='INPUT')el.placeholder=t(k);else el.innerHTML=t(k);}});
+  // Any input/textarea explicitly tagged for placeholder translation (key may differ from element id)
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));});
+  // "diğer" (more) popup menu items — not covered by the id-matching loop above
+  const miR=document.getElementById('moreItemRemux');if(miR)miR.textContent=t('bbRemux');
+  const miS=document.getElementById('moreItemSettings');if(miS)miS.textContent=t('bbSettings');
+  const miA=document.getElementById('moreItemAbout');if(miA)miA.textContent=t('bbAbout');
+  const miD=document.getElementById('moreItemDonate');if(miD)miD.textContent=t('bbDonate');
+  // Theme buttons
+  const ta=document.getElementById('themeAuto');if(ta)ta.textContent=t('themeAuto');
+  const tl=document.getElementById('themeLight');if(tl)tl.textContent=t('themeLight');
+  const td=document.getElementById('themeDark');if(td)td.textContent=t('themeDark');
+  // lang select
+  const ls=document.getElementById('langSelect');if(ls)ls.value=LANG;
+  // conv btn
+  _updateConvBtn();
+  // changelog (only meaningful if the updates modal has been opened at least once)
+  if(document.getElementById('updEntries'))renderUpdates();
+}
+
+function setLang(lang){
+  LANG=lang;
+  try{localStorage.setItem('zw_lang',lang);}catch(e){}
+  applyLang();
+}
+
+// ── SETTINGS ─────────────────────────────────────────
+const S={quality:'1080',codec:'h264',vfmt:'mp4',afmt:'mp3',audioQ:'256',metadata:true,theme:'dark',fnfTemplate:'{title}.{ext}',accent:'default'};
+function saveSt(){try{localStorage.setItem('zw_s',JSON.stringify(S));}catch(e){}}
+function loadSt(){try{const r=localStorage.getItem('zw_s');if(r)Object.assign(S,JSON.parse(r));}catch(e){}}
+function applyStUI(){
+  document.querySelectorAll('#stQChips .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===S.quality));
+  document.querySelectorAll('#stCodecChips .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===S.codec));
+  document.querySelectorAll('#stVFmtChips .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===S.vfmt));
+  document.querySelectorAll('#stAFmtChips .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===S.afmt));
+  document.querySelectorAll('#stAQChips .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===S.audioQ));
+  document.querySelectorAll('#stAccentChips .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===(S.accent||'default')));
+  const tm=document.getElementById('togMetadata');if(tm)tm.classList.toggle('on',!!S.metadata);
+  ['Auto','Light','Dark'].forEach(n=>{const b=document.getElementById('theme'+n);if(b)b.classList.toggle('active',S.theme===n.toLowerCase());});
+  const fi=document.getElementById('fnfInput');if(fi){fi.value=S.fnfTemplate||'{title}.{ext}';updateFnfPreview();}
+}
+
+// ── THEME ─────────────────────────────────────────────
+function setTheme(th){
+  S.theme=th;saveSt();
+  ['Auto','Light','Dark'].forEach(n=>{const b=document.getElementById('theme'+n);if(b)b.classList.toggle('active',th===n.toLowerCase());});
+  if(th==='auto'){document.body.classList.toggle('light',!window.matchMedia('(prefers-color-scheme:dark)').matches);}
+  else{document.body.classList.toggle('light',th==='light');}
+}
+function setAccent(acc){
+  S.accent=acc;saveSt();
+  document.querySelectorAll('#stAccentChips .chip').forEach(c=>c.classList.toggle('active',c.dataset.v===acc));
+  document.body.classList.remove('theme-default','theme-purple','theme-gray','theme-pink','theme-cobalt');
+  document.body.classList.add('theme-'+acc);
+}
+
+// ── SPACE BG — cinematic Three.js deep-space scene ────
+(function(){
+  const canvas=document.getElementById('space-canvas');
+  if(!window.THREE){canvas.style.background='radial-gradient(ellipse at 50% 30%,#141414,#060606 70%)';return;}
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isSmall=innerWidth<760;
+  const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0||window.matchMedia('(pointer:coarse)').matches;
+  const lowEnd=isSmall||isTouch||navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4;
+  // Real phones/tablets get the most aggressive cuts — decorative-only layers (nebula, galaxies)
+  // are skipped entirely and the frame rate is throttled harder, since those cost the most
+  // GPU time for the least visual payoff on a small screen. Desktop keeps the full scene.
+  const isMobile=isTouch&&isSmall;
+
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,3000);
+  camera.position.z=520;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:false,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,isMobile?1:(lowEnd?1:1.75)));
+  renderer.setSize(innerWidth,innerHeight);
+
+  // soft glow sprite texture (shared for nebula / galaxies / particles / vortex)
+  function glowTexture(inner,outer){
+    const s=128,cv=document.createElement('canvas');cv.width=cv.height=s;
+    const cx2=cv.getContext('2d');
+    const g=cx2.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+    g.addColorStop(0,inner);g.addColorStop(0.4,outer);g.addColorStop(1,'rgba(0,0,0,0)');
+    cx2.fillStyle=g;cx2.fillRect(0,0,s,s);
+    return new THREE.CanvasTexture(cv);
+  }
+  const texSoft=glowTexture('rgba(255,255,255,1)','rgba(255,255,255,0.25)');
+  const texBlue=glowTexture('rgba(120,170,255,0.9)','rgba(80,110,255,0.15)');
+  const texPurple=glowTexture('rgba(190,130,255,0.85)','rgba(130,70,220,0.12)');
+  const texCyan=glowTexture('rgba(120,235,255,0.85)','rgba(60,180,220,0.12)');
+  const texOrange=glowTexture('rgba(255,175,110,0.9)','rgba(255,130,60,0.12)');
+
+  // ── starfield ──
+  const starCount=isMobile?500:(lowEnd?1200:5200);
+  const starGeo=new THREE.BufferGeometry();
+  const starPos=new Float32Array(starCount*3);
+  const starCol=new Float32Array(starCount*3);
+  const palette=[[0.9,0.93,1],[0.7,0.82,1],[0.85,0.75,1],[0.7,0.95,1]];
+  for(let i=0;i<starCount;i++){
+    const r=900*Math.cbrt(Math.random())+80;
+    const th=Math.random()*Math.PI*2,ph=Math.acos(Math.random()*2-1);
+    starPos[i*3]=r*Math.sin(ph)*Math.cos(th);
+    starPos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*0.6;
+    starPos[i*3+2]=r*Math.cos(ph)-400;
+    const p=palette[Math.floor(Math.random()*palette.length)];
+    starCol[i*3]=p[0];starCol[i*3+1]=p[1];starCol[i*3+2]=p[2];
+  }
+  starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));
+  starGeo.setAttribute('color',new THREE.BufferAttribute(starCol,3));
+  const starMat=new THREE.PointsMaterial({size:1.7,map:texSoft,transparent:true,depthWrite:false,vertexColors:true,blending:THREE.AdditiveBlending,opacity:0.95,sizeAttenuation:true});
+  const starField=new THREE.Points(starGeo,starMat);
+  scene.add(starField);
+
+  // ── twinkling bright stars (small extra layer, opacity pulses for a lively sky) ──
+  const twinkleCount=isMobile?20:(lowEnd?60:280);
+  const twGeo=new THREE.BufferGeometry();
+  const twPos=new Float32Array(twinkleCount*3);
+  const twCol=new Float32Array(twinkleCount*3);
+  const twPhase=new Float32Array(twinkleCount);
+  const twSpeed=new Float32Array(twinkleCount);
+  for(let i=0;i<twinkleCount;i++){
+    const r=700*Math.cbrt(Math.random())+60;
+    const th=Math.random()*Math.PI*2,ph=Math.acos(Math.random()*2-1);
+    twPos[i*3]=r*Math.sin(ph)*Math.cos(th);
+    twPos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*0.6;
+    twPos[i*3+2]=r*Math.cos(ph)-350;
+    twCol[i*3]=1;twCol[i*3+1]=1;twCol[i*3+2]=1;
+    twPhase[i]=Math.random()*Math.PI*2;
+    twSpeed[i]=0.6+Math.random()*1.8;
+  }
+  twGeo.setAttribute('position',new THREE.BufferAttribute(twPos,3));
+  twGeo.setAttribute('color',new THREE.BufferAttribute(twCol,3));
+  const twMat=new THREE.PointsMaterial({size:2.8,map:texSoft,transparent:true,depthWrite:false,vertexColors:true,blending:THREE.AdditiveBlending,opacity:0.95,sizeAttenuation:true});
+  const twinkleField=new THREE.Points(twGeo,twMat);
+  scene.add(twinkleField);
+
+  // ── floating particles (closer, larger, orange-tinted) ──
+  const partCount=isMobile?10:(lowEnd?25:150);
+  const partGeo=new THREE.BufferGeometry();
+  const partPos=new Float32Array(partCount*3);
+  for(let i=0;i<partCount;i++){
+    partPos[i*3]=(Math.random()-0.5)*900;
+    partPos[i*3+1]=(Math.random()-0.5)*600;
+    partPos[i*3+2]=(Math.random()-0.5)*400+100;
+  }
+  partGeo.setAttribute('position',new THREE.BufferAttribute(partPos,3));
+  const partMat=new THREE.PointsMaterial({size:5,map:texOrange,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.35,sizeAttenuation:true});
+  const particles=new THREE.Points(partGeo,partMat);
+  scene.add(particles);
+
+  // ── nebula clouds (a handful of large soft sprites) — skipped on phones, kept everywhere else ──
+  const nebulae=[];
+  if(!isMobile){
+    const nebulaDefs=[
+      {tex:texPurple,x:-420,y:120,z:-600,s:900,sp:0.02},
+      {tex:texBlue,x:380,y:-160,z:-750,s:1000,sp:-0.015},
+      {tex:texCyan,x:60,y:260,z:-900,s:800,sp:0.012},
+      {tex:texPurple,x:-200,y:-260,z:-500,s:650,sp:-0.02}
+    ];
+    nebulaDefs.forEach(d=>{
+      const mat=new THREE.SpriteMaterial({map:d.tex,transparent:true,opacity:0.16,blending:THREE.AdditiveBlending,depthWrite:false});
+      const sp=new THREE.Sprite(mat);
+      sp.position.set(d.x,d.y,d.z);sp.scale.set(d.s,d.s,1);
+      sp.userData.drift=d.sp;sp.userData.baseX=d.x;sp.userData.baseY=d.y;
+      scene.add(sp);nebulae.push(sp);
+    });
+  }
+
+  // ── distant galaxies (small tilted elliptical smudges) — skipped on phones ──
+  const galaxies=[];
+  if(!isMobile)
+  [{x:-600,y:220,z:-1400,s:180,c:texBlue},{x:520,y:-280,z:-1600,s:140,c:texCyan},{x:180,y:340,z:-1500,s:110,c:texPurple}].forEach(d=>{
+    const mat=new THREE.SpriteMaterial({map:d.c,transparent:true,opacity:0.4,blending:THREE.AdditiveBlending,depthWrite:false});
+    const sp=new THREE.Sprite(mat);sp.position.set(d.x,d.y,d.z);sp.scale.set(d.s,d.s*0.4,1);
+    scene.add(sp);galaxies.push(sp);
+  });
+
+  // ── 3D planet — Saturn-like sphere with tilted rings + a small orbiting moon ──
+  const ambientLight=new THREE.AmbientLight(0x3a3f4d,1.15);
+  scene.add(ambientLight);
+  const sunLight=new THREE.DirectionalLight(0xfff2d8,1.35);
+  sunLight.position.set(-220,140,320);
+  scene.add(sunLight);
+
+  function planetTexture(bands){
+    const cv=document.createElement('canvas');cv.width=4;cv.height=256;
+    const ctx2=cv.getContext('2d');
+    const g=ctx2.createLinearGradient(0,0,0,256);
+    bands.forEach(b=>g.addColorStop(b[0],b[1]));
+    ctx2.fillStyle=g;ctx2.fillRect(0,0,4,256);
+    return new THREE.CanvasTexture(cv);
+  }
+  const saturnTex=planetTexture([[0,'#e7d9b8'],[0.22,'#d8c49a'],[0.38,'#eaddb9'],[0.52,'#c7ad80'],[0.68,'#e3d3aa'],[0.85,'#b79a6d'],[1,'#a68c62']]);
+
+  function ringTexture(){
+    const s=256,cv=document.createElement('canvas');cv.width=cv.height=s;
+    const ctx2=cv.getContext('2d');
+    const cx=s/2,cy=s/2;
+    for(let r=6;r<s/2;r++){
+      const t=r/(s/2);
+      let a=0.28+0.3*Math.abs(Math.sin(t*26))+0.15*Math.abs(Math.sin(t*7));
+      a=Math.max(0.05,Math.min(0.8,a))*(t>0.92?(1-t)*12:1);
+      ctx2.strokeStyle='rgba(224,206,168,'+a+')';
+      ctx2.beginPath();ctx2.arc(cx,cy,r,0,Math.PI*2);ctx2.stroke();
+    }
+    return new THREE.CanvasTexture(cv);
+  }
+
+  const planetGroup=new THREE.Group();
+  planetGroup.position.set(300,190,-420);
+  planetGroup.rotation.z=THREE.MathUtils.degToRad(18);
+  scene.add(planetGroup);
+
+  const planetMesh=new THREE.Mesh(new THREE.SphereGeometry(48,48,48),new THREE.MeshStandardMaterial({map:saturnTex,roughness:1,metalness:0}));
+  planetGroup.add(planetMesh);
+
+  const ringMesh=new THREE.Mesh(new THREE.RingGeometry(66,122,90),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:true,side:THREE.DoubleSide,opacity:0.88,depthWrite:false}));
+  ringMesh.rotation.x=Math.PI/2-0.38;
+  planetGroup.add(ringMesh);
+
+  const planetGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:texOrange,transparent:true,opacity:0.16,blending:THREE.AdditiveBlending,depthWrite:false}));
+  planetGlow.scale.set(160,160,1);
+  planetGroup.add(planetGlow);
+
+  const moonPivot=new THREE.Group();
+  const moonMesh=new THREE.Mesh(new THREE.SphereGeometry(8,20,20),new THREE.MeshStandardMaterial({color:0xc7cbd2,roughness:1}));
+  moonMesh.position.set(168,26,40);
+  moonPivot.add(moonMesh);
+  planetGroup.add(moonPivot);
+
+  function resize(){
+    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  }
+  addEventListener('resize',resize);
+
+  let tpx=0,tpy=0,px=0,py=0;
+  if(!reduceMotion&&!isMobile){
+    addEventListener('mousemove',e=>{tpx=(e.clientX/innerWidth-0.5);tpy=(e.clientY/innerHeight-0.5);});
+    addEventListener('deviceorientation',e=>{if(e.gamma!=null&&e.beta!=null){tpx=Math.max(-1,Math.min(1,e.gamma/30));tpy=Math.max(-1,Math.min(1,(e.beta-45)/30));}});
+  }
+
+  let t=0,frameN=0;
+  function animate(){
+    frameN++;
+    // Real phones: render roughly 1 of every 3 frames (~20fps) — the biggest single win for
+    // battery/heat, since every skipped frame skips a full backdrop-filter composite too.
+    // Other low-end machines (old/low-core desktops): render every other frame (~30fps).
+    // Regular desktop: full 60fps, every frame.
+    if(isMobile&&(frameN%3!==0)){if(!reduceMotion)requestAnimationFrame(animate);return;}
+    if(!isMobile&&lowEnd&&(frameN%2===0)){if(!reduceMotion)requestAnimationFrame(animate);return;}
+    t+=isMobile?0.0096:(lowEnd?0.0064:0.0032);
+    px+=(tpx-px)*0.04;py+=(tpy-py)*0.04;
+    // parallax + very slow camera drift
+    camera.position.x=px*70+Math.sin(t*0.18)*22;
+    camera.position.y=-py*50+Math.cos(t*0.14)*14;
+    camera.lookAt(0,0,-400);
+    starField.rotation.y=t*0.02;
+    twinkleField.rotation.y=t*0.02;
+    {
+      const colAttr=twGeo.attributes.color;
+      for(let i=0;i<twinkleCount;i++){
+        const b=0.35+0.65*Math.max(0,Math.sin(t*twSpeed[i]*6+twPhase[i]));
+        colAttr.array[i*3]=b;colAttr.array[i*3+1]=b;colAttr.array[i*3+2]=b;
+      }
+      colAttr.needsUpdate=true;
+    }
+    particles.rotation.y=-t*0.015;
+    particles.position.y=Math.sin(t*0.3)*6;
+    nebulae.forEach((n,i)=>{
+      n.position.x=n.userData.baseX+Math.sin(t*n.userData.drift*6)*18;
+      n.position.y=n.userData.baseY+Math.cos(t*n.userData.drift*5)*14;
+      n.material.opacity=0.12+Math.sin(t*0.5+i*1.7)*0.06;
+    });
+    planetMesh.rotation.y=t*0.16;
+    ringMesh.rotation.z=t*0.06;
+    ringMesh.rotation.x=Math.PI/2-0.38+Math.sin(t*0.3)*0.025;
+    moonPivot.rotation.y=t*0.32;
+    planetGlow.material.opacity=0.14+Math.sin(t*1.2)*0.05;
+    planetGroup.position.x=300+px*14;
+    planetGroup.position.y=190-py*10;
+    renderer.render(scene,camera);
+    if(!reduceMotion)requestAnimationFrame(animate);
+  }
+  animate();
+  if(reduceMotion)renderer.render(scene,camera);
+})();
+
+socket.on('connect',()=>{socketId=socket.id;});
+socket.on('progress',d=>{
+  if(d.status==='downloading')setProgress(d.percent,t('downloading'),d.speed,false);
+  else if(d.status==='merging')setProgress(88,t('merging'),'',false);
+  else if(d.status==='done')setProgress(100,t('done'),'',true);
+  else if(d.status==='error')toast(d.message||t('error'),'#ed4245');
+});
+
+// ── MODE ──────────────────────────────────────────────
+let DL_MODE='auto';
+let BULK_MODE=false;
+function setMode(m){DL_MODE=m;['Auto','Audio','Mute'].forEach(n=>{const b=document.getElementById('mode'+n);if(b)b.classList.toggle('active',n.toLowerCase()===m);});if(videoInfo.url)openDlModal();}
+function toggleBulkMode(){
+  BULK_MODE=!BULK_MODE;
+  const form=document.querySelector('.url-form');
+  const toggle=document.getElementById('bulkToggle');
+  const goBtn=document.querySelector('.url-go-btn');
+  form.classList.toggle('bulk-mode',BULK_MODE);
+  toggle.classList.toggle('active',BULK_MODE);
+  if(BULK_MODE){
+    goBtn.onclick=fetchBulkVideos;
+    goBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }else{
+    goBtn.onclick=fetchVideo;
+    goBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>';
+  }
+}
+
+// ── SERVICES ──────────────────────────────────────────
+function toggleServices(){
+  const o=document.getElementById('servicesOverlay');
+  const isOpen=o.classList.contains('open');
+  const c=document.getElementById('servicesChip');
+  if(isOpen){closeOverlay('servicesOverlay');c.classList.remove('open');}
+  else{o.classList.add('open');document.body.style.overflow='hidden';c.classList.add('open');}
+}
+
+// ── MORE MENU ─────────────────────────────────────────
+function toggleMoreMenu(){const b=document.getElementById('moreBtn'),p=document.getElementById('morePopup'),o=p.classList.contains('open');p.classList.toggle('open',!o);b.classList.toggle('active',!o);}
+document.addEventListener('click',e=>{const b=document.getElementById('moreBtn'),p=document.getElementById('morePopup');if(b&&p&&!b.contains(e.target)&&!p.contains(e.target)){p.classList.remove('open');b.classList.remove('active');}});
+
+// ── RADAR PULSE — fires once each time a fresh, valid link is detected ──
+let lastRadarUrl='';
+function fireRadar(){
+  const ring=document.getElementById('radarRing');
+  if(!ring)return;
+  ring.classList.remove('fire');
+  void ring.offsetWidth; // restart animation
+  ring.classList.add('fire');
+}
+
+// ── URL ───────────────────────────────────────────────
+function isYT(u){return u.includes('youtube.com')||u.includes('youtu.be');}
+function isValidUrl(u){try{const p=new URL(u);return p.protocol==='http:'||p.protocol==='https:';}catch(e){return false;}}
+function onInput(){
+  const v=document.getElementById('urlInput').value;
+  document.getElementById('urlClear').classList.toggle('vis',v.length>0);
+  document.getElementById('ytWarn').classList.toggle('show',isYT(v));
+  document.getElementById('errorWrap').classList.remove('show');
+  document.getElementById('videoCard').classList.remove('show');
+  document.getElementById('playlistCard').classList.remove('show');
+  hideQR();videoInfo={};
+  document.getElementById('urlSpinWrap').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3)"><circle cx="12" cy="12" r="10"/></svg>';
+  const trimmed=v.trim();
+  if(trimmed&&isValidUrl(trimmed)&&trimmed!==lastRadarUrl){lastRadarUrl=trimmed;fireRadar();}
+  if(!trimmed)lastRadarUrl='';
+}
+function clearUrl(){document.getElementById('urlInput').value='';document.getElementById('urlTextarea').value='';onInput();document.getElementById('urlInput').focus();}
+
+// ── BULK DOWNLOAD ───────────────────────────────────
+async function fetchBulkVideos(){
+  const textarea=document.getElementById('urlTextarea');
+  const urls=textarea.value.split('\n').map(u=>u.trim()).filter(u=>u&&u.startsWith('http'));
+  if(urls.length===0){toast(t('bulkNeedLink'),'#ed4245');return;}
+  if(urls.length>10){toast(t('bulkMaxLinks'),'#f59e0b');return;}
+  
+  const successCount=[];
+  const failCount=[];
+  
+  for(let i=0;i<urls.length;i++){
+    const url=urls[i];
+    document.getElementById('urlSpinWrap').innerHTML=`<div style="font-size:10px;color:var(--text2)">${i+1}/${urls.length}</div>`;
+    try{
+      document.getElementById('urlInput').value=url;
+      await fetchVideo();
+      if(videoInfo.url){
+        await startDownload();
+        successCount.push(url);
+      }else{
+        failCount.push(url);
+      }
+    }catch(e){
+      failCount.push(url);
+    }
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  
+  document.getElementById('urlSpinWrap').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3)"><circle cx="12" cy="12" r="10"/></svg>';
+  toast(`${successCount.length} ${t('bulkSuccessWord')}, ${failCount.length} ${t('bulkFailWord')}`,successCount.length>0?'#3bba64':'#ed4245');
+  textarea.value='';
+  toggleBulkMode();
+}
+function showErr(icon,msg){document.getElementById('errIcon').textContent=icon;document.getElementById('errTxt').textContent=msg;document.getElementById('errorWrap').classList.add('show');}
+async function pasteAndFetch(){try{const tx=await navigator.clipboard.readText();if(tx){document.getElementById('urlInput').value=tx;onInput();if(tx.startsWith('http'))fetchVideo();}}catch(e){document.getElementById('urlInput').focus();}}
+
+async function fetchVideo(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url){toast(t('enterLink'),'#ed4245');return;}
+  document.getElementById('urlSpinWrap').innerHTML='<div class="spinner"></div>';
+  document.getElementById('videoCard').classList.remove('show');
+  document.getElementById('playlistCard').classList.remove('show');
+  document.getElementById('errorWrap').classList.remove('show');
+  hideQR();
+  try{
+    const res=await fetch(API+'/info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const d=await res.json();
+    if(d.error==='instagram_ratelimit'){showErr('⏳',t('igBusy'));return;}
+    if(d.error){if(isYT(url))showYtErr();else showErr('❌',d.error);return;}
+
+    if(d.is_playlist){
+      renderPlaylist(d,url);
+      toast((d.playlist_count||0)+' video bulundu','#3bba64');
+      return;
+    }
+
+    const m=Math.floor((d.duration||0)/60),s=String((d.duration||0)%60).padStart(2,'0');
+    document.getElementById('vcTitle').textContent=d.title||'video';
+    document.getElementById('vcMeta').textContent=(d.uploader||'')+(d.duration?' · '+m+':'+s:'');
+    const th=document.getElementById('vcThumb');th.innerHTML=d.thumbnail?`<img src="${d.thumbnail}">`:'🎬';
+    document.getElementById('videoCard').classList.add('show');
+    videoInfo={url,title:d.title,thumbnail:d.thumbnail,uploader:d.uploader,duration:d.duration};
+    toast(t('found'),'#3bba64');showQR(url);
+  }catch(e){if(isYT(document.getElementById('urlInput').value))showYtErr();else toast(t('connErr'),'#ed4245');}
+  finally{document.getElementById('urlSpinWrap').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3)"><circle cx="12" cy="12" r="10"/></svg>';}
+}
+
+// ── PLAYLIST ──────────────────────────────────────────
+let playlistItems=[],playlistSelected=new Set(),playlistTitle='';
+function renderPlaylist(d,sourceUrl){
+  playlistItems=d.items||[];
+  playlistTitle=d.playlist_title||'Playlist';
+  playlistSelected=new Set(playlistItems.map((_,i)=>i)); // varsayılan: hepsi seçili
+
+  document.getElementById('plTitle').textContent=playlistTitle;
+  document.getElementById('plMeta').textContent=playlistItems.length+' video';
+
+  const list=document.getElementById('plList');
+  list.innerHTML=playlistItems.map((it,i)=>{
+    const m=Math.floor((it.duration||0)/60),s=String((it.duration||0)%60).padStart(2,'0');
+    const dur=it.duration?m+':'+s:'';
+    return `<div class="pl-item sel" data-idx="${i}" onclick="togglePlaylistItem(${i})">
+      <div class="pl-item-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="pl-item-thumb">${it.thumbnail?`<img src="${it.thumbnail}">`:'🎬'}</div>
+      <div class="pl-item-info"><div class="pl-item-title">${(i+1)+'. '+(it.title||'video')}</div>${dur?`<div class="pl-item-dur">${dur}</div>`:''}</div>
+    </div>`;
+  }).join('');
+
+  updatePlaylistSelCount();
+  document.getElementById('playlistCard').classList.add('show');
+}
+function togglePlaylistItem(i){
+  const el=document.querySelector(`.pl-item[data-idx="${i}"]`);
+  if(playlistSelected.has(i)){playlistSelected.delete(i);el.classList.remove('sel');}
+  else{playlistSelected.add(i);el.classList.add('sel');}
+  updatePlaylistSelCount();
+}
+function toggleSelectAllPlaylist(){
+  const allSelected=playlistSelected.size===playlistItems.length;
+  if(allSelected){playlistSelected.clear();}
+  else{playlistSelected=new Set(playlistItems.map((_,i)=>i));}
+  document.querySelectorAll('.pl-item').forEach((el,i)=>el.classList.toggle('sel',playlistSelected.has(i)));
+  updatePlaylistSelCount();
+}
+function updatePlaylistSelCount(){
+  const n=playlistSelected.size;
+  document.getElementById('plDlBtnTxt').textContent=`seçilenleri indir (${n})`;
+  document.getElementById('plDlBtn').disabled=(n===0);
+  document.getElementById('plSelAllBtn').textContent=(n===playlistItems.length&&n>0)?'seçimi kaldır':'tümünü seç';
+}
+function openPlaylistDlModal(){
+  if(playlistSelected.size===0)return;
+  // Playlist indirmeleri tek tek video indirme modalını kullanarak,
+  // mevcut format/kalite ayarlarıyla sırayla kuyruğa alınır.
+  openPlaylistQueueModal();
+}
+
+// ── PLAYLIST QUEUE (sıralı toplu indirme) ──────────────
+let plQueueRunning=false,plQueueStopRequested=false;
+function openPlaylistQueueModal(){
+  const selectedIdx=[...playlistSelected].sort((a,b)=>a-b);
+  if(selectedIdx.length===0)return;
+
+  const list=document.getElementById('plQueueList');
+  list.innerHTML=selectedIdx.map(i=>{
+    const it=playlistItems[i];
+    return `<div class="pl-queue-item" id="plq-${i}">
+      <div class="pl-queue-title">${(it.title||'video')}</div>
+      <div class="pl-queue-status" id="plq-status-${i}">${t('plQueueQueued')}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('plQueueProgress').textContent=`0 / ${selectedIdx.length} ${t('plQueueCompletedWord')}`;
+  document.getElementById('plQueueOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+
+  plQueueStopRequested=false;
+  runPlaylistQueue(selectedIdx);
+}
+async function runPlaylistQueue(selectedIdx){
+  if(plQueueRunning)return;
+  plQueueRunning=true;
+  let done=0;
+  const isAudio=(DL_MODE==='audio'),isMute=(DL_MODE==='mute'),fmt=isAudio?S.afmt:S.vfmt;
+
+  for(const i of selectedIdx){
+    if(plQueueStopRequested)break;
+    const it=playlistItems[i];
+    const statusEl=document.getElementById(`plq-status-${i}`);
+    if(statusEl)statusEl.textContent=t('plQueueDownloadingItem');
+    try{
+      const dId=crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2);
+      const res=await fetch(API+'/download',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:it.url,quality:S.quality,format:fmt,codec:S.codec,audioQ:S.audioQ,metadata:S.metadata,sid:socketId,download_id:dId,audio_only:isAudio,mute:isMute})});
+      if(!res.ok){
+        if(statusEl){statusEl.textContent=t('plQueueItemErr');statusEl.classList.add('err');}
+      }else{
+        const blob=await res.blob();
+        const filename=buildFilename(S.fnfTemplate||'{title}.{ext}',{title:it.title,uploader:'',url:it.url},fmt);
+        triggerBlobDownload(blob,filename);
+        addToLocalHistory({url:it.url,title:it.title||'video',platform:getPlatformName(it.url||''),format:fmt});
+        if(statusEl){statusEl.textContent=t('plQueueItemDone');statusEl.classList.add('done');}
+        done++;
+      }
+    }catch(e){
+      if(statusEl){statusEl.textContent=t('plQueueItemErr');statusEl.classList.add('err');}
+    }
+    document.getElementById('plQueueProgress').textContent=`${done} / ${selectedIdx.length} ${t('plQueueCompletedWord')}`;
+  }
+
+  plQueueRunning=false;
+  if(plQueueStopRequested){
+    toast(t('plQueueStoppedMsg'),'#f59e0b');
+  }else{
+    toast(t('plQueueDoneMsg'),'#3bba64');
+  }
+  const plqct=document.getElementById('plQueueCancelTxt');if(plqct)plqct.textContent=t('plQueueCloseBtn');
+}
+function triggerBlobDownload(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+function cancelPlaylistQueue(){
+  if(plQueueRunning){
+    plQueueStopRequested=true;
+    toast(t('plQueueStoppingMsg'),'#f59e0b');
+  }else{
+    closePlaylistQueue();
+  }
+}
+function closePlaylistQueue(){
+  if(plQueueRunning){
+    plQueueStopRequested=true;
+  }
+  document.getElementById('plQueueOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  const plqct2=document.getElementById('plQueueCancelTxt');if(plqct2)plqct2.textContent=t('plQueueStopBtn');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')fetchVideo();});
+  document.getElementById('urlInput').addEventListener('paste',()=>setTimeout(()=>{const v=document.getElementById('urlInput').value;onInput();if(v.startsWith('http'))fetchVideo();},80));
+  document.getElementById('urlTextarea').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();fetchBulkVideos();}
+  });
+});
+
+function showYtErr(){const p=document.getElementById('ytPopup');p.classList.add('show');if(ytErrTimer)clearTimeout(ytErrTimer);ytErrTimer=setTimeout(()=>p.classList.remove('show'),4500);}
+
+// ── QR ────────────────────────────────────────────────
+function showQR(url){if(innerWidth<=600)return;const canvas=document.getElementById('qrCanvas');const img=new Image();img.crossOrigin='anonymous';img.src='https://api.qrserver.com/v1/create-qr-code/?data='+encodeURIComponent(url)+'&size=120x120&bgcolor=ffffff&color=000000&margin=0';img.onload=()=>{const ctx=canvas.getContext('2d');ctx.clearRect(0,0,120,120);ctx.drawImage(img,0,0,120,120);document.getElementById('qrWrap').classList.add('show');};img.onerror=()=>document.getElementById('qrWrap').classList.remove('show');}
+function hideQR(){document.getElementById('qrWrap').classList.remove('show');}
+
+// ── DL MODAL ─────────────────────────────────────────
+function openDlModal(){
+  if(!videoInfo.url)return;
+  const th=document.getElementById('dlThumb');th.innerHTML=videoInfo.thumbnail?`<img src="${videoInfo.thumbnail}">`:'🎬';
+  document.getElementById('dlVTitle').textContent=videoInfo.title||'video';
+  const m=Math.floor((videoInfo.duration||0)/60),s=String((videoInfo.duration||0)%60).padStart(2,'0');
+  document.getElementById('dlVMeta').textContent=(videoInfo.uploader||'')+(videoInfo.duration?' · '+m+':'+s:'');
+  resetProgress();document.getElementById('dlOverlay').classList.add('open');document.body.style.overflow='hidden';
+}
+function setProgress(pct,label,speed,done){
+  document.getElementById('dlProgWrap').classList.add('show');
+  document.getElementById('dlBarFill').style.width=pct+'%';
+  document.getElementById('dlProgPct').textContent=pct+'%';
+  document.getElementById('dlProgLabel').textContent=label;
+  document.getElementById('dlProgSpeed').textContent=speed||'';
+  if(done){document.getElementById('dlProgIcon').classList.add('done');document.getElementById('dlProgIcon').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';document.getElementById('dlCancel').classList.remove('vis');}
+}
+function resetProgress(){
+  document.getElementById('dlProgWrap').classList.remove('show');
+  document.getElementById('dlBarFill').style.width='0%';
+  document.getElementById('dlProgPct').textContent='0%';
+  document.getElementById('dlProgLabel').textContent='';
+  document.getElementById('dlProgSpeed').textContent='';
+  document.getElementById('dlProgIcon').classList.remove('done');
+  document.getElementById('dlProgIcon').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  document.getElementById('dlBtn').disabled=false;
+  const dbt=document.getElementById('dlBtnTxt');if(dbt)dbt.textContent=t('dlBtn');
+  document.getElementById('dlCancel').classList.remove('vis');
+}
+
+async function startDownload(){
+  if(!videoInfo.url)return;
+  const isAudio=(DL_MODE==='audio'),isMute=(DL_MODE==='mute'),fmt=isAudio?S.afmt:S.vfmt;
+  const btn=document.getElementById('dlBtn');
+  const btnTxt=document.getElementById('dlBtnTxt');
+  if(btn)btn.disabled=true;
+  if(btnTxt)btnTxt.innerHTML='<div class="spinner"></div>';
+  const cancelBtn=document.getElementById('dlCancel');
+  if(cancelBtn)cancelBtn.classList.add('vis');
+  setProgress(5,t('connecting'),'',false);
+  dlId=crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2);
+  dlAbort=new AbortController();
+  try{
+    const res=await fetch(API+'/download',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:videoInfo.url,quality:S.quality,format:fmt,codec:S.codec,audioQ:S.audioQ,metadata:S.metadata,sid:socketId,download_id:dlId,audio_only:isAudio,mute:isMute}),signal:dlAbort.signal});
+    dlAbort=null;
+    if(res.status===409)return;
+    if(!res.ok){const e=await res.json().catch(()=>({}));resetProgress();if(e.error==='instagram_ratelimit')showErr('⏳',t('igBusy'));else if(isYT(videoInfo.url))showYtErr();else toast(e.error||t('error'),'#ed4245');return;}
+    const blob=await res.blob();
+    const filename=buildFilename(S.fnfTemplate||'{title}.{ext}',videoInfo,fmt);
+    pendingBlob=blob;pendingFilename=filename;
+    addToLocalHistory({url:videoInfo.url,title:videoInfo.title||'video',platform:getPlatformName(videoInfo.url||''),format:fmt});
+    resetProgress();closeOverlay('dlOverlay');openSaveModal(blob,filename);
+  }catch(e){dlAbort=null;resetProgress();if(e.name!=='AbortError')toast(t('error')+': '+e.message,'#ed4245');}
+}
+async function cancelDownload(){
+  if(dlAbort){dlAbort.abort();dlAbort=null;}
+  if(dlId){try{fetch(API+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({download_id:dlId,sid:socketId})});}catch(e){}dlId=null;}
+  resetProgress();toast(t('cancelled'),'#f59e0b');
+}
+
+// ── SAVE MODAL ────────────────────────────────────────
+function openSaveModal(blob,filename){pendingBlob=blob;pendingFilename=filename;document.getElementById('saveOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function saveAction(type){
+  if(!pendingBlob)return;
+  const url=URL.createObjectURL(pendingBlob);
+  if(type==='download'){const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(t('downloaded'),'#3bba64');closeOverlay('saveOverlay');}
+  else if(type==='share'){if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([pendingBlob],pendingFilename)]})){navigator.share({files:[new File([pendingBlob],pendingFilename)],title:pendingFilename}).catch(()=>{});}else{const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(t('downloaded'),'#3bba64');closeOverlay('saveOverlay');}}
+  else if(type==='copy'){
+    const fallback=()=>{const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(LANG==='en'?'Copy not supported here, downloaded instead':'Bu tarayıcıda kopyalama desteklenmiyor, indirildi','#f59e0b');closeOverlay('saveOverlay');};
+    if(navigator.clipboard&&window.ClipboardItem){
+      navigator.clipboard.write([new ClipboardItem({[pendingBlob.type]:pendingBlob})])
+        .then(()=>toast(LANG==='en'?'copied!':'kopyalandı!','#3bba64'))
+        .catch(fallback);
+    } else { fallback(); }
+  }
+}
+
+// ── FILENAME ──────────────────────────────────────────
+function buildFilename(tpl,info,fmt){const now=new Date(),date=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0');return tpl.replace(/{title}/g,(info.title||'video').replace(/[<>:"/\\|?*]/g,'_')).replace(/{artist}/g,(info.uploader||'unknown').replace(/[<>:"/\\|?*]/g,'_')).replace(/{date}/g,date).replace(/{platform}/g,getPlatformName(info.url||'')).replace(/{ext}/g,fmt||'mp4');}
+function getPlatformName(url){if(url.includes('youtube')||url.includes('youtu.be'))return'youtube';if(url.includes('tiktok'))return'tiktok';if(url.includes('instagram'))return'instagram';if(url.includes('twitter')||url.includes('x.com'))return'twitter';if(url.includes('soundcloud'))return'soundcloud';return'video';}
+function updateFnfPreview(){const tpl=document.getElementById('fnfInput').value||'{title}.{ext}';S.fnfTemplate=tpl;saveSt();const el=document.getElementById('fnfPreview');if(el)el.textContent='Örnek: '+buildFilename(tpl,{title:'video_başlığı',uploader:'sanatçı',url:''},S.afmt||'mp3');}
+function insertFnfTag(tag){const inp=document.getElementById('fnfInput');const pos=inp.selectionStart||inp.value.length;inp.value=inp.value.slice(0,pos)+tag+inp.value.slice(inp.selectionEnd||pos);inp.focus();updateFnfPreview();}
+function setFnfTemplate(tpl){document.getElementById('fnfInput').value=tpl;updateFnfPreview();}
+
+// ── PWA ───────────────────────────────────────────────
+let pwaPrompt=null;
+(function(){try{const blob=new Blob([JSON.stringify({name:'ZenithW',short_name:'ZenithW',display:'standalone',background_color:'#0a0a0a',theme_color:'#0a0a0a',start_url:'/',icons:[{src:'https://ui-avatars.com/api/?name=ZW&background=111&color=e8e8e8&size=192',sizes:'192x192',type:'image/png'}]})],{type:'application/json'});document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);}catch(e){}
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pwaPrompt=e;setTimeout(()=>{try{const s=localStorage.getItem('zw_pwa');if(!s)document.getElementById('pwaBanner').classList.add('show');}catch(e){}},3000);});})();
+function installPWA(){if(pwaPrompt){pwaPrompt.prompt();pwaPrompt.userChoice.then(()=>{pwaPrompt=null;dismissPWA();});}}
+function dismissPWA(){document.getElementById('pwaBanner').classList.remove('show');try{localStorage.setItem('zw_pwa','1');}catch(e){}}
+
+// ── SETTINGS UI ───────────────────────────────────────
+function openSettings(){document.getElementById('stOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function stTab(el){document.querySelectorAll('.st-nav-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.st-page').forEach(p=>p.classList.remove('active'));el.classList.add('active');const pg=document.getElementById('stPage'+el.dataset.page.charAt(0).toUpperCase()+el.dataset.page.slice(1));if(pg)pg.classList.add('active');}
+function stChip(el,key){el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');S[key]=el.dataset.v;saveSt();}
+function stToggle(key){S[key]=!S[key];const tog=document.getElementById('tog'+key.charAt(0).toUpperCase()+key.slice(1));if(tog)tog.classList.toggle('on',S[key]);saveSt();}
+
+// ── REMUX ─────────────────────────────────────────────
+function openRemux(){document.getElementById('remuxOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function handleRemuxFile(inp){const f=inp.files[0];if(!f)return;document.getElementById('remuxDrop').innerHTML=`<div class="drop-icon">✅</div><div class="drop-title">${f.name}</div><div class="drop-sub">${(f.size/1024/1024).toFixed(1)} MB</div>`;const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download='remuxed_'+f.name;a.click();toast(t('remuxDone'),'#3bba64');setTimeout(()=>{document.getElementById('remuxDrop').innerHTML=`<div class="drop-icon">🤖</div><div class="drop-title">${t('remuxDropTitle')}</div><div class="drop-sub">${t('remuxDropSub')}</div>`;},2000);}
+function handleRemuxDrop(e){e.preventDefault();document.getElementById('remuxDrop').classList.remove('drag');const f=e.dataTransfer.files[0];if(!f)return;handleRemuxFile({files:[f]});}
+
+// ── CONVERT ───────────────────────────────────────────
+let convFile=null,convTargetFmt='mp3';
+function openConvert(){document.getElementById('convOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function setConvFmt(el){document.querySelectorAll('#convOverlay .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');convTargetFmt=el.dataset.v;_updateConvBtn();}
+function handleConvFile(inp){const f=inp.files[0];if(!f)return;convFile=f;document.getElementById('convDrop').innerHTML=`<div class="drop-icon">✅</div><div class="drop-title">${f.name}</div><div class="drop-sub">${(f.size/1024/1024).toFixed(1)} MB</div>`;_updateConvBtn();}
+function handleConvDrop(e){e.preventDefault();document.getElementById('convDrop').classList.remove('drag');const f=e.dataTransfer.files[0];if(!f)return;convFile=f;document.getElementById('convDrop').innerHTML=`<div class="drop-icon">✅</div><div class="drop-title">${f.name}</div><div class="drop-sub">${(f.size/1024/1024).toFixed(1)} MB</div>`;_updateConvBtn();}
+function _updateConvBtn(){const btn=document.getElementById('convBtn'),txt=document.getElementById('convBtnTxt');if(!btn||!txt)return;if(convFile){btn.disabled=false;txt.textContent=LANG==='en'?`Convert to ${convTargetFmt.toUpperCase()}`:`${convTargetFmt.toUpperCase()} olarak dönüştür`;}else{btn.disabled=true;txt.textContent=t('convBtnSel');}}
+function updateConvBtn(){_updateConvBtn();}// alias for legacy calls
+async function startConvert(){
+  if(!convFile)return;
+  const prog=document.getElementById('convProgress'),btn=document.getElementById('convBtn'),lbl=document.getElementById('convProgLabel'),pct=document.getElementById('convProgPct');
+  prog.classList.add('show');btn.disabled=true;lbl.textContent=t('uploading');pct.textContent='—';
+  try{
+    const fd=new FormData();fd.append('file',convFile);fd.append('target_format',convTargetFmt);
+    lbl.textContent=t('converting');
+    const res=await fetch(API+'/convert',{method:'POST',body:fd});
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||t('error'));}
+    lbl.textContent=t('convDoneLabel');pct.textContent='✓';
+    const blob=await res.blob();const parts=convFile.name.split('.');parts[parts.length-1]=convTargetFmt;
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=parts.join('.');a.click();
+    toast(t('convDone'),'#3bba64');
+    setTimeout(()=>{prog.classList.remove('show');btn.disabled=false;_updateConvBtn();},1500);
+  }catch(e){lbl.textContent=t('error')+': '+e.message;btn.disabled=false;toast(t('error'),'#ed4245');}
+}
+
+// ── OVERLAYS ─────────────────────────────────────────
+function handleOverlay(e,id){if(e.target===document.getElementById(id)){if(id==='plQueueOverlay'){closePlaylistQueue();}else{closeOverlay(id);}}}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+function openDonate(){document.getElementById('donOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function openUpdates(){renderUpdates();document.getElementById('updOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function openAbout(){document.getElementById('aboutOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function openHistory(){document.getElementById('historyOverlay').classList.add('open');document.body.style.overflow='hidden';loadHistory();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){['dlOverlay','stOverlay','remuxOverlay','convOverlay','updOverlay','donOverlay','aboutOverlay','saveOverlay','historyOverlay','servicesOverlay'].forEach(id=>closeOverlay(id));closePlaylistQueue();document.getElementById('servicesChip').classList.remove('open');}});
+
+// ── UTILS ─────────────────────────────────────────────
+function toast(msg,color){const el=document.getElementById('toast');document.getElementById('toastTxt').textContent=msg;document.getElementById('toastDot').style.background=color||'#e8e8e8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+function copyText(txt,btn){navigator.clipboard.writeText(txt).then(()=>{const o=btn.textContent;btn.textContent='✓';setTimeout(()=>btn.textContent=o,2000);});}
+function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});document.getElementById('urlInput').focus();}
+function toggleAccordion(el){el.classList.toggle('open');}
+
+// ── HISTORY (localStorage — kullanıcıya özel, sunucuda tutulmaz) ──
+const HISTORY_KEY='zw_history';
+const HISTORY_LIMIT=100;
+function getLocalHistory(){try{const r=localStorage.getItem(HISTORY_KEY);return r?JSON.parse(r):[];}catch(e){return [];}}
+function saveLocalHistory(h){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(h.slice(0,HISTORY_LIMIT)));}catch(e){}}
+function addToLocalHistory(entry){
+  const h=getLocalHistory();
+  h.unshift({id:(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)),timestamp:new Date().toISOString(),...entry});
+  saveLocalHistory(h);
+}
+function loadHistory(){
+  const list=document.getElementById('historyList');
+  if(!list)return;
+  const history=getLocalHistory();
+  if(!history||history.length===0){
+    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);font-size:12px;">'+t('historyEmpty')+'</div>';
+    return;
+  }
+  list.innerHTML=history.map(h=>`
+    <div style="background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span style="font-size:10px;background:var(--border);padding:3px 6px;border-radius:4px;color:var(--text2);text-transform:uppercase;">${h.platform||''}</span>
+        <span style="font-size:10px;background:var(--border);padding:3px 6px;border-radius:4px;color:var(--text2);">${h.format||''}</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:auto;">${new Date(h.timestamp).toLocaleDateString()}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${h.title||''}</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="reDownload('${h.url}')" style="background:var(--btn-bg);border:none;border-radius:6px;padding:6px 10px;font-size:10px;font-weight:600;color:var(--btn-color);cursor:pointer;">${t('historyRedownload')}</button>
+        <button onclick="copyText('${h.url}',this)" style="background:var(--chip-bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:10px;font-weight:600;color:var(--text2);cursor:pointer;">${t('historyCopyLink')}</button>
+      </div>
+    </div>
+  `).join('');
+}
+function clearHistory(){
+  saveLocalHistory([]);
+  loadHistory();
+  toast(t('historyClearedMsg'),'#3bba64');
+}
+async function reDownload(url){
+  closeOverlay('historyOverlay');
+  document.getElementById('urlInput').value=url;
+  onInput();
+  fetchVideo();
+}
+
+// ── MICRO-INTERACTIONS: ripple + magnetic hover (visual only, no logic changes) ──
+(function(){
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const RIPPLE_SEL='.action-btn,.vc-dl,.pl-dl-btn,.url-go-btn,.dl-btn,.save-btn,.bar-btn,.mode-btn,.btn-paste,.chip,.theme-btn';
+  document.addEventListener('click',e=>{
+    const el=e.target.closest(RIPPLE_SEL);
+    if(!el)return;
+    const rect=el.getBoundingClientRect();
+    const d=Math.max(rect.width,rect.height);
+    const r=document.createElement('span');
+    r.className='ripple';
+    r.style.width=r.style.height=d+'px';
+    r.style.left=(e.clientX-rect.left-d/2)+'px';
+    r.style.top=(e.clientY-rect.top-d/2)+'px';
+    if(getComputedStyle(el).position==='static')el.style.position='relative';
+    el.style.overflow=el.style.overflow||'hidden';
+    el.appendChild(r);
+    setTimeout(()=>r.remove(),650);
+  });
+  if(!reduceMotion&&!('ontouchstart' in window)){
+    const MAG_SEL='.action-btn,.vc-dl,.pl-dl-btn,.url-go-btn,.services-chip';
+    document.querySelectorAll(MAG_SEL).forEach(el=>el.setAttribute('data-magnetic',''));
+    document.addEventListener('mousemove',e=>{
+      document.querySelectorAll('[data-magnetic]').forEach(el=>{
+        const r=el.getBoundingClientRect();
+        const cx=r.left+r.width/2,cy=r.top+r.height/2;
+        const dx=e.clientX-cx,dy=e.clientY-cy;
+        const dist=Math.hypot(dx,dy);
+        const range=90;
+        if(dist<range){
+          const strength=(1-dist/range)*8;
+          el.style.transform=`translate(${(dx/dist||0)*strength}px,${(dy/dist||0)*strength}px)`;
+        }else{
+          el.style.transform='';
+        }
+      });
+    });
+  }
+})();
+
+// ── INIT ──────────────────────────────────────────────
+(function init(){
+  loadSt();
+  try{const sl=localStorage.getItem('zw_lang');if(sl)LANG=sl;else LANG=detectLang();}catch(e){LANG=detectLang();}
+  applyStUI();
+  setTheme(S.theme||'dark');
+  setAccent(S.accent||'default');
+  applyLang(); // LAST — after all functions are defined
+  window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.theme==='auto')setTheme('auto');});
+})();
+</script>
+</body>
+</html>
