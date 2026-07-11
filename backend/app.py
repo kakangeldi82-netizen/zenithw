@@ -107,6 +107,17 @@ def is_tiktok(u):  return "tiktok.com" in u
 def is_instagram(u): return "instagram.com" in u
 def is_youtube_live_url(u): return is_youtube(u) and "/live/" in u
 
+# yt-dlp'nin native extractor'ı olmayan, "generic" extractor'a düşüp
+# sahte-başarı (ör. og:image'i video sanıp) dönebilen bilinen platformlar.
+# Bunları yt-dlp'ye hiç sormadan erkenden reddediyoruz.
+UNSUPPORTED_DOMAINS = (
+    "spotify.com", "music.apple.com", "deezer.com", "tidal.com",
+    "music.amazon.com", "music.youtube.com",
+)
+def is_unsupported_domain(u):
+    ul = u.lower()
+    return any(d in ul for d in UNSUPPORTED_DOMAINS)
+
 # ── Audio-only formatlar ──────────────────────────────
 AUDIO_FMTS = {"mp3", "flac", "wav", "ogg", "opus", "m4a"}
 
@@ -282,6 +293,9 @@ def get_info():
     if is_youtube_live_url(url):
         return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
 
+    if is_unsupported_domain(url):
+        return jsonify({"error": "Bu platform desteklenmiyor. Desteklenen platformları kontrol edin."}), 400
+
     # Playlist olabilecek bir URL ise hızlı (flat) çıkarım kullan ve
     # videoyu 50 ile sınırla, yoksa çok büyük playlistler sunucuyu
     # uzun süre kilitleyebilir.
@@ -374,6 +388,9 @@ def download():
 
     if is_youtube_live_url(url):
         return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
+
+    if is_unsupported_domain(url):
+        return jsonify({"error": "Bu platform desteklenmiyor. Desteklenen platformları kontrol edin."}), 400
 
     is_audio = fmt in AUDIO_FMTS
 

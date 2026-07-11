@@ -3,55 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kullanım Koşulları — ZenithW</title>
-<meta name="description" content="ZenithW kullanım koşulları ve sorumluluk reddi: aracın nasıl kullanılabileceği, kullanıcı sorumlulukları ve telif hakkı konusunda uyarılar.">
+<title id="pgTitle">Kullanım Koşulları — ZenithW</title>
+<meta name="description" id="pgDesc" content="ZenithW kullanım koşulları ve sorumluluk reddi: aracın nasıl kullanılabileceği, kullanıcı sorumlulukları ve telif hakkı konusunda uyarılar.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://zenithw.space/terms.html">
 <meta name="theme-color" content="#0a0a0a">
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>.legal-lang-toggle{display:flex;gap:4px;background:var(--chip-bg);border:1px solid var(--border);border-radius:20px;padding:3px;}
+.legal-lang-toggle button{border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;transition:all .15s;}
+.legal-lang-toggle button.active{background:var(--text);color:var(--bg,#0a0a0a);}
+.legal-nav{gap:10px;flex-wrap:wrap;}</style>
 </head>
 <body>
 <div class="legal-page">
   <div class="legal-nav">
     <a href="/" class="legal-logo">ZenithW<span>.</span></a>
-    <a href="/" class="legal-back">← ana sayfa</a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="legal-lang-toggle" id="legalLangToggle">
+        <button data-lang="tr" onclick="setLegalLang('tr')">TR</button>
+        <button data-lang="en" onclick="setLegalLang('en')">EN</button>
+      </div>
+      <a href="/" class="legal-back" id="pgBack">← ana sayfa</a>
+    </div>
   </div>
   <div class="legal-hero">
-    <h1>Kullanım Koşulları</h1>
-    <div class="legal-updated">Son güncelleme: 11 Temmuz 2026</div>
+    <h1 id="pgH1">Kullanım Koşulları</h1>
+    <div class="legal-updated" id="pgUpdated">Son güncelleme: 11 Temmuz 2026</div>
   </div>
-  <div class="legal-body">
-    <h2>1. Hizmetin niteliği</h2>
-    <p>ZenithW, kullanıcının kendisinin sağladığı bir bağlantıdan (URL) video veya ses içeriği indirmesine yardımcı olan, ücretsiz ve reklamsız bir teknik araçtır. Siteye bir video yüklenmez, barındırılmaz veya dağıtılmaz — yalnızca kullanıcının belirttiği kaynaktan geçici bir aktarım yapılır.</p>
-
-    <h2>2. Sorumluluk reddi (disclaimer)</h2>
-    <p>Bu araç, yalnızca <strong>kullanıcının üzerinde hak sahibi olduğu, kullanım izni bulunan veya telif hakkından muaf (kamu malı, Creative Commons vb.) içerikler</strong> için tasarlanmıştır. İndirdiğiniz içeriğin kullanım şeklinden (yeniden yayınlama, ticari kullanım, dağıtım vb.) tamamen siz sorumlusunuz. ZenithW, kullanıcıların indirdiği içerikler üzerinde herhangi bir kontrol veya denetim uygulamaz ve bu içeriklerin nasıl kullanıldığından sorumlu tutulamaz.</p>
-    <p>Site, hiçbir platformun (YouTube, TikTok, Instagram, X/Twitter, Reddit ve diğerleri) resmi bir ortağı, temsilcisi veya iştiraki değildir. Bahsi geçen platform adları yalnızca teknik uyumluluğu belirtmek amacıyla kullanılır.</p>
-
-    <h2>3. Yasaklı kullanımlar</h2>
-    <ul>
-      <li>Başkalarının telif haklarını ihlal eden içeriklerin izinsiz indirilmesi ve yeniden dağıtılması,</li>
-      <li>Hizmete otomatik script/bot ile aşırı yük bindirmek veya rate-limit korumasını aşmaya çalışmak,</li>
-      <li>Servisi yasa dışı, zararlı veya başkalarının haklarını ihlal eden herhangi bir amaçla kullanmak</li>
-    </ul>
-    <p>kesinlikle yasaktır. Bu tür kullanımların tespiti halinde erişim engellenebilir.</p>
-
-    <h2>4. Hizmetin sürekliliği</h2>
-    <p>ZenithW "olduğu gibi" (as-is) sunulur. Kaynak platformların (ör. YouTube) yaptığı değişiklikler, bot koruması güncellemeleri veya sunucu bakımları nedeniyle hizmette geçici kesintiler veya belirli platformlarda çalışmama durumları olabilir. Kesintisiz veya hatasız çalışma garantisi verilmez.</p>
-
-    <h2>5. Sorumluluğun sınırlandırılması</h2>
-    <p>ZenithW ve geliştiricisi, hizmetin kullanımından doğabilecek doğrudan veya dolaylı zararlardan (veri kaybı, telif ihlali iddiaları, üçüncü taraf talepleri dahil) sorumlu tutulamaz. Hizmeti kullanarak bu koşulları kabul etmiş sayılırsınız.</p>
-
-    <h2>6. Değişiklikler</h2>
-    <p>Bu koşullar zaman zaman güncellenebilir. Güncel sürüm her zaman bu sayfada yayınlanır.</p>
-
-    <h2>İletişim</h2>
-    <p>Sorularınız için: <a href="mailto:info@zenithw.space">info@zenithw.space</a></p>
-  </div>
-  <div class="legal-footer">
-    <a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/dmca.html">telif bildirimi</a>·<a href="/status.html">durum</a>
-  </div>
+  <div class="legal-body" id="pgBody"></div>
+  <div class="legal-footer" id="pgFooter"></div>
 </div>
+
+<script>
+const TX={
+  tr:{
+    title:'Kullanım Koşulları — ZenithW',
+    desc:'ZenithW kullanım koşulları ve sorumluluk reddi: aracın nasıl kullanılabileceği, kullanıcı sorumlulukları ve telif hakkı konusunda uyarılar.',
+    h1:'Kullanım Koşulları', updated:'Son güncelleme: 11 Temmuz 2026', back:'← ana sayfa',
+    body:`
+      <h2>1. Hizmetin niteliği</h2>
+      <p>ZenithW, kullanıcının kendisinin sağladığı bir bağlantıdan (URL) video veya ses içeriği indirmesine yardımcı olan, ücretsiz ve reklamsız bir teknik araçtır. Siteye bir video yüklenmez, barındırılmaz veya dağıtılmaz — yalnızca kullanıcının belirttiği kaynaktan geçici bir aktarım yapılır.</p>
+      <h2>2. Sorumluluk reddi (disclaimer)</h2>
+      <p>Bu araç, yalnızca <strong>kullanıcının üzerinde hak sahibi olduğu, kullanım izni bulunan veya telif hakkından muaf (kamu malı, Creative Commons vb.) içerikler</strong> için tasarlanmıştır. İndirdiğiniz içeriğin kullanım şeklinden (yeniden yayınlama, ticari kullanım, dağıtım vb.) tamamen siz sorumlusunuz. ZenithW, kullanıcıların indirdiği içerikler üzerinde herhangi bir kontrol veya denetim uygulamaz ve bu içeriklerin nasıl kullanıldığından sorumlu tutulamaz.</p>
+      <p>Site, hiçbir platformun (YouTube, TikTok, Instagram, X/Twitter, Reddit ve diğerleri) resmi bir ortağı, temsilcisi veya iştiraki değildir. Bahsi geçen platform adları yalnızca teknik uyumluluğu belirtmek amacıyla kullanılır.</p>
+      <h2>3. Yasaklı kullanımlar</h2>
+      <ul>
+        <li>Başkalarının telif haklarını ihlal eden içeriklerin izinsiz indirilmesi ve yeniden dağıtılması,</li>
+        <li>Hizmete otomatik script/bot ile aşırı yük bindirmek veya rate-limit korumasını aşmaya çalışmak,</li>
+        <li>Servisi yasa dışı, zararlı veya başkalarının haklarını ihlal eden herhangi bir amaçla kullanmak</li>
+      </ul>
+      <p>kesinlikle yasaktır. Bu tür kullanımların tespiti halinde erişim engellenebilir.</p>
+      <h2>4. Hizmetin sürekliliği</h2>
+      <p>ZenithW "olduğu gibi" (as-is) sunulur. Kaynak platformların (ör. YouTube) yaptığı değişiklikler, bot koruması güncellemeleri veya sunucu bakımları nedeniyle hizmette geçici kesintiler veya belirli platformlarda çalışmama durumları olabilir. Kesintisiz veya hatasız çalışma garantisi verilmez.</p>
+      <h2>5. Sorumluluğun sınırlandırılması</h2>
+      <p>ZenithW ve geliştiricisi, hizmetin kullanımından doğabilecek doğrudan veya dolaylı zararlardan (veri kaybı, telif ihlali iddiaları, üçüncü taraf talepleri dahil) sorumlu tutulamaz. Hizmeti kullanarak bu koşulları kabul etmiş sayılırsınız.</p>
+      <h2>6. Değişiklikler</h2>
+      <p>Bu koşullar zaman zaman güncellenebilir. Güncel sürüm her zaman bu sayfada yayınlanır.</p>
+      <h2>İletişim</h2>
+      <p>Sorularınız için: <a href="mailto:info@zenithw.space">info@zenithw.space</a></p>`,
+    footer:'<a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/dmca.html">telif bildirimi</a>·<a href="/status.html">durum</a>'
+  },
+  en:{
+    title:'Terms of Service — ZenithW',
+    desc:'ZenithW terms of service and disclaimer: how the tool may be used, user responsibilities, and copyright notices.',
+    h1:'Terms of Service', updated:'Last updated: July 11, 2026', back:'← home',
+    body:`
+      <h2>1. Nature of the service</h2>
+      <p>ZenithW is a free, ad-free technical tool that helps you download video or audio content from a link (URL) you provide. No video is uploaded to, hosted on, or distributed by the site — only a temporary transfer takes place from the source you specify.</p>
+      <h2>2. Disclaimer</h2>
+      <p>This tool is intended only for <strong>content you own the rights to, have permission to use, or that is free of copyright (public domain, Creative Commons, etc.)</strong>. You are solely responsible for how you use downloaded content (republishing, commercial use, distribution, etc.). ZenithW exercises no control or oversight over the content users download and cannot be held responsible for how it is used.</p>
+      <p>The site is not an official partner, representative, or affiliate of any platform (YouTube, TikTok, Instagram, X/Twitter, Reddit, or others). Platform names mentioned are used solely to indicate technical compatibility.</p>
+      <h2>3. Prohibited uses</h2>
+      <ul>
+        <li>Downloading and redistributing content that infringes on others' copyrights without permission,</li>
+        <li>Overloading the service with automated scripts/bots or attempting to bypass rate-limit protections,</li>
+        <li>Using the service for any illegal, harmful purpose or one that violates others' rights</li>
+      </ul>
+      <p>are strictly prohibited. Access may be blocked if such use is detected.</p>
+      <h2>4. Service continuity</h2>
+      <p>ZenithW is provided "as-is." Due to changes made by source platforms (e.g. YouTube), bot-protection updates, or server maintenance, temporary interruptions or platform-specific outages may occur. No guarantee of uninterrupted or error-free operation is provided.</p>
+      <h2>5. Limitation of liability</h2>
+      <p>ZenithW and its developer cannot be held liable for any direct or indirect damages arising from use of the service (including data loss, copyright infringement claims, or third-party claims). By using the service, you are deemed to accept these terms.</p>
+      <h2>6. Changes</h2>
+      <p>These terms may be updated from time to time. The current version is always published on this page.</p>
+      <h2>Contact</h2>
+      <p>For questions: <a href="mailto:info@zenithw.space">info@zenithw.space</a></p>`,
+    footer:'<a href="/">home</a>·<a href="/privacy.html">privacy</a>·<a href="/dmca.html">copyright notice</a>·<a href="/status.html">status</a>'
+  }
+};
+function setLegalLang(l){
+  const t=TX[l]||TX.en;
+  document.documentElement.lang=l;
+  document.getElementById('pgTitle').textContent=t.title;
+  document.getElementById('pgDesc').setAttribute('content',t.desc);
+  document.getElementById('pgH1').textContent=t.h1;
+  document.getElementById('pgUpdated').textContent=t.updated;
+  document.getElementById('pgBack').textContent=t.back;
+  document.getElementById('pgBody').innerHTML=t.body;
+  document.getElementById('pgFooter').innerHTML=t.footer;
+  document.querySelectorAll('#legalLangToggle button').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));
+  try{localStorage.setItem('zw_lang',l);}catch(e){}
+}
+(function(){
+  let saved='tr';
+  try{saved=localStorage.getItem('zw_lang')||'tr';}catch(e){}
+  if(saved!=='tr')saved='en';
+  setLegalLang(saved);
+})();
+</script>
 </body>
 </html>

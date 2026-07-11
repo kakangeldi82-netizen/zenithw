@@ -112,7 +112,7 @@
       <div class="mode-spacer"></div>
       <button class="btn-paste" onclick="pasteAndFetch()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-        <span id="pasteTxt">yapıştır</span>
+        <span id="paste">yapıştır</span>
       </button>
     </div>
     <div class="yt-warn" id="ytWarn">youtube desteği beta — IP kısıtlamaları nedeniyle hata verebilir.</div>
@@ -188,7 +188,7 @@
 <div class="bottom-bar">
   <button class="bar-btn active" onclick="scrollToTop()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v13M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="bbSave">kaydet</span></button>
   <button class="bar-btn" onclick="openHistory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="bbHistory">geçmiş</span></button>
-  <button class="bar-btn" onclick="openUpdates()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="bbUpdates">güncel</span></button>
+  <button class="bar-btn" onclick="location.href='/updates.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="bbUpdates">güncel</span></button>
   <button class="bar-btn" onclick="openConvert()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg><span id="bbConvert">dönüştür</span></button>
   <div class="bar-divider"></div>
   <button class="bar-btn" id="moreBtn" onclick="toggleMoreMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg><span id="bbMore">diğer</span></button>
@@ -524,19 +524,6 @@
   </div>
 </div>
 
-<!-- UPDATES -->
-<div class="overlay tone-neutral" id="updOverlay" onclick="handleOverlay(event,'updOverlay')">
-  <div class="heart-bg"></div>
-  <div class="upd-modal">
-    <div class="handle" style="margin:-6px auto 12px;"></div>
-    <button class="modal-close-btn" onclick="closeOverlay('updOverlay')">✕</button>
-    <div class="upd-header">
-      <div class="upd-badge" id="updBadge">LATEST</div>
-      <div class="upd-title" id="updTitle">güncellemeler</div>
-    </div>
-    <div id="updEntries"></div>
-  </div>
-</div>
 
 <!-- DONATE -->
 <div class="overlay tone-warm" id="donOverlay" onclick="handleOverlay(event,'donOverlay')">
@@ -621,7 +608,7 @@ let socketId=null,videoInfo={},dlId=null,dlAbort=null,ytErrTimer=null,pendingBlo
 let LANG='tr';
 const TX={
   tr:{
-    placeholder:'bir video linki yapıştır…',bulkPlaceholder:'linkleri her satıra bir tane olacak şekilde yapıştır... (Enter ile indir, Shift+Enter ile yeni satır)',modeAuto:'auto',modeAudio:'audio',modeMute:'sessiz',paste:'yapıştır',
+    placeholder:'bir video linki yapıştır…',bulkPlaceholder:'linkleri her satıra bir tane olacak şekilde yapıştır... (Enter ile indir, Shift+Enter ile yeni satır)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'sessiz',paste:'yapıştır',
     vcDl:'indir',dlBtn:'indir',dlCancel:'iptal',
     bbSave:'kaydet',bbHistory:'geçmiş',bbRemux:'remux',bbConvert:'dönüştür',bbSettings:'ayarlar',bbUpdates:'güncel',bbAbout:'hakkında',bbMore:'diğer',bbDonate:'destek ol',
     saveTitleTxt:'nasıl kaydetmek istersin?',saveDlTxt:'indir',saveShareTxt:'paylaş',saveCopyTxt:'kopyala',
@@ -679,7 +666,7 @@ const TX={
     updBadge:'GÜNCEL',
   },
   en:{
-    placeholder:'paste link here',bulkPlaceholder:'paste links, one per line... (Enter to download, Shift+Enter for a new line)',modeAuto:'auto',modeAudio:'audio',modeMute:'mute',paste:'paste',
+    placeholder:'paste link here',bulkPlaceholder:'paste links, one per line... (Enter to download, Shift+Enter for a new line)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'mute',paste:'paste',
     vcDl:'download',dlBtn:'download',dlCancel:'cancel',
     bbSave:'save',bbHistory:'history',bbRemux:'remux',bbConvert:'convert',bbSettings:'settings',bbUpdates:'updates',bbAbout:'about',bbMore:'more',bbDonate:'support us',
     saveTitleTxt:'choose how to save',saveDlTxt:'download',saveShareTxt:'share',saveCopyTxt:'copy',
@@ -737,7 +724,7 @@ const TX={
     updBadge:'LATEST',
   },
   fr:{
-    placeholder:'collez un lien vidéo…',bulkPlaceholder:'collez les liens, un par ligne... (Entrée pour télécharger, Maj+Entrée pour une nouvelle ligne)',modeAuto:'auto',modeAudio:'audio',modeMute:'muet',paste:'coller',
+    placeholder:'collez un lien vidéo…',bulkPlaceholder:'collez les liens, un par ligne... (Entrée pour télécharger, Maj+Entrée pour une nouvelle ligne)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'muet',paste:'coller',
     vcDl:'télécharger',dlBtn:'télécharger',dlCancel:'annuler',
     bbSave:'enregistrer',bbHistory:'historique',bbRemux:'remux',bbConvert:'convertir',bbSettings:'paramètres',bbUpdates:'nouveautés',bbAbout:'à propos',bbMore:'plus',bbDonate:'soutenir',
     saveTitleTxt:'comment voulez-vous enregistrer ?',saveDlTxt:'télécharger',saveShareTxt:'partager',saveCopyTxt:'copier',
@@ -795,7 +782,7 @@ const TX={
     updBadge:'RÉCENT',
   },
   de:{
-    placeholder:'video-link hier einfügen…',bulkPlaceholder:'links einfügen, einen pro Zeile... (Enter zum Herunterladen, Umschalt+Enter für neue Zeile)',modeAuto:'auto',modeAudio:'audio',modeMute:'stumm',paste:'einfügen',
+    placeholder:'video-link hier einfügen…',bulkPlaceholder:'links einfügen, einen pro Zeile... (Enter zum Herunterladen, Umschalt+Enter für neue Zeile)',modeAutoTxt:'auto',modeAudioTxt:'audio',modeMuteTxt:'stumm',paste:'einfügen',
     vcDl:'herunterladen',dlBtn:'herunterladen',dlCancel:'abbrechen',
     bbSave:'speichern',bbHistory:'verlauf',bbRemux:'remux',bbConvert:'konvertieren',bbSettings:'einstellungen',bbUpdates:'neuigkeiten',bbAbout:'über',bbMore:'mehr',bbDonate:'unterstützen',
     saveTitleTxt:'wie möchtest du speichern?',saveDlTxt:'herunterladen',saveShareTxt:'teilen',saveCopyTxt:'kopieren',
@@ -856,144 +843,6 @@ const TX={
 function t(k){return(TX[LANG]||TX.tr)[k]||(TX.tr[k]||k);}
 function detectLang(){const l=(navigator.language||'tr').slice(0,2).toLowerCase();return['en','fr','de'].includes(l)?l:'tr';}
 
-// ── UPDATES CHANGELOG — bilingual (tr/en) data, rendered dynamically ──
-const UPDATES=[
-  {ver:'v5.6',badges:['new','fix'],latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
-    bulletsTr:[
-      '<strong>Çok dilli deneyim iyileştirildi:</strong> Güncellemeler, remux, playlist ve geçmiş gibi bölümlerdeki metinler artık İngilizce\'de de eksiksiz görünüyor.',
-      '<strong>Yeni diller yolda:</strong> Dil listesine Fransızca ve Almanca eklendi; şu an seçildiklerinde "yakında geliyor" uyarısı gösteriliyor.',
-      '<strong>Performans iyileştirmeleri:</strong> Arka plan animasyonları hem masaüstünde hem mobilde daha akıcı çalışacak şekilde yeniden ayarlandı.',
-      '<strong>Küçük hatalar giderildi.</strong>'
-    ],
-    bulletsEn:[
-      '<strong>Multilingual experience improved:</strong> Text across the updates, remux, playlist, and history sections now displays fully in English.',
-      '<strong>New languages on the way:</strong> French and German were added to the language list; selecting them currently shows a "coming soon" notice.',
-      '<strong>Performance improvements:</strong> Background animations were retuned to run more smoothly on both desktop and mobile.',
-      '<strong>Minor bug fixes.</strong>'
-    ]
-  },
-  {ver:'v5.5',badges:['new','fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
-    bulletsTr:[
-      '<strong>Yeni uzay temalı tasarım:</strong> Arka plan tamamen yenilendi; yıldızlar, yumuşak bulutsular ve hafif bir hareket efekti eklendi.',
-      '<strong>Sade siyah-gri palet:</strong> Renk şeması sadeleştirildi, gereksiz renk kirliliği kaldırıldı.',
-      '<strong>Cam efektli (glassmorphism) tasarım:</strong> Pencerelere yumuşak blur, ince kenarlık ve akıcı geçiş animasyonları eklendi.',
-      '<strong>Küçük etkileşim dokunuşları:</strong> Butonlara tıklama efekti ve masaüstünde imleç takibi eklendi.',
-      '<strong>Desteklenen platformlar penceresi yenilendi.</strong>',
-      '<strong>YouTube uyarı kutusu yenilendi.</strong>',
-      '<strong>Masaüstü ve mobil uyum iyileştirildi:</strong> Menüler ve pencereler artık her ekran boyutunda daha düzgün görünüyor.',
-      '<strong>Hakkında bölümü genişletildi.</strong>',
-      '<strong>Menü konumu düzeltildi.</strong>'
-    ],
-    bulletsEn:[
-      '<strong>New space-themed design:</strong> The background got a full overhaul with stars, soft clouds, and a gentle motion effect.',
-      '<strong>Cleaner black-and-gray palette:</strong> Simplified the color scheme and removed unnecessary color noise.',
-      '<strong>Glassmorphism design:</strong> Windows now have soft blur, thin borders, and smooth transition animations.',
-      '<strong>Small interaction touches:</strong> Added a tap effect on buttons and cursor-following hover on desktop.',
-      '<strong>Refreshed the supported-platforms window.</strong>',
-      '<strong>Redesigned the YouTube warning box.</strong>',
-      '<strong>Better desktop/mobile compatibility:</strong> Menus and windows now look right at every screen size.',
-      '<strong>Expanded the about section.</strong>',
-      '<strong>Fixed the menu position.</strong>'
-    ]
-  },
-  {ver:'v5.4',badges:['fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
-    bulletsTr:[
-      '<strong>Renkli tema seçenekleri:</strong> Mor, mavi, gri ve pembe gibi yeni vurgu renkleri eklendi.',
-      '<strong>Sessiz mod düzeltmesi:</strong> Sessiz indirmelerde format seçimiyle ilgili bir hata giderildi.',
-      '<strong>Dönüştürücü güvenilirliği artırıldı:</strong> Dosya dönüştürmede nadir görülen bir hata giderildi.',
-      '<strong>Hız iyileştirmesi:</strong> İndirme öncesi gereksiz bir adım kaldırılarak süreç hızlandırıldı.',
-      '<strong>Arka planda küçük kararlılık düzeltmeleri yapıldı.</strong>',
-      '<strong>Görsel ince ayarlar:</strong> Radar efekti, kademeli pencere geçişleri ve daha tutarlı tıklama geri bildirimi eklendi.'
-    ],
-    bulletsEn:[
-      '<strong>Color accent options:</strong> Added new accent colors — purple, blue, gray, and pink.',
-      '<strong>Mute mode fix:</strong> Fixed a format-selection bug affecting mute downloads.',
-      '<strong>Converter reliability improved:</strong> Fixed a rare bug in file conversion.',
-      '<strong>Faster downloads:</strong> Removed an unnecessary step before downloads to speed things up.',
-      '<strong>Small stability fixes behind the scenes.</strong>',
-      '<strong>Visual polish:</strong> Added a radar effect, staggered window transitions, and more consistent tap feedback.'
-    ]
-  },
-  {ver:'v5.3',badges:['fix','new'],latest:false,dateTr:'haziran 2026',dateEn:'June 2026',
-    bulletsTr:[
-      '<strong>Toplu indirme:</strong> Artık tek seferde birden fazla link ekleyip hepsini birden indirebilirsiniz.',
-      '<strong>YouTube güvenilirliği artırıldı:</strong> Bazı videolarda yaşanan erişim sorunları giderildi.',
-      '<strong>Arayüz iyileştirmeleri:</strong> Alt menüye hızlı erişim sekmeleri eklendi.'
-    ],
-    bulletsEn:[
-      '<strong>Bulk download:</strong> Add multiple links at once and download them all together.',
-      '<strong>YouTube reliability improved:</strong> Fixed access issues affecting some videos.',
-      '<strong>UI improvements:</strong> Added quick-access tabs to the bottom menu.'
-    ]
-  },
-  {ver:'v5.2',badges:['fix','new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>Dinamik Dil Desteği:</strong> Dil değiştirme sistemi iyileştirildi; metinler sayfayı yenilemeden anlık güncelleniyor.',
-      '<strong>Mobil Ayarlar Paneli:</strong> Kaydırmalı sekme tasarımı ile dar ekranlarda kullanım optimize edildi.',
-      '<strong>Görünüm Optimizasyonu:</strong> Açık tema renk paleti yenilendi; modallar ve okunabilirlik geliştirildi.',
-      '<strong>Hata Giderimleri:</strong> Audio ve Mute indirmelerindeki kesinti sorunları giderildi.'
-    ],
-    bulletsEn:[
-      '<strong>Dynamic language support:</strong> Improved the language-switching system; text updates instantly without a page reload.',
-      '<strong>Mobile settings panel:</strong> Optimized for narrow screens with a scrollable tab design.',
-      '<strong>Appearance optimization:</strong> Refreshed the light theme color palette; improved modals and readability.',
-      '<strong>Bug fixes:</strong> Fixed interruption issues in audio and mute downloads.'
-    ]
-  },
-  {ver:'v5.1',badges:['fix'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>Modern indirme penceresi:</strong> Daha şık, sade bir "nasıl kaydetmek istersin?" arayüzüne geçildi.',
-      '<strong>YouTube başarı oranı arttı:</strong> Video yakalama kararlılığı iyileştirildi.',
-      '<strong>Daha hızlı indirme:</strong> Arka plandaki işleyiş sadeleştirilerek hız kazandırıldı.'
-    ],
-    bulletsEn:[
-      '<strong>Modern download window:</strong> Switched to a sleeker, simpler "how would you like to save?" interface.',
-      '<strong>YouTube success rate improved:</strong> Better video-capture stability.',
-      '<strong>Faster downloads:</strong> Streamlined the underlying process for better speed.'
-    ]
-  },
-  {ver:'v5.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>PWA Desteği:</strong> Uygulamayı ana ekrana ekleyerek native bir deneyim yaşayabilirsiniz.',
-      '<strong>Yeni Araçlar:</strong> Dosya dönüştürücü ve QR kod ile telefona hızlı aktarım eklendi.',
-      '<strong>Metadata:</strong> Dosya adı formatını özelleştirme özelliği aktif edildi.'
-    ],
-    bulletsEn:[
-      '<strong>PWA support:</strong> Add the app to your home screen for a native-like experience.',
-      '<strong>New tools:</strong> Added a file converter and QR code for quick transfer to your phone.',
-      '<strong>Metadata:</strong> Enabled custom filename formatting.'
-    ]
-  },
-  {ver:'v4.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
-    bulletsTr:[
-      '<strong>Format Çeşitliliği:</strong> FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV desteği eklendi.',
-      '<strong>İleri Düzey Kodlama:</strong> AV1 + OPUS ve VP9 + OPUS desteğiyle 8K ve HDR video indirme aktif edildi.'
-    ],
-    bulletsEn:[
-      '<strong>Format variety:</strong> Added support for FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV.',
-      '<strong>Advanced encoding:</strong> Enabled 8K and HDR video downloads with AV1+OPUS and VP9+OPUS support.'
-    ]
-  }
-];
-function renderUpdates(){
-  const container=document.getElementById('updEntries');
-  if(!container)return;
-  container.innerHTML=UPDATES.map(u=>{
-    const badgesHtml=u.badges.map(b=>`<span class="badge badge-${b}">${b}</span>`).join('');
-    const date=LANG==='tr'?u.dateTr:u.dateEn;
-    const bullets=LANG==='tr'?u.bulletsTr:u.bulletsEn;
-    const items=bullets.map(b=>`<li>${b}</li>`).join('');
-    const openCls=u.latest?' open':'';
-    const latestCls=u.latest?' latest':'';
-    return `<div class="upd-entry${latestCls} upd-accordion${openCls}" onclick="toggleAccordion(this)">
-      <div class="upd-accordion-header">
-        <div class="upd-ver-row"><span class="upd-ver">${u.ver}</span>${badgesHtml}<span class="upd-date">${date}</span></div>
-        <span class="upd-accordion-icon">▼</span>
-      </div>
-      <div class="upd-accordion-content"><ul class="upd-list-simple">${items}</ul></div>
-    </div>`;
-  }).join('');
-}
 
 function applyLang(){
   document.documentElement.lang=LANG;
@@ -1015,8 +864,6 @@ function applyLang(){
   const ls=document.getElementById('langSelect');if(ls)ls.value=LANG;
   // conv btn
   _updateConvBtn();
-  // changelog (only meaningful if the updates modal has been opened at least once)
-  if(document.getElementById('updEntries'))renderUpdates();
 }
 
 function setLang(lang){
@@ -1700,10 +1547,9 @@ async function startConvert(){
 function handleOverlay(e,id){if(e.target===document.getElementById(id)){if(id==='plQueueOverlay'){closePlaylistQueue();}else{closeOverlay(id);}}}
 function closeOverlay(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
 function openDonate(){document.getElementById('donOverlay').classList.add('open');document.body.style.overflow='hidden';}
-function openUpdates(){renderUpdates();document.getElementById('updOverlay').classList.add('open');document.body.style.overflow='hidden';}
 function openAbout(){document.getElementById('aboutOverlay').classList.add('open');document.body.style.overflow='hidden';}
 function openHistory(){document.getElementById('historyOverlay').classList.add('open');document.body.style.overflow='hidden';loadHistory();}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){['dlOverlay','stOverlay','remuxOverlay','convOverlay','updOverlay','donOverlay','aboutOverlay','saveOverlay','historyOverlay','servicesOverlay'].forEach(id=>closeOverlay(id));closePlaylistQueue();document.getElementById('servicesChip').classList.remove('open');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){['dlOverlay','stOverlay','remuxOverlay','convOverlay','donOverlay','aboutOverlay','saveOverlay','historyOverlay','servicesOverlay'].forEach(id=>closeOverlay(id));closePlaylistQueue();document.getElementById('servicesChip').classList.remove('open');}});
 
 // ── UTILS ─────────────────────────────────────────────
 function toast(msg,color){const el=document.getElementById('toast');document.getElementById('toastTxt').textContent=msg;document.getElementById('toastDot').style.background=color||'#e8e8e8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}

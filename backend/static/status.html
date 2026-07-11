@@ -3,22 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Durum — ZenithW</title>
-<meta name="description" content="ZenithW sunucu durumu — anlık sağlık kontrolü.">
+<title id="pgTitle">Durum — ZenithW</title>
+<meta name="description" id="pgDesc" content="ZenithW sunucu durumu — anlık sağlık kontrolü.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://zenithw.space/status.html">
 <meta name="theme-color" content="#0a0a0a">
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>.legal-lang-toggle{display:flex;gap:4px;background:var(--chip-bg);border:1px solid var(--border);border-radius:20px;padding:3px;}
+.legal-lang-toggle button{border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;transition:all .15s;}
+.legal-lang-toggle button.active{background:var(--text);color:var(--bg,#0a0a0a);}
+.legal-nav{gap:10px;flex-wrap:wrap;}</style>
 </head>
 <body>
 <div class="legal-page">
   <div class="legal-nav">
     <a href="/" class="legal-logo">ZenithW<span>.</span></a>
-    <a href="/" class="legal-back">← ana sayfa</a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="legal-lang-toggle" id="legalLangToggle">
+        <button data-lang="tr" onclick="setLegalLang('tr')">TR</button>
+        <button data-lang="en" onclick="setLegalLang('en')">EN</button>
+      </div>
+      <a href="/" class="legal-back" id="pgBack">← ana sayfa</a>
+    </div>
   </div>
   <div class="legal-hero">
-    <h1>Sunucu Durumu</h1>
+    <h1 id="pgH1">Sunucu Durumu</h1>
     <div class="legal-updated" id="statusLastCheck">kontrol ediliyor…</div>
   </div>
   <div class="legal-body">
@@ -27,25 +37,79 @@
       <span id="statusMain">durum kontrol ediliyor…</span>
     </div>
 
-    <div class="status-row"><span class="status-row-name">Sunucu (API)</span><span class="status-row-val" id="rowServer">—</span></div>
+    <div class="status-row"><span class="status-row-name" id="rowServerName">Sunucu (API)</span><span class="status-row-val" id="rowServer">—</span></div>
     <div class="status-row"><span class="status-row-name">FFmpeg</span><span class="status-row-val" id="rowFfmpeg">—</span></div>
-    <div class="status-row"><span class="status-row-name">Çerezler (YouTube erişimi)</span><span class="status-row-val" id="rowCookies">—</span></div>
+    <div class="status-row"><span class="status-row-name" id="rowCookiesName">Çerezler (YouTube erişimi)</span><span class="status-row-val" id="rowCookies">—</span></div>
 
-    <h2 style="margin-top:28px;">Bilinen durumlar</h2>
-    <p>ZenithW, indirme işlemleri için üçüncü taraf platformlara (YouTube, TikTok, Instagram vb.) bağımlıdır. Bu platformlardan biri kendi tarafında bot koruması güncellerse veya erişimi geçici olarak kısıtlarsa, o platforma özel indirmeler etkilenebilir — bu, ZenithW sunucusunun çökmesi anlamına gelmez, genellikle birkaç dakika-saat içinde kendiliğinden düzelir.</p>
+    <h2 id="pgH2a" style="margin-top:28px;">Bilinen durumlar</h2>
+    <p id="pgP1">ZenithW, indirme işlemleri için üçüncü taraf platformlara (YouTube, TikTok, Instagram vb.) bağımlıdır. Bu platformlardan biri kendi tarafında bot koruması güncellerse veya erişimi geçici olarak kısıtlarsa, o platforma özel indirmeler etkilenebilir — bu, ZenithW sunucusunun çökmesi anlamına gelmez, genellikle birkaç dakika-saat içinde kendiliğinden düzelir.</p>
 
-    <h2>Sorun mu yaşıyorsunuz?</h2>
-    <p>Yukarıdaki durum "çalışıyor" görünmesine rağmen bir sorunla karşılaşıyorsanız, bize <a href="mailto:info@zenithw.space">info@zenithw.space</a> adresinden ulaşabilirsiniz.</p>
+    <h2 id="pgH2b">Sorun mu yaşıyorsunuz?</h2>
+    <p id="pgP2">Yukarıdaki durum "çalışıyor" görünmesine rağmen bir sorunla karşılaşıyorsanız, bize <a href="mailto:info@zenithw.space">info@zenithw.space</a> adresinden ulaşabilirsiniz.</p>
   </div>
-  <div class="legal-footer">
+  <div class="legal-footer" id="pgFooter">
     <a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/terms.html">kullanım koşulları</a>·<a href="/dmca.html">telif bildirimi</a>
   </div>
 </div>
 
 <script>
+const TX={
+  tr:{
+    title:'Durum — ZenithW', desc:'ZenithW sunucu durumu — anlık sağlık kontrolü.',
+    h1:'Sunucu Durumu', back:'← ana sayfa',
+    checking:'kontrol ediliyor…', mainChecking:'durum kontrol ediliyor…',
+    rowServerName:'Sunucu (API)', rowCookiesName:'Çerezler (YouTube erişimi)',
+    h2a:'Bilinen durumlar',
+    p1:'ZenithW, indirme işlemleri için üçüncü taraf platformlara (YouTube, TikTok, Instagram vb.) bağımlıdır. Bu platformlardan biri kendi tarafında bot koruması güncellerse veya erişimi geçici olarak kısıtlarsa, o platforma özel indirmeler etkilenebilir — bu, ZenithW sunucusunun çökmesi anlamına gelmez, genellikle birkaç dakika-saat içinde kendiliğinden düzelir.',
+    h2b:'Sorun mu yaşıyorsunuz?',
+    p2:'Yukarıdaki durum "çalışıyor" görünmesine rağmen bir sorunla karşılaşıyorsanız, bize <a href="mailto:info@zenithw.space">info@zenithw.space</a> adresinden ulaşabilirsiniz.',
+    footer:'<a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/terms.html">kullanım koşulları</a>·<a href="/dmca.html">telif bildirimi</a>',
+    ok:'tüm sistemler çalışıyor ✓', down:'sunucuya şu an ulaşılamıyor',
+    active:ms=>`aktif · ${ms}ms`, unreachable:'ulaşılamıyor ✗',
+    ready:'hazır ✓', problem:'sorunlu ⚠️', loaded:'yüklü ✓', notLoaded:'yüklü değil ⚠️',
+    lastCheck:'son kontrol: ', locale:'tr-TR'
+  },
+  en:{
+    title:'Status — ZenithW', desc:'ZenithW server status — live health check.',
+    h1:'Server Status', back:'← home',
+    checking:'checking…', mainChecking:'checking status…',
+    rowServerName:'Server (API)', rowCookiesName:'Cookies (YouTube access)',
+    h2a:'Known conditions',
+    p1:'ZenithW depends on third-party platforms (YouTube, TikTok, Instagram, etc.) to perform downloads. If one of these platforms updates its bot protection or temporarily restricts access on their end, downloads specific to that platform may be affected — this does not mean the ZenithW server is down, and it usually resolves on its own within minutes to hours.',
+    h2b:'Having an issue?',
+    p2:'If the status above shows "operational" but you\'re still running into a problem, you can reach us at <a href="mailto:info@zenithw.space">info@zenithw.space</a>.',
+    footer:'<a href="/">home</a>·<a href="/privacy.html">privacy</a>·<a href="/terms.html">terms of service</a>·<a href="/dmca.html">copyright notice</a>',
+    ok:'all systems operational ✓', down:'server is currently unreachable',
+    active:ms=>`active · ${ms}ms`, unreachable:'unreachable ✗',
+    ready:'ready ✓', problem:'issue ⚠️', loaded:'loaded ✓', notLoaded:'not loaded ⚠️',
+    lastCheck:'last checked: ', locale:'en-US'
+  }
+};
+let CUR_LANG='tr';
+function setLegalLang(l){
+  const t=TX[l]||TX.en;
+  CUR_LANG=TX[l]?l:'en';
+  document.documentElement.lang=CUR_LANG;
+  document.getElementById('pgTitle').textContent=t.title;
+  document.getElementById('pgDesc').setAttribute('content',t.desc);
+  document.getElementById('pgH1').textContent=t.h1;
+  document.getElementById('pgBack').textContent=t.back;
+  document.getElementById('rowServerName').textContent=t.rowServerName;
+  document.getElementById('rowCookiesName').textContent=t.rowCookiesName;
+  document.getElementById('pgH2a').textContent=t.h2a;
+  document.getElementById('pgP1').textContent=t.p1;
+  document.getElementById('pgH2b').textContent=t.h2b;
+  document.getElementById('pgP2').innerHTML=t.p2;
+  document.getElementById('pgFooter').innerHTML=t.footer;
+  document.querySelectorAll('#legalLangToggle button').forEach(b=>b.classList.toggle('active',b.dataset.lang===CUR_LANG));
+  try{localStorage.setItem('zw_lang',CUR_LANG);}catch(e){}
+  checkStatus();
+}
+
 const API="https://zenithw-production.up.railway.app";
 async function checkStatus(){
-  const dot=document.getElementById('statusDot'),main=document.getElementById('statusMain'),badge=document.getElementById('statusBadge');
+  const t=TX[CUR_LANG]||TX.en;
+  const dot=document.getElementById('statusDot'),main=document.getElementById('statusMain');
   const rowServer=document.getElementById('rowServer'),rowFfmpeg=document.getElementById('rowFfmpeg'),rowCookies=document.getElementById('rowCookies');
   const lastCheck=document.getElementById('statusLastCheck');
   try{
@@ -55,20 +119,25 @@ async function checkStatus(){
     if(!res.ok)throw new Error('bad status');
     const d=await res.json();
     dot.className='status-dot';
-    main.textContent='tüm sistemler çalışıyor ✓';
-    rowServer.textContent=`aktif · ${ms}ms`;
-    rowFfmpeg.textContent=(d.ffmpeg&&d.ffmpeg.startsWith('OK'))?'hazır ✓':'sorunlu ⚠️';
-    rowCookies.textContent=(d.cookies&&d.cookies.startsWith('✓'))?'yüklü ✓':'yüklü değil ⚠️';
+    main.textContent=t.ok;
+    rowServer.textContent=t.active(ms);
+    rowFfmpeg.textContent=(d.ffmpeg&&d.ffmpeg.startsWith('OK'))?t.ready:t.problem;
+    rowCookies.textContent=(d.cookies&&d.cookies.startsWith('✓'))?t.loaded:t.notLoaded;
   }catch(e){
     dot.className='status-dot down';
-    main.textContent='sunucuya şu an ulaşılamıyor';
-    rowServer.textContent='ulaşılamıyor ✗';
+    main.textContent=t.down;
+    rowServer.textContent=t.unreachable;
     rowFfmpeg.textContent='—';
     rowCookies.textContent='—';
   }
-  lastCheck.textContent='son kontrol: '+new Date().toLocaleTimeString('tr-TR');
+  lastCheck.textContent=t.lastCheck+new Date().toLocaleTimeString(t.locale);
 }
-checkStatus();
+(function(){
+  let saved='tr';
+  try{saved=localStorage.getItem('zw_lang')||'tr';}catch(e){}
+  if(saved!=='tr')saved='en';
+  setLegalLang(saved);
+})();
 setInterval(checkStatus,30000);
 </script>
 </body>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title id="pgTitle">Güncellemeler — ZenithW</title>
+<meta name="description" id="pgDesc" content="ZenithW sürüm geçmişi ve güncelleme notları — yeni özellikler, hata düzeltmeleri ve iyileştirmeler.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://zenithw.space/updates.html">
+<meta name="theme-color" content="#0a0a0a">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.legal-lang-toggle{display:flex;gap:4px;background:var(--chip-bg);border:1px solid var(--border);border-radius:20px;padding:3px;}
+.legal-lang-toggle button{border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;transition:all .15s;}
+.legal-lang-toggle button.active{background:var(--text);color:var(--bg);}
+.legal-nav{gap:10px;flex-wrap:wrap;}
+/* upd-entry/badge/accordion classes are already defined in style.css and work fine outside the overlay */
+.upd-entry{scroll-margin-top:24px;}
+.upd-entry.highlight{border-color:var(--accent,#3bba64);box-shadow:0 0 0 1px var(--accent,#3bba64);}
+.upd-nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.upd-nav-link{font-size:11px;font-weight:600;color:var(--text2);background:var(--chip-bg);border:1px solid var(--border);border-radius:8px;padding:6px 11px;cursor:pointer;transition:all .15s;}
+.upd-nav-link:hover{color:var(--text);border-color:var(--border2);}
+</style>
+</head>
+<body>
+<div class="legal-page">
+  <div class="legal-nav">
+    <a href="/" class="legal-logo">ZenithW<span>.</span></a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="legal-lang-toggle" id="legalLangToggle">
+        <button data-lang="tr" onclick="setLegalLang('tr')">TR</button>
+        <button data-lang="en" onclick="setLegalLang('en')">EN</button>
+      </div>
+      <a href="/" class="legal-back" id="pgBack">← ana sayfa</a>
+    </div>
+  </div>
+  <div class="legal-hero">
+    <h1 id="pgH1">Güncellemeler</h1>
+    <div class="legal-updated" id="pgSub">ZenithW'nin sürüm geçmişi ve yayınlanan tüm değişiklikler.</div>
+  </div>
+  <div id="updEntries"></div>
+  <div class="legal-footer" id="pgFooter" style="margin-top:20px;"></div>
+</div>
+
+<script>
+const UPDATES=[
+  {ver:'v5.6',badges:['new','fix'],latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
+    introTr:'Bir yandan kahve yudumlayıp bir yandan da sitede gezinirken karşınıza çıkabilecek pürüzleri düzeltmekle uğraştık — özellikle diğer dillerde takılan yazılarla. Küçük ama can sıkıcı şeyleri hallettik, işte detaylar:',
+    introEn:'Sipped some coffee, poked around the site, and fixed the little things that were bugging people — especially text that got stuck in the wrong language. Small stuff, but it adds up. Here\'s what changed:',
+    bulletsTr:[
+      '<strong>Çok dilli deneyim iyileştirildi:</strong> Güncellemeler, remux, playlist ve geçmiş gibi bölümlerdeki metinler artık İngilizce\'de de eksiksiz görünüyor.',
+      '<strong>Yeni diller yolda:</strong> Dil listesine Fransızca ve Almanca eklendi; şu an seçildiklerinde "yakında geliyor" uyarısı gösteriliyor.',
+      '<strong>Performans iyileştirmeleri:</strong> Arka plan animasyonları hem masaüstünde hem mobilde daha akıcı çalışacak şekilde yeniden ayarlandı.',
+      '<strong>Küçük hatalar giderildi.</strong>'
+    ],
+    bulletsEn:[
+      '<strong>Multilingual experience improved:</strong> Text across the updates, remux, playlist, and history sections now displays fully in English.',
+      '<strong>New languages on the way:</strong> French and German were added to the language list; selecting them currently shows a "coming soon" notice.',
+      '<strong>Performance improvements:</strong> Background animations were retuned to run more smoothly on both desktop and mobile.',
+      '<strong>Minor bug fixes.</strong>'
+    ]
+  },
+  {ver:'v5.5',badges:['new','fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+    introTr:'Güneşli bir günde arka planı boyayan ressamlar gibi çalıştık; siteyi baştan aşağı uzay temasına büründürdük ve cam gibi yumuşak bir görünüm kattık. Kahveni al, otur, aşağıya bak neler değişmiş:',
+    introEn:'We spent a sunny afternoon repainting the background like it owed us money — full space theme, glassy smooth windows, the works. Grab a coffee and scroll down to see what changed:',
+    bulletsTr:[
+      '<strong>Yeni uzay temalı tasarım:</strong> Arka plan tamamen yenilendi; yıldızlar, yumuşak bulutsular ve hafif bir hareket efekti eklendi.',
+      '<strong>Sade siyah-gri palet:</strong> Renk şeması sadeleştirildi, gereksiz renk kirliliği kaldırıldı.',
+      '<strong>Cam efektli (glassmorphism) tasarım:</strong> Pencerelere yumuşak blur, ince kenarlık ve akıcı geçiş animasyonları eklendi.',
+      '<strong>Küçük etkileşim dokunuşları:</strong> Butonlara tıklama efekti ve masaüstünde imleç takibi eklendi.',
+      '<strong>Desteklenen platformlar penceresi yenilendi.</strong>',
+      '<strong>YouTube uyarı kutusu yenilendi.</strong>',
+      '<strong>Masaüstü ve mobil uyum iyileştirildi:</strong> Menüler ve pencereler artık her ekran boyutunda daha düzgün görünüyor.',
+      '<strong>Hakkında bölümü genişletildi.</strong>',
+      '<strong>Menü konumu düzeltildi.</strong>'
+    ],
+    bulletsEn:[
+      '<strong>New space-themed design:</strong> The background got a full overhaul with stars, soft clouds, and a gentle motion effect.',
+      '<strong>Cleaner black-and-gray palette:</strong> Simplified the color scheme and removed unnecessary color noise.',
+      '<strong>Glassmorphism design:</strong> Windows now have soft blur, thin borders, and smooth transition animations.',
+      '<strong>Small interaction touches:</strong> Added a tap effect on buttons and cursor-following hover on desktop.',
+      '<strong>Refreshed the supported-platforms window.</strong>',
+      '<strong>Redesigned the YouTube warning box.</strong>',
+      '<strong>Better desktop/mobile compatibility:</strong> Menus and windows now look right at every screen size.',
+      '<strong>Expanded the about section.</strong>',
+      '<strong>Fixed the menu position.</strong>'
+    ]
+  },
+  {ver:'v5.4',badges:['fix'],latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+    introTr:'Sessiz sedasız arka planda birkaç cıvatayı sıkıştırdık — kimse fark etmese de biz farkındaydık. Renklere de biraz keyif kattık madem elimiz değmişken. Detaylar aşağıda:',
+    introEn:'Quietly tightened a few bolts behind the scenes — nobody would\'ve noticed, but we did. Threw in some fresh colors too, since we were already in there. Details below:',
+    bulletsTr:[
+      '<strong>Renkli tema seçenekleri:</strong> Mor, mavi, gri ve pembe gibi yeni vurgu renkleri eklendi.',
+      '<strong>Sessiz mod düzeltmesi:</strong> Sessiz indirmelerde format seçimiyle ilgili bir hata giderildi.',
+      '<strong>Dönüştürücü güvenilirliği artırıldı:</strong> Dosya dönüştürmede nadir görülen bir hata giderildi.',
+      '<strong>Hız iyileştirmesi:</strong> İndirme öncesi gereksiz bir adım kaldırılarak süreç hızlandırıldı.',
+      '<strong>Arka planda küçük kararlılık düzeltmeleri yapıldı.</strong>',
+      '<strong>Görsel ince ayarlar:</strong> Radar efekti, kademeli pencere geçişleri ve daha tutarlı tıklama geri bildirimi eklendi.'
+    ],
+    bulletsEn:[
+      '<strong>Color accent options:</strong> Added new accent colors — purple, blue, gray, and pink.',
+      '<strong>Mute mode fix:</strong> Fixed a format-selection bug affecting mute downloads.',
+      '<strong>Converter reliability improved:</strong> Fixed a rare bug in file conversion.',
+      '<strong>Faster downloads:</strong> Removed an unnecessary step before downloads to speed things up.',
+      '<strong>Small stability fixes behind the scenes.</strong>',
+      '<strong>Visual polish:</strong> Added a radar effect, staggered window transitions, and more consistent tap feedback.'
+    ]
+  },
+  {ver:'v5.3',badges:['fix','new'],latest:false,dateTr:'haziran 2026',dateEn:'June 2026',
+    bulletsTr:[
+      '<strong>Toplu indirme:</strong> Artık tek seferde birden fazla link ekleyip hepsini birden indirebilirsiniz.',
+      '<strong>YouTube güvenilirliği artırıldı:</strong> Bazı videolarda yaşanan erişim sorunları giderildi.',
+      '<strong>Arayüz iyileştirmeleri:</strong> Alt menüye hızlı erişim sekmeleri eklendi.'
+    ],
+    bulletsEn:[
+      '<strong>Bulk download:</strong> Add multiple links at once and download them all together.',
+      '<strong>YouTube reliability improved:</strong> Fixed access issues affecting some videos.',
+      '<strong>UI improvements:</strong> Added quick-access tabs to the bottom menu.'
+    ]
+  },
+  {ver:'v5.2',badges:['fix','new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>Dinamik Dil Desteği:</strong> Dil değiştirme sistemi iyileştirildi; metinler sayfayı yenilemeden anlık güncelleniyor.',
+      '<strong>Mobil Ayarlar Paneli:</strong> Kaydırmalı sekme tasarımı ile dar ekranlarda kullanım optimize edildi.',
+      '<strong>Görünüm Optimizasyonu:</strong> Açık tema renk paleti yenilendi; modallar ve okunabilirlik geliştirildi.',
+      '<strong>Hata Giderimleri:</strong> Audio ve Mute indirmelerindeki kesinti sorunları giderildi.'
+    ],
+    bulletsEn:[
+      '<strong>Dynamic language support:</strong> Improved the language-switching system; text updates instantly without a page reload.',
+      '<strong>Mobile settings panel:</strong> Optimized for narrow screens with a scrollable tab design.',
+      '<strong>Appearance optimization:</strong> Refreshed the light theme color palette; improved modals and readability.',
+      '<strong>Bug fixes:</strong> Fixed interruption issues in audio and mute downloads.'
+    ]
+  },
+  {ver:'v5.1',badges:['fix'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>Modern indirme penceresi:</strong> Daha şık, sade bir "nasıl kaydetmek istersin?" arayüzüne geçildi.',
+      '<strong>YouTube başarı oranı arttı:</strong> Video yakalama kararlılığı iyileştirildi.',
+      '<strong>Daha hızlı indirme:</strong> Arka plandaki işleyiş sadeleştirilerek hız kazandırıldı.'
+    ],
+    bulletsEn:[
+      '<strong>Modern download window:</strong> Switched to a sleeker, simpler "how would you like to save?" interface.',
+      '<strong>YouTube success rate improved:</strong> Better video-capture stability.',
+      '<strong>Faster downloads:</strong> Streamlined the underlying process for better speed.'
+    ]
+  },
+  {ver:'v5.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>PWA Desteği:</strong> Uygulamayı ana ekrana ekleyerek native bir deneyim yaşayabilirsiniz.',
+      '<strong>Yeni Araçlar:</strong> Dosya dönüştürücü ve QR kod ile telefona hızlı aktarım eklendi.',
+      '<strong>Metadata:</strong> Dosya adı formatını özelleştirme özelliği aktif edildi.'
+    ],
+    bulletsEn:[
+      '<strong>PWA support:</strong> Add the app to your home screen for a native-like experience.',
+      '<strong>New tools:</strong> Added a file converter and QR code for quick transfer to your phone.',
+      '<strong>Metadata:</strong> Enabled custom filename formatting.'
+    ]
+  },
+  {ver:'v4.0',badges:['new'],latest:false,dateTr:'mayıs 2026',dateEn:'May 2026',
+    bulletsTr:[
+      '<strong>Format Çeşitliliği:</strong> FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV desteği eklendi.',
+      '<strong>İleri Düzey Kodlama:</strong> AV1 + OPUS ve VP9 + OPUS desteğiyle 8K ve HDR video indirme aktif edildi.'
+    ],
+    bulletsEn:[
+      '<strong>Format variety:</strong> Added support for FLAC, WAV, OGG, OPUS, M4A, MKV, AVI, MOV.',
+      '<strong>Advanced encoding:</strong> Enabled 8K and HDR video downloads with AV1+OPUS and VP9+OPUS support.'
+    ]
+  }
+];
+
+const TX={
+  tr:{title:'Güncellemeler — ZenithW',desc:'ZenithW sürüm geçmişi ve güncelleme notları — yeni özellikler, hata düzeltmeleri ve iyileştirmeler.',
+    h1:'Güncellemeler',sub:'ZenithW\'nin sürüm geçmişi ve yayınlanan tüm değişiklikler.',back:'← ana sayfa',latestLabel:'GÜNCEL',
+    footer:'<a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/terms.html">kullanım koşulları</a>·<a href="/dmca.html">telif bildirimi</a>'},
+  en:{title:'Updates — ZenithW',desc:'ZenithW release history and changelog — new features, bug fixes, and improvements.',
+    h1:'Updates',sub:'ZenithW\'s release history and everything that\'s shipped so far.',back:'← home',latestLabel:'LATEST',
+    footer:'<a href="/">home</a>·<a href="/privacy.html">privacy</a>·<a href="/terms.html">terms of service</a>·<a href="/dmca.html">copyright notice</a>'}
+};
+
+let CUR_LANG='tr';
+
+function jumpTo(ver,ev){
+  if(ev)ev.stopPropagation();
+  history.pushState(null,'','#'+ver);
+  renderUpdates();
+}
+
+function renderUpdates(){
+  const t=TX[CUR_LANG];
+  const targetHash=decodeURIComponent((location.hash||'').replace('#',''));
+  const container=document.getElementById('updEntries');
+  container.innerHTML=UPDATES.map((u,i)=>{
+    const badgesHtml=u.badges.map(b=>`<span class="badge badge-${b}">${b}</span>`).join('');
+    const date=CUR_LANG==='tr'?u.dateTr:u.dateEn;
+    const bullets=CUR_LANG==='tr'?u.bulletsTr:u.bulletsEn;
+    const items=bullets.map(b=>`<li>${b}</li>`).join('');
+    const id=u.ver;
+    const isTarget=(targetHash===id);
+    const openCls=(u.latest||isTarget)?' open':'';
+    const latestCls=u.latest?' latest':'';
+    const hlCls=isTarget?' highlight':'';
+    const latestBadge=u.latest?`<span class="badge" style="background:var(--accent,#3bba64);color:#fff;border:none;">${t.latestLabel}</span>`:'';
+    // UPDATES en yeniden en eskiye sıralı: bir önceki eleman (i-1) daha yeni, bir sonraki (i+1) daha eski.
+    const newer=UPDATES[i-1], older=UPDATES[i+1];
+    const navHtml=(newer||older)?`<div class="upd-nav-row">
+        ${newer?`<span class="upd-nav-link" onclick="jumpTo('${newer.ver}',event)">← ${newer.ver}</span>`:'<span></span>'}
+        ${older?`<span class="upd-nav-link" onclick="jumpTo('${older.ver}',event)">${older.ver} →</span>`:'<span></span>'}
+      </div>`:'';
+    return `<div class="upd-entry${latestCls}${hlCls} upd-accordion${openCls}" id="${id}" onclick="toggleAccordion(this)">
+      <div class="upd-accordion-header">
+        <div class="upd-ver-row"><span class="upd-ver">${u.ver}</span>${latestBadge}${badgesHtml}<span class="upd-date">${date}</span></div>
+        <span class="upd-accordion-icon">▼</span>
+      </div>
+      <div class="upd-accordion-content"><ul class="upd-list-simple">${items}</ul>${navHtml}</div>
+    </div>`;
+  }).join('');
+  if(targetHash){
+    const el=document.getElementById(targetHash);
+    if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),80);
+  }
+}
+
+function toggleAccordion(el){el.classList.toggle('open');}
+
+function setLegalLang(l){
+  const t=TX[l]||TX.en;
+  CUR_LANG=TX[l]?l:'en';
+  document.documentElement.lang=CUR_LANG;
+  document.getElementById('pgTitle').textContent=t.title;
+  document.getElementById('pgDesc').setAttribute('content',t.desc);
+  document.getElementById('pgH1').textContent=t.h1;
+  document.getElementById('pgSub').textContent=t.sub;
+  document.getElementById('pgBack').textContent=t.back;
+  document.getElementById('pgFooter').innerHTML=t.footer;
+  document.querySelectorAll('#legalLangToggle button').forEach(b=>b.classList.toggle('active',b.dataset.lang===CUR_LANG));
+  try{localStorage.setItem('zw_lang',CUR_LANG);}catch(e){}
+  renderUpdates();
+}
+
+window.addEventListener('popstate',renderUpdates);
+window.addEventListener('hashchange',renderUpdates);
+
+(function(){
+  let saved='tr';
+  try{saved=localStorage.getItem('zw_lang')||'tr';}catch(e){}
+  if(saved!=='tr')saved='en';
+  setLegalLang(saved);
+})();
+</script>
+</body>
+</html>

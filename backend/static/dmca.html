@@ -3,49 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>DMCA / Telif Hakkı Bildirimi — ZenithW</title>
-<meta name="description" content="ZenithW telif hakkı ihlali bildirim süreci: hak sahipleri içerik kaldırma talebini nasıl iletebilir.">
+<title id="pgTitle">DMCA / Telif Hakkı Bildirimi — ZenithW</title>
+<meta name="description" id="pgDesc" content="ZenithW telif hakkı ihlali bildirim süreci: hak sahipleri içerik kaldırma talebini nasıl iletebilir.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://zenithw.space/dmca.html">
 <meta name="theme-color" content="#0a0a0a">
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>.legal-lang-toggle{display:flex;gap:4px;background:var(--chip-bg);border:1px solid var(--border);border-radius:20px;padding:3px;}
+.legal-lang-toggle button{border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;transition:all .15s;}
+.legal-lang-toggle button.active{background:var(--text);color:var(--bg,#0a0a0a);}
+.legal-nav{gap:10px;flex-wrap:wrap;}</style>
 </head>
 <body>
 <div class="legal-page">
   <div class="legal-nav">
     <a href="/" class="legal-logo">ZenithW<span>.</span></a>
-    <a href="/" class="legal-back">← ana sayfa</a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="legal-lang-toggle" id="legalLangToggle">
+        <button data-lang="tr" onclick="setLegalLang('tr')">TR</button>
+        <button data-lang="en" onclick="setLegalLang('en')">EN</button>
+      </div>
+      <a href="/" class="legal-back" id="pgBack">← ana sayfa</a>
+    </div>
   </div>
   <div class="legal-hero">
-    <h1>DMCA / Telif Hakkı Bildirimi</h1>
-    <div class="legal-updated">Son güncelleme: 11 Temmuz 2026</div>
+    <h1 id="pgH1">DMCA / Telif Hakkı Bildirimi</h1>
+    <div class="legal-updated" id="pgUpdated">Son güncelleme: 11 Temmuz 2026</div>
   </div>
-  <div class="legal-body">
-    <h2>Önemli: ZenithW içerik barındırmaz</h2>
-    <p>ZenithW, video veya ses dosyalarını kendi sunucusunda kalıcı olarak barındırmaz, dizinlemez veya yeniden yayınlamaz. Kullanıcının belirttiği bir kaynak URL'den geçici bir aktarım gerçekleştirir ve işlem tamamlandıktan kısa süre sonra dosya sunucudan otomatik olarak silinir. Bu nedenle "içerik kaldırma" talepleri genellikle asıl içeriğin bulunduğu platforma (YouTube, TikTok, Instagram vb.) yöneltilmelidir.</p>
-
-    <h2>Hak sahibiyseniz</h2>
-    <p>Yine de, telif hakkınıza ait bir içeriğin bu araç üzerinden erişilebilir kılındığını düşünüyorsanız, aşağıdaki bilgilerle bize ulaşabilirsiniz. Bildirimlerinizi inceleyip makul ölçüde işbirliği yapmaya çalışırız (ör. belirli bir kaynağa erişimi teknik olarak kısıtlamak).</p>
-    <p>Bildiriminizde şunları belirtmenizi rica ederiz:</p>
-    <ul>
-      <li>Telif hakkı sahibinin adı ve iletişim bilgisi (veya yetkili temsilcisi olduğunuza dair beyan),</li>
-      <li>İhlal edildiğini düşündüğünüz eserin tanımı,</li>
-      <li>Şikayet konusu içeriğin bulunduğu tam URL,</li>
-      <li>İçeriğin izinsiz kullanıldığına dair iyi niyetli bir beyan,</li>
-      <li>Bildirimin doğruluğuna dair beyanınız ve imzanız (elektronik olabilir).</li>
-    </ul>
-
-    <h2>Bildirim kanalı</h2>
-    <p>Telif hakkı bildirimlerinizi şu adrese iletebilirsiniz: <a href="mailto:info@zenithw.space?subject=DMCA%20/%20Telif%20Hakk%C4%B1%20Bildirimi">info@zenithw.space</a></p>
-    <p>Konu satırına "DMCA / Telif Hakkı Bildirimi" yazmanız, talebinizin daha hızlı işleme alınmasına yardımcı olur.</p>
-
-    <h2>Kötüye kullanılan bildirimler</h2>
-    <p>Kasıtlı olarak yanlış veya kötü niyetli bildirimler, ilgili yasal sonuçlar doğurabilir. Bildirimlerin doğruluğundan bildirimi yapan kişi sorumludur.</p>
-  </div>
-  <div class="legal-footer">
-    <a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/terms.html">kullanım koşulları</a>·<a href="/status.html">durum</a>
-  </div>
+  <div class="legal-body" id="pgBody"></div>
+  <div class="legal-footer" id="pgFooter"></div>
 </div>
+
+<script>
+const TX={
+  tr:{
+    title:'DMCA / Telif Hakkı Bildirimi — ZenithW',
+    desc:'ZenithW telif hakkı ihlali bildirim süreci: hak sahipleri içerik kaldırma talebini nasıl iletebilir.',
+    h1:'DMCA / Telif Hakkı Bildirimi', updated:'Son güncelleme: 11 Temmuz 2026', back:'← ana sayfa',
+    body:`
+      <h2>Önemli: ZenithW içerik barındırmaz</h2>
+      <p>ZenithW, video veya ses dosyalarını kendi sunucusunda kalıcı olarak barındırmaz, dizinlemez veya yeniden yayınlamaz. Kullanıcının belirttiği bir kaynak URL'den geçici bir aktarım gerçekleştirir ve işlem tamamlandıktan kısa süre sonra dosya sunucudan otomatik olarak silinir. Bu nedenle "içerik kaldırma" talepleri genellikle asıl içeriğin bulunduğu platforma (YouTube, TikTok, Instagram vb.) yöneltilmelidir.</p>
+      <h2>Hak sahibiyseniz</h2>
+      <p>Yine de, telif hakkınıza ait bir içeriğin bu araç üzerinden erişilebilir kılındığını düşünüyorsanız, aşağıdaki bilgilerle bize ulaşabilirsiniz. Bildirimlerinizi inceleyip makul ölçüde işbirliği yapmaya çalışırız (ör. belirli bir kaynağa erişimi teknik olarak kısıtlamak).</p>
+      <p>Bildiriminizde şunları belirtmenizi rica ederiz:</p>
+      <ul>
+        <li>Telif hakkı sahibinin adı ve iletişim bilgisi (veya yetkili temsilcisi olduğunuza dair beyan),</li>
+        <li>İhlal edildiğini düşündüğünüz eserin tanımı,</li>
+        <li>Şikayet konusu içeriğin bulunduğu tam URL,</li>
+        <li>İçeriğin izinsiz kullanıldığına dair iyi niyetli bir beyan,</li>
+        <li>Bildirimin doğruluğuna dair beyanınız ve imzanız (elektronik olabilir).</li>
+      </ul>
+      <h2>Bildirim kanalı</h2>
+      <p>Telif hakkı bildirimlerinizi şu adrese iletebilirsiniz: <a href="mailto:info@zenithw.space?subject=DMCA%20/%20Telif%20Hakk%C4%B1%20Bildirimi">info@zenithw.space</a></p>
+      <p>Konu satırına "DMCA / Telif Hakkı Bildirimi" yazmanız, talebinizin daha hızlı işleme alınmasına yardımcı olur.</p>
+      <h2>Kötüye kullanılan bildirimler</h2>
+      <p>Kasıtlı olarak yanlış veya kötü niyetli bildirimler, ilgili yasal sonuçlar doğurabilir. Bildirimlerin doğruluğundan bildirimi yapan kişi sorumludur.</p>`,
+    footer:'<a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/terms.html">kullanım koşulları</a>·<a href="/status.html">durum</a>'
+  },
+  en:{
+    title:'DMCA / Copyright Notice — ZenithW',
+    desc:'ZenithW copyright infringement notice process: how rights holders can submit a content removal request.',
+    h1:'DMCA / Copyright Notice', updated:'Last updated: July 11, 2026', back:'← home',
+    body:`
+      <h2>Important: ZenithW does not host content</h2>
+      <p>ZenithW does not permanently host, index, or republish video or audio files on its own server. It performs a temporary transfer from a source URL the user specifies, and the file is automatically deleted from the server shortly after processing completes. For this reason, "content removal" requests should generally be directed to the platform where the original content resides (YouTube, TikTok, Instagram, etc.).</p>
+      <h2>If you are a rights holder</h2>
+      <p>That said, if you believe content you hold copyright to has been made accessible through this tool, you can reach us with the information below. We review notices and try to cooperate to a reasonable extent (e.g. technically restricting access to a specific source).</p>
+      <p>Please include the following in your notice:</p>
+      <ul>
+        <li>The copyright holder's name and contact information (or a statement that you are an authorized representative),</li>
+        <li>A description of the work you believe was infringed,</li>
+        <li>The exact URL where the content in question is located,</li>
+        <li>A good-faith statement that the content is used without authorization,</li>
+        <li>A statement affirming the accuracy of the notice and your signature (electronic is fine).</li>
+      </ul>
+      <h2>Reporting channel</h2>
+      <p>You can send copyright notices to: <a href="mailto:info@zenithw.space?subject=DMCA%20/%20Copyright%20Notice">info@zenithw.space</a></p>
+      <p>Including "DMCA / Copyright Notice" in the subject line helps your request get processed faster.</p>
+      <h2>Abuse of notices</h2>
+      <p>Knowingly false or malicious notices may carry legal consequences. The person submitting a notice is responsible for its accuracy.</p>`,
+    footer:'<a href="/">home</a>·<a href="/privacy.html">privacy</a>·<a href="/terms.html">terms of service</a>·<a href="/status.html">status</a>'
+  }
+};
+function setLegalLang(l){
+  const t=TX[l]||TX.en;
+  document.documentElement.lang=l;
+  document.getElementById('pgTitle').textContent=t.title;
+  document.getElementById('pgDesc').setAttribute('content',t.desc);
+  document.getElementById('pgH1').textContent=t.h1;
+  document.getElementById('pgUpdated').textContent=t.updated;
+  document.getElementById('pgBack').textContent=t.back;
+  document.getElementById('pgBody').innerHTML=t.body;
+  document.getElementById('pgFooter').innerHTML=t.footer;
+  document.querySelectorAll('#legalLangToggle button').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));
+  try{localStorage.setItem('zw_lang',l);}catch(e){}
+}
+(function(){
+  let saved='tr';
+  try{saved=localStorage.getItem('zw_lang')||'tr';}catch(e){}
+  if(saved!=='tr')saved='en';
+  setLegalLang(saved);
+})();
+</script>
 </body>
 </html>
