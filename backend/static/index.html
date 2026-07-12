@@ -52,6 +52,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <link rel="stylesheet" href="style.css">
+<script src="version.js"></script>
 </head>
 <body>
 <canvas id="space-canvas"></canvas>
@@ -99,6 +100,11 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span id="clipHintTxt">panonda bir link var, yapıştırmak ister misin?</span>
       <button class="clip-hint-close" onclick="event.stopPropagation();dismissClipboardHint()">✕</button>
+    </div>
+    <div class="clip-hint" id="queueResumeHint" onclick="resumeQueue()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="queueResumeTxt"></span>
+      <button class="clip-hint-close" onclick="event.stopPropagation();discardQueue()">✕</button>
     </div>
     <div class="mode-row">
       <button class="bulk-toggle" id="bulkToggle" onclick="toggleBulkMode()">toplu</button>
@@ -535,7 +541,7 @@
     <div class="handle" style="margin:-6px auto 12px;"></div>
     <button class="modal-close-btn" onclick="closeOverlay('aboutOverlay')">✕</button>
     <div class="about-name">ZenithW<span>.</span></div>
-    <div class="about-ver">v5.5 — temmuz 2026</div>
+    <div class="about-ver" id="aboutVer"></div>
     <div class="about-content-wrap" style="text-align:left; margin-top:20px; font-size:11px; line-height:1.65; display:flex; flex-direction:column; gap:16px; margin-bottom:20px;">
       <div>
         <h4 id="aboutWhatTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
@@ -546,8 +552,8 @@
         <p id="aboutTrustText" style="color:var(--text2);"></p>
       </div>
       <div>
-        <h4 id="aboutCookiesTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
-        <p id="aboutCookiesText" style="color:var(--text2);"></p>
+        <h4 id="aboutOpenTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
+        <p id="aboutOpenText" style="color:var(--text2);"></p>
       </div>
       <div>
         <h4 id="aboutHowTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
@@ -620,10 +626,9 @@ const TX={
     aboutWhatText: 'ZenithW; YouTube, TikTok, Instagram, X/Twitter, Reddit ve daha onlarca platformdan video, ses ve playlist indirmeni sağlayan bağımsız, reklamsız bir araçtır. Sunucu tarafında dünyanın en gelişmiş açık kaynak indirme motoru olan <strong>yt-dlp</strong>\'yi kullanır; bu sayede videoyu her zaman kaynağın kendisinden, en yüksek kalitede ve ekstra dönüştürme kaybı olmadan yakalar. Tek yapman gereken linki yapıştırmak — format ve kaliteyi sen seçersin, gerisini ZenithW halleder.',
     aboutTrustTitle: 'Neden güvenebilirsin?',
     aboutTrustText: 'Klasik "indirme" sitelerinin aksine burada seni takip eden reklam ağı, sahte indirme butonu, yönlendirme ya da pop-up yok. İndirme geçmişin sunucuda asla tutulmaz — sadece kendi tarayıcının belleğinde (localStorage) senin cihazında saklanır ve istediğin an tek tıkla silinebilir. Kod tarafı sürekli güvenlik açısından gözden geçiriliyor: yol geçişi (path traversal) engelleri, istek sınırlama (rate limiting) ve sahte IP koruması gibi önlemler baştan itibaren var.',
-    aboutCookiesTitle: 'Çerezlerle (cookies) ne yapıyoruz?',
-    aboutCookiesText: 'YouTube\'un botlara karşı uyguladığı sıkı korumaları, yaş kısıtlamalarını ve IP engellerini aşabilmek için sunucumuzda güvenli, izole bir çerez (cookies.txt) dosyası kullanılır. Bu çerezler yalnızca "bot olmadığımızı" YouTube\'a doğrulatmak için sunucu ortamında kullanılır; senin kişisel bilgilerinle, hesabınla ya da tarama geçmişinle hiçbir ilgisi yoktur ve hiçbir şekilde kaydedilmez.',
-    aboutHowTitle: 'Nasıl çalışır?',
-    aboutHowText: 'Linki yapıştırıyorsun → ZenithW videoyu analiz edip mevcut kalite ve format seçeneklerini önüne çıkarıyor → seçimini yapıp indiriyorsun. Video, ses (mp3/m4a), sessiz (mute) mod ve toplu (bulk/playlist) indirme destekleniyor; ayrıca sunucudaki dönüştürme (convert) ve remux araçlarıyla elindeki dosyaları da işleyebiliyorsun. Tüm süreç birkaç saniye içinde, sekmeden hiç ayrılmadan tamamlanır.',
+    aboutOpenTitle: 'açık kaynak',
+    aboutOpenText: 'ZenithW\'nin tüm kaynak kodu <a href="https://github.com/kakangeldi82-netizen/zenithw" target="_blank" style="color:var(--accent);">GitHub</a> üzerinde herkese açık ve MIT lisansıyla paylaşılıyor. Arka planda ne olduğunu merak ediyorsan kod satır satır önünde — gizli bir şey yok. İsteyen inceleyebilir, katkıda bulunabilir ya da kendi sunucusunda çalıştırabilir.',
+    queueResumeTpl:'yarım kalan bir indirme kuyruğun var ({done}/{total} tamamlandı) — devam etmek ister misin?',
     aboutDevLabel:'geliştirici',aboutContactLabel:'iletişim',aboutStackLabel:'teknoloji',aboutHostLabel:'hosting',aboutLicLabel:'lisans',
     aboutPrivacyLink:'gizlilik',aboutTermsLink:'kullanım koşulları',aboutDmcaLink:'telif bildirimi',aboutStatusLink:'durum',
     pwaTxt:'Ana ekrana ekle',pwaInstall:'Ekle',
@@ -680,8 +685,9 @@ const TX={
     aboutWhatText: 'ZenithW is an independent media tool focused on clean, modern design. In the background, it runs <strong>yt-dlp</strong>, the world\'s most advanced open-source download engine. This allows it to fetch high-quality audio and video streams directly from the source servers.',
     aboutTrustTitle: 'Why should you trust us?',
     aboutTrustText: 'Unlike traditional downloader sites, ZenithW has no tracking ad networks, redirects, or pop-ups. Your download history is never stored on the server; it remains strictly inside your browser\'s memory (localStorage).',
-    aboutCookiesTitle: 'What do we do with Cookies?',
-    aboutCookiesText: 'To bypass YouTube\'s strict bot protection, age restrictions, and IP blocks, we use a secure cookie structure (cookies.txt). These cookies are strictly isolated within the Railway server environment to authenticate YouTube requests. No personal user or account details are saved.',
+    aboutOpenTitle: 'open source',
+    aboutOpenText: 'ZenithW\'s entire source code is public on <a href="https://github.com/kakangeldi82-netizen/zenithw" target="_blank" style="color:var(--accent);">GitHub</a> under the MIT license. If you\'re curious what\'s happening behind the scenes, it\'s all right there, line by line — nothing hidden. Anyone can review it, contribute, or even run their own instance.',
+    queueResumeTpl:'you have an unfinished download queue ({done}/{total} completed) — want to continue?',
     aboutHowTitle: 'How does it work?',
     aboutHowText: 'Paste the link → ZenithW analyzes the video and shows you the available quality and format options → pick one and download it. Video, audio (mp3/m4a), mute mode, and bulk/playlist downloads are all supported, plus the built-in convert and remux tools for files you already have. The whole process finishes in seconds, without ever leaving the tab.',
     aboutDevLabel:'developer',aboutContactLabel:'contact',aboutStackLabel:'stack',aboutHostLabel:'hosting',aboutLicLabel:'license',
@@ -740,8 +746,9 @@ const TX={
     aboutWhatText: 'ZenithW est un outil indépendant et sans publicité qui permet de télécharger des vidéos, de l\'audio et des playlists depuis YouTube, TikTok, Instagram, X/Twitter, Reddit et bien d\'autres plateformes. Côté serveur, il utilise <strong>yt-dlp</strong>, le moteur de téléchargement open-source le plus avancé au monde, ce qui lui permet de récupérer la vidéo directement depuis la source, dans la meilleure qualité, sans perte de conversion supplémentaire. Il vous suffit de coller le lien — vous choisissez le format et la qualité, ZenithW s\'occupe du reste.',
     aboutTrustTitle: 'pourquoi nous faire confiance ?',
     aboutTrustText: 'Contrairement aux sites de téléchargement classiques, il n\'y a ici aucun réseau publicitaire qui vous suit, aucun faux bouton de téléchargement, aucune redirection ni pop-up. Votre historique de téléchargement n\'est jamais stocké sur le serveur — il reste uniquement dans la mémoire de votre propre navigateur (localStorage) et peut être supprimé en un clic à tout moment. Le code est régulièrement revu pour la sécurité : protection contre le path traversal, limitation du débit de requêtes et protection anti-usurpation d\'ip sont en place dès le départ.',
-    aboutCookiesTitle: 'que faisons-nous des cookies ?',
-    aboutCookiesText: 'Pour contourner les protections anti-bot strictes de YouTube, les restrictions d\'âge et les blocages ip, notre serveur utilise un fichier de cookies sécurisé et isolé (cookies.txt). Ces cookies servent uniquement à prouver à YouTube que nous ne sommes pas un bot ; ils n\'ont aucun rapport avec vos informations personnelles, votre compte ou votre historique de navigation, et ne sont jamais enregistrés.',
+    aboutOpenTitle: 'code source ouvert',
+    aboutOpenText: 'Tout le code source de ZenithW est public sur <a href="https://github.com/kakangeldi82-netizen/zenithw" target="_blank" style="color:var(--accent);">GitHub</a> sous licence MIT. Si vous êtes curieux de savoir ce qui se passe en coulisses, tout est là, ligne par ligne — rien n\'est caché. N\'importe qui peut le consulter, contribuer ou même faire tourner sa propre instance.',
+    queueResumeTpl:'il vous reste une file de téléchargement inachevée ({done}/{total} terminés) — voulez-vous continuer ?',
     aboutHowTitle: 'comment ça marche ?',
     aboutHowText: 'Vous collez le lien → ZenithW analyse la vidéo et affiche les options de qualité et de format disponibles → vous choisissez et téléchargez. Vidéo, audio (mp3/m4a), mode muet et téléchargement groupé (playlist) sont pris en charge ; vous pouvez aussi convertir ou remuxer vos propres fichiers avec les outils intégrés. Tout le processus se termine en quelques secondes, sans jamais quitter l\'onglet.',
     aboutDevLabel:'développeur',aboutContactLabel:'contact',aboutStackLabel:'technologies',aboutHostLabel:'hébergement',aboutLicLabel:'licence',
@@ -800,8 +807,9 @@ const TX={
     aboutWhatText: 'ZenithW ist ein unabhängiges, werbefreies Tool, mit dem du Videos, Audio und Playlists von YouTube, TikTok, Instagram, X/Twitter, Reddit und vielen weiteren Plattformen herunterladen kannst. Serverseitig nutzt es <strong>yt-dlp</strong>, die weltweit fortschrittlichste Open-Source-Download-Engine — dadurch wird das Video immer direkt von der Quelle, in bestmöglicher Qualität und ohne zusätzlichen Konvertierungsverlust erfasst. Du musst nur den Link einfügen — Format und Qualität wählst du, den Rest erledigt ZenithW.',
     aboutTrustTitle: 'warum kannst du uns vertrauen?',
     aboutTrustText: 'Anders als bei klassischen Download-Seiten gibt es hier kein Werbenetzwerk, das dich verfolgt, keine gefälschten Download-Buttons, keine Weiterleitungen oder Pop-ups. Dein Downloadverlauf wird niemals auf dem Server gespeichert — er bleibt ausschließlich im Speicher deines eigenen Browsers (localStorage) und kann jederzeit mit einem Klick gelöscht werden. Der Code wird laufend auf Sicherheit überprüft: Schutz vor Path Traversal, Rate Limiting und Schutz vor gefälschten IP-Adressen sind von Anfang an vorhanden.',
-    aboutCookiesTitle: 'was machen wir mit cookies?',
-    aboutCookiesText: 'Um YouTubes strenge Bot-Schutzmaßnahmen, Altersbeschränkungen und IP-Sperren zu umgehen, verwendet unser Server eine sichere, isolierte Cookie-Datei (cookies.txt). Diese Cookies dienen ausschließlich dazu, YouTube zu bestätigen, dass wir kein Bot sind; sie haben nichts mit deinen persönlichen Daten, deinem Konto oder deinem Browserverlauf zu tun und werden in keiner Weise gespeichert.',
+    aboutOpenTitle: 'offener quellcode',
+    aboutOpenText: 'Der gesamte Quellcode von ZenithW ist auf <a href="https://github.com/kakangeldi82-netizen/zenithw" target="_blank" style="color:var(--accent);">GitHub</a> öffentlich einsehbar und steht unter der MIT-Lizenz. Wenn du neugierig bist, was im Hintergrund passiert, ist alles Zeile für Zeile einsehbar — nichts wird versteckt. Jeder kann ihn prüfen, dazu beitragen oder sogar eine eigene Instanz betreiben.',
+    queueResumeTpl:'du hast eine unvollständige Download-Warteschlange ({done}/{total} abgeschlossen) — möchtest du fortfahren?',
     aboutHowTitle: 'wie funktioniert es?',
     aboutHowText: 'Du fügst den Link ein → ZenithW analysiert das Video und zeigt dir die verfügbaren Qualitäts- und Formatoptionen → du wählst aus und lädst herunter. Video, Audio (mp3/m4a), Stumm-Modus und Massen-/Playlist-Downloads werden unterstützt; außerdem kannst du mit den integrierten Convert- und Remux-Tools bereits vorhandene Dateien bearbeiten. Der gesamte Vorgang dauert nur wenige Sekunden, ohne den Tab je zu verlassen.',
     aboutDevLabel:'entwickler',aboutContactLabel:'kontakt',aboutStackLabel:'technologie',aboutHostLabel:'hosting',aboutLicLabel:'lizenz',
@@ -842,8 +850,16 @@ function applyLang(){
   const td=document.getElementById('themeDark');if(td)td.textContent=t('themeDark');
   // lang select
   const ls=document.getElementById('langSelect');if(ls)ls.value=LANG;
+  // version — tek kaynaktan (version.js) otomatik, elle güncellemeye gerek yok
+  const av=document.getElementById('aboutVer');
+  if(av&&typeof ZW_VERSION!=='undefined'){
+    const dateMap={tr:ZW_VERSION.dateTr,en:ZW_VERSION.dateEn,fr:ZW_VERSION.dateFr,de:ZW_VERSION.dateDe};
+    av.textContent=ZW_VERSION.ver+' — '+(dateMap[LANG]||ZW_VERSION.dateEn);
+  }
   // conv btn
   _updateConvBtn();
+  // yarım kalan indirme kuyruğu varsa banner metnini güncelle
+  if(typeof checkQueueResume==='function')checkQueueResume();
 }
 
 function setLang(lang){
@@ -1353,6 +1369,75 @@ function openPlaylistDlModal(){
 
 // ── PLAYLIST QUEUE (sıralı toplu indirme) ──────────────
 let plQueueRunning=false,plQueueStopRequested=false;
+
+// Kuyruk durumu localStorage'a yazılır ki sekme kapanır/yenilenirse
+// (ya da "durdur"a basılırsa) kaldığın yerden devam edebilesin.
+const QUEUE_STATE_KEY='zw_queue_state';
+function saveQueueState(selectedIdx,doneIdx,errIdx,fmt,mode,title,items){
+  try{
+    localStorage.setItem(QUEUE_STATE_KEY,JSON.stringify({
+      playlistTitle:title,items,selectedIdx,doneIdx,errIdx,fmt,mode,savedAt:Date.now()
+    }));
+  }catch(e){}
+}
+function clearQueueState(){try{localStorage.removeItem(QUEUE_STATE_KEY);}catch(e){}}
+function loadQueueState(){
+  try{
+    const raw=localStorage.getItem(QUEUE_STATE_KEY);
+    if(!raw)return null;
+    const st=JSON.parse(raw);
+    // 24 saatten eski kayıtlara güvenme — linkler bu sürede süresi dolmuş olabilir
+    if(!st.savedAt||Date.now()-st.savedAt>24*60*60*1000){clearQueueState();return null;}
+    if(!st.items||!st.items.length||!st.selectedIdx||!st.selectedIdx.length)return null;
+    if((st.doneIdx||[]).length>=st.selectedIdx.length)return null; // zaten tamamlanmış
+    return st;
+  }catch(e){return null;}
+}
+function hideQueueResumeHint(){
+  const el=document.getElementById('queueResumeHint');
+  if(el)el.classList.remove('show');
+}
+function checkQueueResume(){
+  const st=loadQueueState();
+  const el=document.getElementById('queueResumeHint');
+  if(!el)return;
+  if(!st||plQueueRunning){el.classList.remove('show');return;}
+  const done=(st.doneIdx||[]).length,total=st.selectedIdx.length;
+  document.getElementById('queueResumeTxt').textContent=t('queueResumeTpl').replace('{done}',done).replace('{total}',total);
+  el.classList.add('show');
+}
+function discardQueue(){
+  clearQueueState();
+  hideQueueResumeHint();
+}
+function resumeQueue(){
+  const st=loadQueueState();
+  if(!st){hideQueueResumeHint();return;}
+  playlistItems=st.items;
+  playlistTitle=st.playlistTitle||playlistTitle;
+  const fullIdx=st.selectedIdx;
+  const doneArr=st.doneIdx||[],errArr=st.errIdx||[];
+
+  const list=document.getElementById('plQueueList');
+  list.innerHTML=fullIdx.map(i=>{
+    const it=playlistItems[i]||{};
+    const isDone=doneArr.includes(i),isErr=errArr.includes(i);
+    const statusTxt=isDone?t('plQueueItemDone'):(isErr?t('plQueueItemErr'):t('plQueueQueued'));
+    const statusCls=isDone?'done':(isErr?'err':'');
+    return `<div class="pl-queue-item" id="plq-${i}">
+      <div class="pl-queue-title">${(it.title||'video')}</div>
+      <div class="pl-queue-status ${statusCls}" id="plq-status-${i}">${statusTxt}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('plQueueProgress').textContent=`${doneArr.length} / ${fullIdx.length} ${t('plQueueCompletedWord')}`;
+  document.getElementById('plQueueOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+
+  plQueueStopRequested=false;
+  hideQueueResumeHint();
+  runPlaylistQueue(fullIdx,doneArr,st.fmt);
+}
 function openPlaylistQueueModal(){
   const selectedIdx=[...playlistSelected].sort((a,b)=>a-b);
   if(selectedIdx.length===0)return;
@@ -1371,45 +1456,61 @@ function openPlaylistQueueModal(){
   document.body.style.overflow='hidden';
 
   plQueueStopRequested=false;
-  runPlaylistQueue(selectedIdx);
+  hideQueueResumeHint();
+  runPlaylistQueue(selectedIdx,[]);
 }
-async function runPlaylistQueue(selectedIdx){
+async function runPlaylistQueue(fullSelectedIdx,alreadyDone,fmtOverride){
   if(plQueueRunning)return;
   plQueueRunning=true;
-  let done=0;
-  const isAudio=(DL_MODE==='audio'),isMute=(DL_MODE==='mute'),fmt=isAudio?S.afmt:S.vfmt;
+  alreadyDone=alreadyDone||[];
+  const doneSet=new Set(alreadyDone);
+  const errSet=new Set();
+  const total=fullSelectedIdx.length;
+  const isAudio=fmtOverride?fmtOverride.mode==='audio':(DL_MODE==='audio');
+  const isMute=fmtOverride?fmtOverride.mode==='mute':(DL_MODE==='mute');
+  const f=fmtOverride||{quality:S.quality,codec:S.codec,vfmt:S.vfmt,afmt:S.afmt,audioQ:S.audioQ,metadata:S.metadata,mode:DL_MODE};
+  const fmt=isAudio?f.afmt:f.vfmt;
 
-  for(const i of selectedIdx){
+  saveQueueState(fullSelectedIdx,[...doneSet],[...errSet],f,f.mode,playlistTitle,playlistItems);
+
+  for(const i of fullSelectedIdx){
+    if(doneSet.has(i))continue; // resume'de zaten tamamlanmışsa tekrar indirme
     if(plQueueStopRequested)break;
     const it=playlistItems[i];
     const statusEl=document.getElementById(`plq-status-${i}`);
-    if(statusEl)statusEl.textContent=t('plQueueDownloadingItem');
+    if(statusEl){statusEl.classList.remove('err');statusEl.textContent=t('plQueueDownloadingItem');}
     try{
       const dId=crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2);
-      const res=await fetch(API+'/download',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:it.url,quality:S.quality,format:fmt,codec:S.codec,audioQ:S.audioQ,metadata:S.metadata,sid:socketId,download_id:dId,audio_only:isAudio,mute:isMute})});
+      const res=await fetch(API+'/download',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:it.url,quality:f.quality,format:fmt,codec:f.codec,audioQ:f.audioQ,metadata:f.metadata,sid:socketId,download_id:dId,audio_only:isAudio,mute:isMute})});
       if(!res.ok){
+        errSet.add(i);
         if(statusEl){statusEl.textContent=t('plQueueItemErr');statusEl.classList.add('err');}
       }else{
         const blob=await res.blob();
         const filename=buildFilename(S.fnfTemplate||'{title}.{ext}',{title:it.title,uploader:'',url:it.url},fmt);
         triggerBlobDownload(blob,filename);
         addToLocalHistory({url:it.url,title:it.title||'video',platform:getPlatformName(it.url||''),format:fmt});
-        if(statusEl){statusEl.textContent=t('plQueueItemDone');statusEl.classList.add('done');}
-        done++;
+        doneSet.add(i);errSet.delete(i);
+        if(statusEl){statusEl.textContent=t('plQueueItemDone');statusEl.classList.remove('err');statusEl.classList.add('done');}
       }
     }catch(e){
+      errSet.add(i);
       if(statusEl){statusEl.textContent=t('plQueueItemErr');statusEl.classList.add('err');}
     }
-    document.getElementById('plQueueProgress').textContent=`${done} / ${selectedIdx.length} ${t('plQueueCompletedWord')}`;
+    document.getElementById('plQueueProgress').textContent=`${doneSet.size} / ${total} ${t('plQueueCompletedWord')}`;
+    saveQueueState(fullSelectedIdx,[...doneSet],[...errSet],f,f.mode,playlistTitle,playlistItems);
   }
 
   plQueueRunning=false;
   if(plQueueStopRequested){
+    // Kasıtlı durdurma — kayıt silinmiyor, kullanıcı istediğinde "devam et" ile kaldığı yerden sürdürebilir.
     toast(t('plQueueStoppedMsg'),'#f59e0b');
   }else{
     toast(t('plQueueDoneMsg'),'#3bba64');
+    clearQueueState();
   }
   const plqct=document.getElementById('plQueueCancelTxt');if(plqct)plqct.textContent=t('plQueueCloseBtn');
+  checkQueueResume();
 }
 function triggerBlobDownload(blob,filename){
   const url=URL.createObjectURL(blob);
@@ -1440,6 +1541,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('urlTextarea').addEventListener('keydown',e=>{
     if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();fetchBulkVideos();}
   });
+  checkQueueResume();
 });
 
 function showYtErr(){const p=document.getElementById('ytPopup');p.classList.add('show');if(ytErrTimer)clearTimeout(ytErrTimer);ytErrTimer=setTimeout(()=>p.classList.remove('show'),4500);}

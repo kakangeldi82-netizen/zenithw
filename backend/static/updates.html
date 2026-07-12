@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#0a0a0a">
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="version.js"></script>
 <style>
 .legal-lang-toggle{display:flex;gap:4px;background:var(--chip-bg);border:1px solid var(--border);border-radius:20px;padding:3px;}
 .legal-lang-toggle button{border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;transition:all .15s;}
@@ -57,7 +58,7 @@
 
   <div class="legal-body" style="max-width:640px;margin:0 auto;padding:24px 20px 80px;">
     <div class="upd-top-row">
-      <span class="upd-ver-badge" id="updBadge">v5.6</span>
+      <span class="upd-ver-badge" id="updBadge">v7.0</span>
       <span class="upd-top-date" id="updDate">temmuz 2026</span>
       <div class="upd-pick">
         <select id="verPicker" onchange="jumpTo(this.value)"></select>
@@ -74,7 +75,41 @@
 
 <script>
 const UPDATES=[
-{ver:'v6.1',latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
+{ver:ZW_VERSION.ver,latest:true,dateTr:ZW_VERSION.dateTr,dateEn:ZW_VERSION.dateEn,
+titleTr:'kuyruk artık unutkan değil, hakkında sekmesi de biraz sadeleşti',
+titleEn:'the queue finally remembers, and the about tab got a little lighter',
+
+introTr:[
+'Bu sefer içimizi en çok rahatlatan güncelleme geldi diyebiliriz. Daha önce toplu (bulk) ya da playlist indirmesi başlattığınızda, sekmeyi yanlışlıkla kapatırsanız ya da "durdur"a basıp sonra vazgeçerseniz, kuyruk sıfırdan başlıyordu — 40 videoluk bir playlist\'in yarısını indirip sekmeyi kapatan biri tekrar en baştan başlamak zorunda kalıyordu. Artık öyle değil.',
+'Bunun yanında "hakkında" bölümünde de küçük bir düzenleme yaptık: çerezlerle ilgili teknik açıklamayı kaldırıp yerine daha anlamlı bulduğumuz bir şeyi koyduk. Detaylara geçelim.'
+],
+introEn:[
+'This might be the update we\'re personally most relieved about. Previously, if you started a bulk or playlist download and accidentally closed the tab — or hit "stop" and changed your mind — the whole queue reset to zero. Someone who downloaded half of a 40-video playlist and closed the tab had to start all over again. Not anymore.',
+'Alongside that, we also tidied up the "about" section a bit: removed the technical cookie explanation and replaced it with something we think is more meaningful. Let\'s get into it.'
+],
+
+sections:[
+{hTr:'indirme kuyruğu artık kaldığı yerden devam ediyor',hEn:'the download queue now picks up where it left off',
+pTr:'Toplu ya da playlist indirmesi sırasında ilerleme artık tarayıcınızda kayıt altına alınıyor. Sekmeyi kapatıp geri döndüğünüzde ya da "durdur"a bastıktan sonra fikrinizi değiştirdiğinizde, ekranın üstünde küçük bir bildirim çıkıyor: "yarım kalan bir indirme kuyruğun var (X/Y tamamlandı) — devam etmek ister misin?" İsterseniz tek tıkla kaldığınız yerden devam edersiniz, isterseniz görmezden gelip çarpıya basarsınız. Zaten indirilmiş olan videolar tekrar indirilmiyor, sadece kalanlar sıraya giriyor. Bu kayıt 24 saat sonra kendiliğinden geçersiz sayılıyor, çünkü bazı platformlarda video linkleri bu kadar süre sonra zaten çalışmıyor olabilir.',
+pEn:'Progress on bulk and playlist downloads is now saved right in your browser. If you close the tab and come back, or hit "stop" and change your mind, a small notice appears at the top: "you have an unfinished download queue (X/Y completed) — want to continue?" One tap picks up right where you left off; ignore it and it goes away. Videos you already downloaded won\'t be downloaded again — only what\'s left gets queued up. This saved state quietly expires after 24 hours, since some platforms\' video links stop working after that long anyway.'},
+
+{hTr:'"durdur" artık gerçekten bir duraklatma',hEn:'"stop" is now an actual pause',
+pTr:'Daha önce kuyruğu durdurmak biraz geri dönüşü olmayan bir karardı. Şimdi "durdur"a basmak aslında bir duraklatma — kaldığınız yer kaydediliyor ve istediğiniz zaman aynı yerden devam edebiliyorsunuz. İster hemen, ister yarın.',
+pEn:'Stopping the queue used to feel a bit like a one-way decision. Now hitting "stop" is really more of a pause — your progress is saved and you can pick it back up whenever you want, whether that\'s five minutes or a day later.'},
+
+{hTr:'hakkında bölümünde çerez açıklaması kaldırıldı',hEn:'removed the cookie explanation from the about section',
+pTr:'"Çerezlerle ne yapıyoruz?" bölümü biraz fazla teknikti ve aslında çoğu kullanıcı için pek bir şey ifade etmiyordu. Onun yerine artık "açık kaynak" başlıklı bir bölüm var: ZenithW\'nin tüm kodunun GitHub\'da herkese açık ve MIT lisanslı olduğunu, isteyen herkesin inceleyip katkıda bulunabileceğini anlatıyor. Güven inşa etmenin daha somut bir yolu bu.',
+pEn:'The "what do we do with cookies?" section was a bit too technical and honestly didn\'t mean much to most people. In its place there\'s now an "open source" section explaining that ZenithW\'s entire codebase is public on GitHub under the MIT license, and anyone can look through it or contribute. Feels like a more concrete way to build trust.'},
+
+{hTr:'sürüm numarası artık kendiliğinden güncel',hEn:'the version number now keeps itself up to date',
+pTr:'Küçük ama bizim için can sıkıcı bir detaydı: "hakkında" bölümündeki sürüm numarasını her güncellemede elle değiştirmeyi unutup eski sürümde bırakabiliyorduk (nitekim öyle oldu). Artık tek bir yerden besleniyor, bu yüzden bir daha yaşanmayacak.',
+pEn:'A small but annoying detail for us: we kept forgetting to manually bump the version number shown in the "about" section (and yes, it did fall behind). It now pulls from a single source, so that won\'t happen again.'}
+],
+
+outroTr:'Kısacası: artık ne kuyruğunuz unutkan, ne de biz sürüm numarasını unutuyoruz.',
+outroEn:'In short: the queue doesn\'t forget anymore, and neither do we forget the version number.'
+},
+{ver:'v6.1',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
   titleTr:'artık linki panonuzdan okuyoruz, siz istemeden bir şey yapmadan',
   titleEn:'we now peek at your clipboard, but only when you say so',
   introTr:[

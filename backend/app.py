@@ -10,15 +10,27 @@ import uuid
 import threading
 import time
 import subprocess
+import secrets
 from collections import defaultdict
 import gevent
 import tempfile
 
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='/static')
-app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "zenithw2026")
-CORS(app, resources={r"/*": {"origins": "*"}})
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
+
+# Sabit bir fallback yerine rastgele üretilen bir secret key kullanılır;
+# env variable verilmezse her başlatmada yeni bir tane üretilir.
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+
+# ── İzin verilen origin'ler ────────────────────────────
+# Yerel geliştirmede FLASK_ENV=development veya ALLOW_DEV_CORS=1 verilirse
+# localhost origin'lerine de izin verilir.
+ALLOWED_ORIGINS = ["https://zenithw.space", "https://www.zenithw.space"]
+if os.environ.get("FLASK_ENV") == "development" or os.environ.get("ALLOW_DEV_CORS"):
+    ALLOWED_ORIGINS += ["http://localhost:5000", "http://127.0.0.1:5000"]
+
+CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}})
+socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='gevent')
 
 DOWNLOAD_DIR = "./downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -28,6 +40,7 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 # (localStorage) tutuluyor. Böylece her kullanıcı sadece kendi geçmişini
 # görür ve sunucu tarafında ortak/karışan bir history.json dosyasına
 # gerek kalmıyor. Bu yüzden add_to_history çağrıları artık no-op.
+
 def add_to_history(url, title, platform, fmt, success=True):
     pass
 
@@ -63,6 +76,18 @@ def check_rate_limit(ip):
         rate_limit_data[ip].append(now)
         return True
 
+def cleanup_rate_limit_data():
+    """Artık istek atmayan IP'lerin boş listelerini sözlükten sil.
+    Aksi halde her yeni IP kalıcı olarak dict içinde birikir (hafıza sızıntısı)."""
+    now = time.time()
+    with rate_limit_lock:
+        stale_ips = [
+            ip for ip, timestamps in rate_limit_data.items()
+            if not timestamps or now - max(timestamps) > 60
+        ]
+        for ip in stale_ips:
+            del rate_limit_data[ip]
+
 def get_client_ip():
     return request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
 
@@ -94,6 +119,7 @@ def periodic_cleanup():
     while True:
         time.sleep(900)
         cleanup_old_files()
+        cleanup_rate_limit_data()
 
 threading.Thread(target=periodic_cleanup, daemon=True).start()
 
@@ -103,7 +129,7 @@ cancel_events_lock = threading.Lock()
 
 # ── Platform helpers ──────────────────────────────────
 def is_youtube(u): return "youtube.com" in u or "youtu.be" in u
-def is_tiktok(u):  return "tiktok.com" in u
+def is_tiktok(u): return "tiktok.com" in u
 def is_instagram(u): return "instagram.com" in u
 def is_youtube_live_url(u): return is_youtube(u) and "/live/" in u
 
@@ -114,6 +140,7 @@ UNSUPPORTED_DOMAINS = (
     "spotify.com", "music.apple.com", "deezer.com", "tidal.com",
     "music.amazon.com", "music.youtube.com",
 )
+
 def is_unsupported_domain(u):
     ul = u.lower()
     return any(d in ul for d in UNSUPPORTED_DOMAINS)
@@ -184,27 +211,22 @@ def get_base_opts(url, use_cookies=True):
 
 def get_opts_list(url, extra=None):
     opts_list = []
-
     # Çerezli deneme
     o = get_base_opts(url, use_cookies=True)
     if extra: o.update(extra)
     opts_list.append(o)
-
     # Çerezsiz deneme (fallback)
     o = get_base_opts(url, use_cookies=False)
     if extra: o.update(extra)
     opts_list.append(o)
-
     return opts_list
 
 # ── Format string builder ─────────────────────────────
 def build_format_str(url, quality, fmt, codec):
     if fmt in AUDIO_FMTS:
         return "bestaudio/best"
-
     q = str(quality)
     best = (q == "9999")
-
     if is_youtube(url):
         if codec == "av1":
             if best:
@@ -220,12 +242,11 @@ def build_format_str(url, quality, fmt, codec):
             return (f"bestvideo[vcodec^=vp9][height<={q}]+bestaudio[acodec^=opus]"
                     f"/bestvideo[vcodec^=vp9][height<={q}]+bestaudio"
                     f"/bestvideo[height<={q}]+bestaudio/best[height<={q}]/best")
-        else:  # h264
+        else: # h264
             if best:
                 return "bestvideo+bestaudio/best"
             return (f"bestvideo[height<={q}]+bestaudio"
                     f"/best[height<={q}]/best")
-
     # Non-YouTube
     if best:
         return "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
@@ -284,15 +305,12 @@ def get_info():
     ip = get_client_ip()
     if not check_rate_limit(ip):
         return jsonify({"error": "Çok fazla istek. 1 dakika bekleyin."}), 429
-
     data = request.json or {}
     url = data.get("url", "").strip()
     if not url:
         return jsonify({"error": "URL gerekli"}), 400
-
     if is_youtube_live_url(url):
         return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
-
     if is_unsupported_domain(url):
         return jsonify({"error": "Bu platform desteklenmiyor. Desteklenen platformları kontrol edin."}), 400
 
@@ -306,12 +324,10 @@ def get_info():
     }
     opts_list = get_opts_list(url, extra=extra_opts)
     last_err = None
-
     for opts in opts_list:
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
-
                 # ── Playlist tespiti ──────────────────────
                 if info.get("_type") == "playlist" or "entries" in info:
                     entries = info.get("entries") or []
@@ -340,7 +356,6 @@ def get_info():
                         "items": items,
                         "platform": info.get("extractor_key", "").lower(),
                     })
-
                 return jsonify({
                     "is_playlist": False,
                     "title": info.get("title") or "Video",
@@ -358,7 +373,6 @@ def get_info():
 
     error_msg = str(last_err) if last_err else "Bilinmeyen hata"
     print(f"[INFO ERR] {url[:60]}: {error_msg[:150]}")
-
     parsed = parse_error(error_msg, url)
     if parsed == "instagram_ratelimit":
         return jsonify({"error": "instagram_ratelimit"}), 400
@@ -370,30 +384,25 @@ def download():
     ip = get_client_ip()
     if not check_rate_limit(ip):
         return jsonify({"error": "Çok fazla istek. 1 dakika bekleyin."}), 429
-
     cleanup_old_files()
-
-    data        = request.json or {}
-    url         = data.get("url", "").strip()
-    quality     = str(data.get("quality", "1080"))
-    fmt         = data.get("format", "mp4").lower()
-    codec       = data.get("codec", "h264").lower()
-    audio_q     = str(data.get("audioQ", "256"))
-    sid         = data.get("sid", "")
+    data = request.json or {}
+    url = data.get("url", "").strip()
+    quality = str(data.get("quality", "1080"))
+    fmt = data.get("format", "mp4").lower()
+    codec = data.get("codec", "h264").lower()
+    audio_q = str(data.get("audioQ", "256"))
+    sid = data.get("sid", "")
     download_id = data.get("download_id") or str(uuid.uuid4())
-    add_meta    = bool(data.get("metadata", True))
+    add_meta = bool(data.get("metadata", True))
 
     if not url:
         return jsonify({"error": "URL gerekli"}), 400
-
     if is_youtube_live_url(url):
         return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
-
     if is_unsupported_domain(url):
         return jsonify({"error": "Bu platform desteklenmiyor. Desteklenen platformları kontrol edin."}), 400
 
     is_audio = fmt in AUDIO_FMTS
-
     cancel_event = threading.Event()
     with cancel_events_lock:
         cancel_events[download_id] = cancel_event
@@ -425,14 +434,12 @@ def download():
         if is_audio:
             if not FFMPEG_DIR:
                 return jsonify({"error": "Ses dönüşümü için FFmpeg gerekli."}), 400
-
             codec_map = {
                 "mp3": "mp3", "flac": "flac", "wav": "wav",
                 "ogg": "vorbis", "opus": "opus", "m4a": "m4a"
             }
             preferred = codec_map.get(fmt, "mp3")
             preferred_q = audio_q if fmt in ("mp3", "ogg", "m4a") else "0"
-
             postprocessors = [
                 {
                     "key": "FFmpegExtractAudio",
@@ -442,25 +449,21 @@ def download():
             ]
             if add_meta:
                 postprocessors.append({"key": "FFmpegMetadata", "add_metadata": True})
-
             extra = {
                 "format": fmt_str,
                 "outtmpl": filepath + ".%(ext)s",
                 "progress_hooks": [progress_hook],
                 "postprocessors": postprocessors,
             }
-
         else:
             # Mute mod
             is_mute = data.get("mute", False)
-
             merge_fmt = "mp4"
             if fmt == "webm": merge_fmt = "webm"
             elif fmt == "mkv": merge_fmt = "mkv"
             elif fmt == "avi": merge_fmt = "avi"
             elif fmt == "mov": merge_fmt = "mov"
             elif codec in ("av1", "vp9") and fmt != "mp4": merge_fmt = "webm"
-
             # NOT: Video-only format seçicisi (build_mute_format_str) artık
             # burada KULLANILMIYOR. Sebep: YouTube, PO Token olmadan ayrı
             # video-only akışları çoğu client'ta listeden düşürüyor, bu da
@@ -469,11 +472,9 @@ def download():
             # tamamlandıktan sonra ffmpeg ile ses izi kesiliyor (aşağıda,
             # full_path belirlendikten sonra). Bu yöntem PO Token'a bağımlı
             # değil ve her zaman çalışır.
-
             postprocessors = []
             if add_meta:
                 postprocessors.append({"key": "FFmpegMetadata", "add_metadata": True})
-
             extra = {
                 "format": fmt_str,
                 "outtmpl": filepath + ".%(ext)s",
@@ -484,7 +485,6 @@ def download():
                 extra["postprocessors"] = postprocessors
 
         opts_list = get_opts_list(url, extra=extra)
-
         success = False
         last_err = None
         for opts in opts_list:
@@ -507,6 +507,7 @@ def download():
 
         if cancel_event.is_set():
             raise yt_dlp.utils.DownloadCancelled("İptal edildi")
+
         if not success:
             raise last_err or Exception("Tüm denemeler başarısız")
 
@@ -547,7 +548,6 @@ def download():
 
         ext = full_path.rsplit('.', 1)[-1] if '.' in full_path else fmt
         download_name = f"zenithw.{ext}"
-
         response = send_file(full_path, as_attachment=True, download_name=download_name)
         response.headers['X-Download-Id'] = download_id
         response.headers['Access-Control-Expose-Headers'] = 'X-Download-Id'
@@ -573,7 +573,6 @@ def download():
         if sid:
             socketio.emit('progress', {'percent': 0, 'status': 'cancelled'}, room=sid)
         return jsonify({"error": "cancelled"}), 409
-
     except Exception as e:
         error_msg = str(e)
         print(f"[DL ERR] {error_msg[:200]}")
@@ -581,28 +580,23 @@ def download():
             cancel_events.pop(download_id, None)
         if sid:
             socketio.emit('progress', {'status': 'error', 'message': error_msg[:100]}, room=sid)
-
         parsed = parse_error(error_msg, url)
         if parsed == "instagram_ratelimit":
             return jsonify({"error": "instagram_ratelimit"}), 400
         return jsonify({"error": parsed}), 400
-
 
 # ── /convert ───────────────────────────────────────────
 @app.route("/convert", methods=["POST"])
 def convert_file():
     if 'file' not in request.files:
         return jsonify({"error": "Dosya gerekli"}), 400
-    
     file = request.files['file']
     target_format = request.form.get('target_format', 'mp3').lower()
-    
     if not file or file.filename == '':
         return jsonify({"error": "Geçersiz dosya"}), 400
-    
     if not FFMPEG_DIR:
         return jsonify({"error": "FFmpeg gerekli"}), 400
-    
+
     input_path = None
     output_path = None
     try:
@@ -611,16 +605,16 @@ def convert_file():
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as input_temp:
             input_path = input_temp.name
             file.save(input_path)
-        
+
         output_path = input_path.rsplit('.', 1)[0] + '.' + target_format
-        
+
         # Build ffmpeg command
         cmd = [
             os.path.join(FFMPEG_DIR, 'ffmpeg'),
             '-i', input_path,
             '-y'  # Overwrite output
         ]
-        
+
         # Add format-specific options
         audio_formats = {'mp3', 'flac', 'wav', 'ogg', 'opus', 'm4a'}
         if target_format in audio_formats:
@@ -649,15 +643,14 @@ def convert_file():
                 cmd.extend(['-c:v', 'libx264', '-c:a', 'mp3'])
             elif target_format == 'mov':
                 cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
-        
+
         cmd.append(output_path)
-        
+
         # Run ffmpeg
         result = subprocess.run(cmd, capture_output=True, text=True)
-        
         if result.returncode != 0:
             return jsonify({"error": f"Dönüştürme hatası: {result.stderr[:200]}"}), 400
-        
+
         # Cleanup input, send output; use call_on_close to delete output after streaming
         try:
             if input_path and os.path.exists(input_path):
@@ -675,7 +668,7 @@ def convert_file():
             except: pass
 
         return response
-        
+
     except Exception as e:
         # Clean up on error
         try:
@@ -688,7 +681,6 @@ def convert_file():
         print(f"[CONV ERR] {error_msg[:200]}")
         return jsonify({"error": error_msg[:200]}), 400
 
-
 @socketio.on('connect')
 def on_connect():
     print(f"+ {request.sid}")
@@ -696,7 +688,6 @@ def on_connect():
 @socketio.on('disconnect')
 def on_disconnect():
     print(f"- {request.sid}")
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
