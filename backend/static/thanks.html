@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Teşekkürler — ZenithW</title>
+<meta name="description" content="ZenithW'nin ilk demo günlerinde yanımızda olan arkadaşlara teşekkürler.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://zenithw.space/thanks.html">
+<meta name="theme-color" content="#0a0a0a">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.thx-hero{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:6px;}
+.thx-hero-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a3a3a,#151515);border:1px solid var(--border);margin-bottom:16px;font-size:22px;}
+.thx-title{font-size:21px;font-weight:800;letter-spacing:-.3px;line-height:1.3;margin:0 0 8px;color:var(--text);}
+.thx-sub{font-size:13px;color:var(--text3);line-height:1.7;margin:0;max-width:440px;}
+
+.thx-grid{display:flex;flex-direction:column;gap:12px;margin-top:32px;}
+
+.thx-card{position:relative;display:flex;align-items:center;gap:14px;padding:16px;background:var(--chip-bg);border:1px solid var(--border);border-radius:16px;text-decoration:none;overflow:hidden;transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+.thx-card::before{content:'';position:absolute;inset:0;background:radial-gradient(120px 60px at 0% 0%, rgba(255,255,255,.05), transparent 70%);opacity:0;transition:opacity .18s ease;}
+.thx-card:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 8px 24px rgba(0,0,0,.28);}
+.thx-card:hover::before{opacity:1;}
+
+.thx-avatar-wrap{position:relative;flex-shrink:0;}
+.thx-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.2px;}
+.thx-ig-badge{position:absolute;bottom:-3px;right:-3px;width:19px;height:19px;border-radius:7px;background:var(--bg);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;}
+.thx-ig-badge svg{width:12px;height:12px;}
+
+.thx-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.thx-name{font-size:14.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;}
+.thx-handle{font-size:12px;color:var(--text3);}
+
+.thx-arrow{margin-left:auto;flex-shrink:0;width:16px;height:16px;color:var(--text3);opacity:.5;transition:all .18s ease;}
+.thx-card:hover .thx-arrow{opacity:1;transform:translate(2px,-2px);color:var(--text);}
+
+.thx-badge{font-size:9.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;background:var(--text);color:var(--bg);padding:4px 8px;border-radius:8px;white-space:nowrap;flex-shrink:0;}
+
+.thx-card.owner{background:linear-gradient(135deg, rgba(59,186,100,.10), var(--chip-bg) 60%);border-color:rgba(59,186,100,.35);}
+.thx-card.owner:hover{box-shadow:0 8px 28px rgba(59,186,100,.16);}
+.thx-card.owner .thx-badge{background:#3bba64;color:#fff;display:flex;align-items:center;gap:4px;}
+.thx-card.owner .thx-avatar{box-shadow:0 0 0 3px rgba(59,186,100,.18);}
+
+.thx-note{margin-top:36px;font-size:13px;line-height:1.9;color:var(--text2);padding-top:24px;border-top:1px solid var(--border);}
+.thx-signoff{margin-top:20px;font-size:13px;color:var(--text3);text-align:center;}
+</style>
+</head>
+<body>
+<div class="legal-page">
+  <div class="legal-nav">
+    <a href="/" class="legal-logo">ZenithW<span>.</span></a>
+    <a href="/" class="legal-back">← ana sayfa</a>
+  </div>
+
+  <div class="legal-body" style="max-width:640px;margin:0 auto;padding:24px 20px 80px;">
+
+    <div class="thx-hero">
+      <div class="thx-hero-icon">🤍</div>
+      <h1 class="thx-title">özel teşekkürler</h1>
+      <p class="thx-sub">ZenithW'nin ilk demo günlerinde siteyi deneyip geri bildirim veren, hataları bulmamıza yardım eden arkadaşlara teşekkürler.</p>
+    </div>
+
+    <div class="thx-grid">
+
+      <a class="thx-card owner" href="https://www.instagram.com/boranseason" target="_blank" rel="noopener">
+        <div class="thx-avatar-wrap">
+          <div class="thx-avatar" style="background:linear-gradient(135deg,#3bba64,#1f7a41);">B</div>
+          <span class="thx-ig-badge">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#g1)"/><path d="M12 8.2a3.8 3.8 0 100 7.6 3.8 3.8 0 000-7.6zm0 6.27a2.47 2.47 0 110-4.94 2.47 2.47 0 010 4.94z" fill="#fff"/><circle cx="16.3" cy="7.7" r="0.9" fill="#fff"/><defs><linearGradient id="g1" x1="0" y1="24" x2="24" y2="0"><stop stop-color="#FED576"/><stop offset=".26" stop-color="#F47133"/><stop offset=".61" stop-color="#BC3081"/><stop offset="1" stop-color="#4C63D2"/></linearGradient></defs></svg>
+          </span>
+        </div>
+        <div class="thx-info">
+          <span class="thx-name">boran</span>
+          <span class="thx-handle">@boranseason</span>
+        </div>
+        <span class="thx-badge">👑 site sahibi</span>
+      </a>
+
+      <a class="thx-card" href="https://www.instagram.com/huso1903_25/" target="_blank" rel="noopener">
+        <div class="thx-avatar-wrap">
+          <div class="thx-avatar" style="background:linear-gradient(135deg,#5b6ee8,#2f3a8c);">D</div>
+          <span class="thx-ig-badge">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#g2)"/><path d="M12 8.2a3.8 3.8 0 100 7.6 3.8 3.8 0 000-7.6zm0 6.27a2.47 2.47 0 110-4.94 2.47 2.47 0 010 4.94z" fill="#fff"/><circle cx="16.3" cy="7.7" r="0.9" fill="#fff"/><defs><linearGradient id="g2" x1="0" y1="24" x2="24" y2="0"><stop stop-color="#FED576"/><stop offset=".26" stop-color="#F47133"/><stop offset=".61" stop-color="#BC3081"/><stop offset="1" stop-color="#4C63D2"/></linearGradient></defs></svg>
+          </span>
+        </div>
+        <div class="thx-info">
+          <span class="thx-name">dadasking</span>
+          <span class="thx-handle">@huso1903_25</span>
+        </div>
+        <svg class="thx-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+      </a>
+
+      <a class="thx-card" href="https://www.instagram.com/keltomenemen" target="_blank" rel="noopener">
+        <div class="thx-avatar-wrap">
+          <div class="thx-avatar" style="background:linear-gradient(135deg,#e85b7d,#8c2f4c);">B</div>
+          <span class="thx-ig-badge">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#g3)"/><path d="M12 8.2a3.8 3.8 0 100 7.6 3.8 3.8 0 000-7.6zm0 6.27a2.47 2.47 0 110-4.94 2.47 2.47 0 010 4.94z" fill="#fff"/><circle cx="16.3" cy="7.7" r="0.9" fill="#fff"/><defs><linearGradient id="g3" x1="0" y1="24" x2="24" y2="0"><stop stop-color="#FED576"/><stop offset=".26" stop-color="#F47133"/><stop offset=".61" stop-color="#BC3081"/><stop offset="1" stop-color="#4C63D2"/></linearGradient></defs></svg>
+          </span>
+        </div>
+        <div class="thx-info">
+          <span class="thx-name">bilal (goat)</span>
+          <span class="thx-handle">@keltomenemen</span>
+        </div>
+        <svg class="thx-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+      </a>
+
+      <a class="thx-card" href="https://www.instagram.com/babapuroegg" target="_blank" rel="noopener">
+        <div class="thx-avatar-wrap">
+          <div class="thx-avatar" style="background:linear-gradient(135deg,#e8a75b,#8c5b2f);">E</div>
+          <span class="thx-ig-badge">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#g4)"/><path d="M12 8.2a3.8 3.8 0 100 7.6 3.8 3.8 0 000-7.6zm0 6.27a2.47 2.47 0 110-4.94 2.47 2.47 0 010 4.94z" fill="#fff"/><circle cx="16.3" cy="7.7" r="0.9" fill="#fff"/><defs><linearGradient id="g4" x1="0" y1="24" x2="24" y2="0"><stop stop-color="#FED576"/><stop offset=".26" stop-color="#F47133"/><stop offset=".61" stop-color="#BC3081"/><stop offset="1" stop-color="#4C63D2"/></linearGradient></defs></svg>
+          </span>
+        </div>
+        <div class="thx-info">
+          <span class="thx-name">ege</span>
+          <span class="thx-handle">@babapuroegg</span>
+        </div>
+        <svg class="thx-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+      </a>
+
+    </div>
+
+    <div class="thx-note">
+      <p style="margin:0 0 14px;">
+        Doğrusunu isterseniz bu hikaye ZenithW ile başlamadı. İlk hali <b>VidDrop</b> diye bir isimle çıkmıştı ortaya —
+        kulağa havalı geliyordu ama site öyle değildi. Butonlar bazen çalışıyordu, bazen "biraz keyfim yok" der gibi
+        hiçbir şey yapmıyordu. İndirmeler yarıda kesiliyor, bazı linkler açılmıyor, bir video indirdim derken bazen
+        elimize garip bir dosya geçiyordu. Kısacası VidDrop, kendi ağırlığı altında sessizce battı. Resmi bir cenaze
+        töreni yapmadık ama içten içe biliyorduk: bu hâliyle olmuyordu.
+      </p>
+      <p style="margin:0 0 14px;">
+        Ama pes etmedik, sadece isim değiştirip yeniden doğduk — ZenithW olarak. Ve o günlerden itibaren mesai gece
+        gündüz demeden devam etti. Bu arkadaşlar erken demoları deneyip hangi düğmenin çalışmadığını, hangi videonun
+        indirilmediğini, hangi sayfanın "404 sanki burada bir şey olması gerekiyordu ama yok" dediğini bize bildirdi —
+        bazen sabahın körü saatlerinde bile "kanka çalışmıyo" mesajıyla uyandık. Hata bulduk, düzelttik, tekrar bozuldu,
+        tekrar düzelttik. Bu döngü aylarca sürdü.
+      </p>
+      <p style="margin:0;">
+        Bugün ZenithW'nin ayakta durabiliyor olmasının tek bir sebebi var: pes etmeyen birkaç kişi. Erken saatlerde
+        test eden, sabrı taşınca da bize bunu söylemekten çekinmeyen bu arkadaşlara gerçekten minnettarız. Özellikle
+        <b>boran</b>'a ayrı bir teşekkür: VidDrop'un enkazından ZenithW'yi çıkaran, gecelere kadar oturup tüm hataları
+        tek tek düzelten, muhtemelen bu süreçte en çok kahve tüketen kişi o. Bir zamanlar battığımızı hatırlayınca,
+        bugün buradayız diye biraz gururlanmayı hak ediyoruz galiba.
+      </p>
+    </div>
+
+    <p class="thx-signoff">~ ZenithW ekibi 🤍</p>
+  </div>
+</div>
+</body>
+</html>
