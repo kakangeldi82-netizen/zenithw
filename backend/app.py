@@ -25,14 +25,12 @@ app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 # /convert için maksimum upload boyutu (230 MB)
 app.config['MAX_CONTENT_LENGTH'] = 230 * 1024 * 1024
 
-# ── GÜVENLİ CORS VE SOCKET.IO AYARLARI (GÜNCELLENDİ) ──────────────────
-# Sadece senin web sitene ve yerel test ortamlarına izin veriyoruz.
-ALLOWED_ORIGINS = [
-    "https://zenithw.space", 
-    "https://www.zenithw.space",
-    "http://localhost:5000",
-    "http://127.0.0.1:5000"
-]
+# ── İzin verilen origin'ler ────────────────────────────
+# Yerel geliştirmede FLASK_ENV=development veya ALLOW_DEV_CORS=1 verilirse
+# localhost origin'lerine de izin verilir.
+ALLOWED_ORIGINS = ["https://zenithw.space", "https://www.zenithw.space"]
+if os.environ.get("FLASK_ENV") == "development" or os.environ.get("ALLOW_DEV_CORS"):
+    ALLOWED_ORIGINS += ["http://localhost:5000", "http://127.0.0.1:3000"]
 
 CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}})
 socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='gevent')
@@ -42,7 +40,10 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 # ── History ───────────────────────────────────────────
 # NOT: Geçmiş artık sunucuda DEĞİL, kullanıcının kendi tarayıcısında
-# (localStorage) tutuluyor. add_to_history çağrıları artık no-op.
+# (localStorage) tutuluyor. Böylece her kullanıcı sadece kendi geçmişini
+# görür ve sunucu tarafında ortak/karışan bir history.json dosyasına
+# gerek kalmıyor. Bu yüzden add_to_history çağrıları artık no-op.
+
 def add_to_history(url, title, platform, fmt, success=True):
     pass
 
@@ -53,6 +54,7 @@ COOKIES_FILE = os.path.join(os.path.dirname(__file__), "cookies.txt")
 cookies_env = os.environ.get("YOUTUBE_COOKIES") or os.environ.get("COOKIES") or os.environ.get("YOUTUBE_COOKIE")
 if cookies_env:
     try:
+        # Satır sonlarını düzgün yorumla (bazı paneller \n karakterini düz metin olarak kaydeder)
         cookies_content = cookies_env.replace('\\n', '\n').strip()
         with open(COOKIES_FILE, "w", encoding="utf-8") as f:
             f.write(cookies_content)
@@ -64,7 +66,7 @@ elif os.path.exists(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 10:
 else:
     print("[INIT] ⚠️ cookies.txt bulunamadı veya geçersiz - YouTube indirme kısıtlı olabilir")
 
-# ── Rate limiting (GÜNCELLENDİ) ─────────────────────────────────────
+# ── Rate limiting ─────────────────────────────────────
 rate_limit_data = defaultdict(list)
 rate_limit_lock = threading.Lock()
 
@@ -72,13 +74,14 @@ def check_rate_limit(ip):
     now = time.time()
     with rate_limit_lock:
         rate_limit_data[ip] = [t for t in rate_limit_data[ip] if now - t < 60]
-        # Soket polling isteklerinin sistemi kilitlememesi için limit 120'ye çıkarıldı.
-        if len(rate_limit_data[ip]) >= 120:
+        if len(rate_limit_data[ip]) >= 10:
             return False
         rate_limit_data[ip].append(now)
         return True
 
 def cleanup_rate_limit_data():
+    """Artık istek atmayan IP'lerin boş listelerini sözlükten sil.
+    Aksi halde her yeni IP kalıcı olarak dict içinde birikir (hafıza sızıntısı)."""
     now = time.time()
     with rate_limit_lock:
         stale_ips = [
@@ -146,6 +149,9 @@ def is_tiktok(u): return "tiktok.com" in u
 def is_instagram(u): return "instagram.com" in u
 def is_youtube_live_url(u): return is_youtube(u) and "/live/" in u
 
+# yt-dlp'nin native extractor'ı olmayan, "generic" extractor'a düşüp
+# sahte-başarı (ör. og:image'i video sanıp) dönebilen bilinen platformlar.
+# Bunları yt-dlp'ye hiç sormadan erkenden reddediyoruz.
 UNSUPPORTED_DOMAINS = (
     "spotify.com", "music.apple.com", "deezer.com", "tidal.com",
     "music.amazon.com", "music.youtube.com",
@@ -155,6 +161,7 @@ def is_unsupported_domain(u):
     ul = u.lower()
     return any(d in ul for d in UNSUPPORTED_DOMAINS)
 
+# ── Audio-only formatlar ──────────────────────────────
 AUDIO_FMTS = {"mp3", "flac", "wav", "ogg", "opus", "m4a"}
 
 # ── Hata mesajları ────────────────────────────────────
@@ -206,6 +213,8 @@ def get_base_opts(url, use_cookies=True):
     if FFMPEG_DIR:
         opts["ffmpeg_location"] = FFMPEG_DIR
     if ARIA2_PATH:
+        # aria2 çoklu bağlantı ile indirme hızını artırır; yt-dlp'nin
+        # dahili indiricisine göre büyük dosyalarda belirgin fark yaratır.
         opts["external_downloader"] = {"default": "aria2c"}
         opts["external_downloader_args"] = {
             "aria2c": ["-x", "16", "-s", "16", "-k", "1M"]
@@ -215,6 +224,9 @@ def get_base_opts(url, use_cookies=True):
     if is_youtube(url):
         opts["extractor_args"] = {
             "youtube": {
+                # 'ios' bilerek çıkarıldı: iOS client cookie kullanmıyor
+                # (OAuth tabanlı), yani cookiefile verilse bile sessizce
+                # yok sayılıyor ve cookie güvenilirliği düşüyor.
                 "player_client": ["web", "mweb", "android"],
             }
         }
@@ -222,9 +234,11 @@ def get_base_opts(url, use_cookies=True):
 
 def get_opts_list(url, extra=None):
     opts_list = []
+    # Çerezli deneme
     o = get_base_opts(url, use_cookies=True)
     if extra: o.update(extra)
     opts_list.append(o)
+    # Çerezsiz deneme (fallback)
     o = get_base_opts(url, use_cookies=False)
     if extra: o.update(extra)
     opts_list.append(o)
@@ -256,6 +270,7 @@ def build_format_str(url, quality, fmt, codec):
                 return "bestvideo+bestaudio/best"
             return (f"bestvideo[height<={q}]+bestaudio"
                     f"/best[height<={q}]/best")
+    # Non-YouTube
     if best:
         return "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
     return (f"bestvideo[ext=mp4][height<={q}]+bestaudio[ext=m4a]"
@@ -322,6 +337,9 @@ def get_info():
     if is_unsupported_domain(url):
         return jsonify({"error": "Bu platform desteklenmiyor. Desteklenen platformları kontrol edin."}), 400
 
+    # Playlist olabilecek bir URL ise hızlı (flat) çıkarım kullan ve
+    # videoyu 50 ile sınırla, yoksa çok büyük playlistler sunucuyu
+    # uzun süre kilitleyebilir.
     PLAYLIST_LIMIT = 50
     extra_opts = {
         "extract_flat": "in_playlist",
@@ -333,16 +351,19 @@ def get_info():
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
+                # ── Playlist tespiti ──────────────────────
                 if info.get("_type") == "playlist" or "entries" in info:
                     entries = info.get("entries") or []
                     items = []
                     for e in entries:
-                        if not e: continue
+                        if not e:
+                            continue
                         entry_url = e.get("url") or e.get("webpage_url")
                         if not entry_url and e.get("id"):
                             if is_youtube(url):
                                 entry_url = f"https://www.youtube.com/watch?v={e['id']}"
-                        if not entry_url: continue
+                        if not entry_url:
+                            continue
                         thumbs = e.get("thumbnails") or []
                         thumb = e.get("thumbnail") or (thumbs[-1].get("url") if thumbs else None)
                         items.append({
@@ -402,12 +423,16 @@ def download():
     download_id = data.get("download_id") or str(uuid.uuid4())
     add_meta = bool(data.get("metadata", True))
 
+    # ── Altyazı seçenekleri ──
     want_subs = bool(data.get("subtitles", False))
     sub_langs = data.get("sub_langs") or ["en"]
     if isinstance(sub_langs, str):
         sub_langs = [sub_langs]
+    # Basit whitelist: sadece dil kodu formatına uyanları kabul et (ör. "en", "tr", "pt-BR")
     sub_langs = [l for l in sub_langs if isinstance(l, str) and 1 <= len(l) <= 10 and all(c.isalnum() or c == '-' for c in l)][:5]
+    embed_subs = bool(data.get("embed_subs", True))
 
+    # ── SponsorBlock seçenekleri ──
     want_sponsorblock = bool(data.get("sponsorblock", False))
     ALLOWED_SB_CATEGORIES = {
         "sponsor", "intro", "outro", "selfpromo", "preview",
@@ -493,13 +518,22 @@ def download():
                 "postprocessors": postprocessors,
             }
         else:
+            # Mute mod
+            is_mute = data.get("mute", False)
             merge_fmt = "mp4"
             if fmt == "webm": merge_fmt = "webm"
             elif fmt == "mkv": merge_fmt = "mkv"
             elif fmt == "avi": merge_fmt = "avi"
             elif fmt == "mov": merge_fmt = "mov"
             elif codec in ("av1", "vp9") and fmt != "mp4": merge_fmt = "webm"
-            
+            # NOT: Video-only format seçicisi (build_mute_format_str) artık
+            # burada KULLANILMIYOR. Sebep: YouTube, PO Token olmadan ayrı
+            # video-only akışları çoğu client'ta listeden düşürüyor, bu da
+            # bazı videolarda "format not available" hatasına yol açıyor.
+            # Bunun yerine normal (sesli) format indirilip, indirme
+            # tamamlandıktan sonra ffmpeg ile ses izi kesiliyor (aşağıda,
+            # full_path belirlendikten sonra). Bu yöntem PO Token'a bağımlı
+            # değil ve her zaman çalışır.
             postprocessors = []
             if add_meta:
                 postprocessors.append({"key": "FFmpegMetadata", "add_metadata": True})
@@ -521,6 +555,9 @@ def download():
                 "merge_output_format": merge_fmt,
             }
             if want_subs and FFMPEG_DIR:
+                # Not: Şu an sadece videoya gömülü altyazı destekleniyor.
+                # Ayrı .srt indirmek, mevcut tek-dosya seçim mantığıyla
+                # (dosya adı prefix eşleşmesi) çakışacağından desteklenmiyor.
                 extra["writesubtitles"] = True
                 extra["writeautomaticsub"] = True
                 extra["subtitleslangs"] = sub_langs
@@ -533,7 +570,8 @@ def download():
         success = False
         last_err = None
         for opts in opts_list:
-            if cancel_event.is_set(): break
+            if cancel_event.is_set():
+                break
             try:
                 with yt_dlp.YoutubeDL(opts) as ydl:
                     ydl.download([url])
@@ -545,11 +583,13 @@ def download():
                 last_err = e
                 es = str(e).lower()
                 print(f"[DL FAIL] {es[:100]}")
-                if "login" in es or "private" in es or "cookie" in es: break
+                if "login" in es or "private" in es or "cookie" in es:
+                    break
                 continue
 
         if cancel_event.is_set():
             raise yt_dlp.utils.DownloadCancelled("İptal edildi")
+
         if not success:
             raise last_err or Exception("Tüm denemeler başarısız")
 
@@ -562,6 +602,9 @@ def download():
         if not full_path:
             return jsonify({"error": "Dosya bulunamadı"}), 500
 
+        # ── Mute mod: ses izini indirme SONRASI ffmpeg ile kes ──
+        # PO Token olmadan video-only akışlar güvenilmediği için, normal
+        # (sesli) formatı indirip burada -an ile sesi çıkarıyoruz.
         if not is_audio and data.get("mute", False) and FFMPEG_DIR:
             muted_path = full_path + ".muted." + full_path.rsplit('.', 1)[-1]
             try:
@@ -578,7 +621,8 @@ def download():
             except Exception as e:
                 print(f"[MUTE FFMPEG ERR] {e}")
                 try:
-                    if os.path.exists(muted_path): os.remove(muted_path)
+                    if os.path.exists(muted_path):
+                        os.remove(muted_path)
                 except: pass
 
         if sid:
@@ -593,7 +637,8 @@ def download():
         @response.call_on_close
         def cleanup():
             try:
-                if full_path and os.path.exists(full_path): os.remove(full_path)
+                if full_path and os.path.exists(full_path):
+                    os.remove(full_path)
             except: pass
             with cancel_events_lock:
                 cancel_events.pop(download_id, None)
@@ -630,10 +675,14 @@ def download_thumbnail():
         return jsonify({"error": "Çok fazla istek. 1 dakika bekleyin."}), 429
     data = request.json or {}
     url = data.get("url", "").strip()
-    if not url: return jsonify({"error": "URL gerekli"}), 400
-    if is_youtube_live_url(url): return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
-    if is_unsupported_domain(url): return jsonify({"error": "Bu platform desteklenmiyor."}), 400
-    if not FFMPEG_DIR: return jsonify({"error": "FFmpeg gerekli"}), 400
+    if not url:
+        return jsonify({"error": "URL gerekli"}), 400
+    if is_youtube_live_url(url):
+        return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
+    if is_unsupported_domain(url):
+        return jsonify({"error": "Bu platform desteklenmiyor."}), 400
+    if not FFMPEG_DIR:
+        return jsonify({"error": "FFmpeg gerekli"}), 400
 
     filename = str(uuid.uuid4())
     filepath = os.path.join(DOWNLOAD_DIR, filename)
@@ -656,13 +705,15 @@ def download_thumbnail():
                 if f.startswith(filename):
                     full_path = os.path.join(DOWNLOAD_DIR, f)
                     break
-            if not full_path: continue
+            if not full_path:
+                continue
             response = send_file(full_path, as_attachment=True, download_name="thumbnail.jpg")
 
             @response.call_on_close
             def _cleanup_thumb():
                 try:
-                    if os.path.exists(full_path): os.remove(full_path)
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
                 except: pass
 
             return response
@@ -699,44 +750,64 @@ def convert_file():
     input_path = None
     output_path = None
     try:
+        # Create temp files
         suffix = os.path.splitext(file.filename or 'file.tmp')[1] or '.tmp'
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as input_temp:
             input_path = input_temp.name
             file.save(input_path)
 
+        # target_format whitelist'te olduğu için path traversal riski yok,
+        # yine de savunma amaçlı basename ile garantiye alıyoruz.
         base_no_ext = os.path.basename(input_path).rsplit('.', 1)[0]
         output_path = os.path.join(os.path.dirname(input_path), base_no_ext + '.' + target_format)
 
+        # Build ffmpeg command
         cmd = [
             os.path.join(FFMPEG_DIR, 'ffmpeg'),
             '-i', input_path,
-            '-y'
+            '-y'  # Overwrite output
         ]
 
+        # Add format-specific options
         audio_formats = {'mp3', 'flac', 'wav', 'ogg', 'opus', 'm4a'}
         if target_format in audio_formats:
-            cmd.extend(['-vn'])
-            if target_format == 'mp3': cmd.extend(['-codec:a', 'libmp3lame', '-q:a', '2'])
-            elif target_format == 'flac': cmd.extend(['-codec:a', 'flac'])
-            elif target_format == 'wav': cmd.extend(['-codec:a', 'pcm_s16le'])
-            elif target_format == 'ogg': cmd.extend(['-codec:a', 'libvorbis', '-q:a', '5'])
-            elif target_format == 'opus': cmd.extend(['-codec:a', 'libopus', '-b:a', '128k'])
-            elif target_format == 'm4a': cmd.extend(['-codec:a', 'aac', '-b:a', '192k'])
+            cmd.extend(['-vn'])  # No video
+            if target_format == 'mp3':
+                cmd.extend(['-codec:a', 'libmp3lame', '-q:a', '2'])
+            elif target_format == 'flac':
+                cmd.extend(['-codec:a', 'flac'])
+            elif target_format == 'wav':
+                cmd.extend(['-codec:a', 'pcm_s16le'])
+            elif target_format == 'ogg':
+                cmd.extend(['-codec:a', 'libvorbis', '-q:a', '5'])
+            elif target_format == 'opus':
+                cmd.extend(['-codec:a', 'libopus', '-b:a', '128k'])
+            elif target_format == 'm4a':
+                cmd.extend(['-codec:a', 'aac', '-b:a', '192k'])
         else:
-            if target_format == 'mp4': cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
-            elif target_format == 'webm': cmd.extend(['-c:v', 'libvpx-vp9', '-c:a', 'libopus'])
-            elif target_format == 'mkv': cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
-            elif target_format == 'avi': cmd.extend(['-c:v', 'libx264', '-c:a', 'mp3'])
-            elif target_format == 'mov': cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
+            # Video formats
+            if target_format == 'mp4':
+                cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
+            elif target_format == 'webm':
+                cmd.extend(['-c:v', 'libvpx-vp9', '-c:a', 'libopus'])
+            elif target_format == 'mkv':
+                cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
+            elif target_format == 'avi':
+                cmd.extend(['-c:v', 'libx264', '-c:a', 'mp3'])
+            elif target_format == 'mov':
+                cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
 
         cmd.append(output_path)
 
+        # Run ffmpeg
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
             return jsonify({"error": f"Dönüştürme hatası: {result.stderr[:200]}"}), 400
 
+        # Cleanup input, send output; use call_on_close to delete output after streaming
         try:
-            if input_path and os.path.exists(input_path): os.unlink(input_path)
+            if input_path and os.path.exists(input_path):
+                os.unlink(input_path)
         except: pass
 
         _out = output_path
@@ -745,15 +816,19 @@ def convert_file():
         @response.call_on_close
         def _cleanup_conv():
             try:
-                if _out and os.path.exists(_out): os.unlink(_out)
+                if _out and os.path.exists(_out):
+                    os.unlink(_out)
             except: pass
 
         return response
 
     except Exception as e:
+        # Clean up on error
         try:
-            if input_path and os.path.exists(input_path): os.unlink(input_path)
-            if output_path and os.path.exists(output_path): os.unlink(output_path)
+            if input_path and os.path.exists(input_path):
+                os.unlink(input_path)
+            if output_path and os.path.exists(output_path):
+                os.unlink(output_path)
         except: pass
         error_msg = str(e)
         print(f"[CONV ERR] {error_msg[:200]}")
