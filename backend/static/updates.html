@@ -75,7 +75,45 @@
 
 <script>
 const UPDATES=[
-{ver:ZW_VERSION.ver,latest:true,dateTr:ZW_VERSION.dateTr,dateEn:ZW_VERSION.dateEn,
+{ver:'v7.1',latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
+titleTr:'ZenithW artık cebinizde: mobil uygulama yayında',
+titleEn:"ZenithW is now in your pocket: the mobile app is live",
+
+introTr:[
+'Uzun zamandır beklenen bir şey oldu sonunda: ZenithW\'nin resmi Android uygulaması hazır ve GitHub üzerinden indirilebilir. Tarayıcı açmaya, sekmeler arasında gezmeye gerek yok — aynı hızlı indirme motoru artık cebinizde.',
+'Uygulamayı neden tavsiye ettiğimizi ve neler sunduğunu aşağıda anlattık. Kısacası: kendi IP\'nizle indirme, SponsorBlock, altyazı desteği, aria2 hız motoru, cookie ekleme ve %0 hata oranıyla kapak fotoğrafı indirme.'
+],
+introEn:[
+'Something we\'ve been meaning to ship for a while finally happened: the official ZenithW Android app is ready and downloadable straight from GitHub. No need to open a browser or juggle tabs — the same fast download engine now lives on your phone.',
+'We\'ve laid out why we recommend it and what it offers below. In short: downloads via your own IP, SponsorBlock, subtitle support, the aria2 speed engine, cookie support, and 0% error rate thumbnail downloads.'
+],
+
+sections:[
+{hTr:'mobil uygulama yayında',hEn:'the mobile app is live',
+pTr:'ZenithW\'nin Android uygulamasını artık doğrudan GitHub\'daki yayınlar (releases) sayfasından APK olarak indirebilirsiniz. Uygulama, sitedeki web sürümüyle aynı yt-dlp tabanlı indirme motorunu kullanıyor; farkı, indirmelerin sunucularımız yerine kendi cihazınızın bağlantısı üzerinden yapılması. Detaylı bilgi ve indirme linki için yeni "mobil uygulama" sayfamıza göz atabilirsiniz.',
+pEn:'You can now download ZenithW\'s Android app directly as an APK from the GitHub releases page. It uses the same yt-dlp-based download engine as the web version, with the difference that downloads run through your own device\'s connection instead of our servers. Check out the new "mobile app" page for details and the download link.'},
+
+{hTr:'kendi IP\'nizle indirme',hEn:'downloads through your own IP',
+pTr:'Web sürümünden farklı olarak mobil uygulamada indirmeler sizin bağlantınız üzerinden gerçekleşiyor. Bu, daha fazla gizlilik ve platform bazlı kısıtlamalara karşı daha az bağımlılık anlamına geliyor.',
+pEn:'Unlike the web version, downloads in the mobile app run through your own connection. That means more privacy and less exposure to platform-side rate limits.'},
+
+{hTr:'SponsorBlock, altyazı ve aria2',hEn:'SponsorBlock, subtitles, and aria2',
+pTr:'YouTube videolarındaki sponsor bölümlerini otomatik atlayan SponsorBlock desteği, videoyla birlikte altyazı indirme ve çoklu bağlantılı aria2 indirme motoruyla belirgin şekilde artan hız uygulamada hazır bekliyor.',
+pEn:'SponsorBlock support to automatically skip sponsor segments, subtitle downloads alongside the video, and a noticeably faster multi-connection aria2 download engine are all ready to go in the app.'},
+
+{hTr:'cookie desteği ve %0 hata',hEn:'cookie support and 0% error rate',
+pTr:'Giriş gerektiren içerikler için kendi çerezlerinizi ekleyebiliyorsunuz. Ayrıca indirmeler hatasız çalışacak şekilde sıkı test edildi ve videonun kapak fotoğrafını ayrıca, tek dokunuşla indirebiliyorsunuz.',
+pEn:'You can add your own cookies for login-gated content. Downloads have also been thoroughly tested to run error-free, and you can grab the video\'s thumbnail separately with a single tap.'},
+
+{hTr:'açık kaynak',hEn:'open source',
+pTr:'Mobil uygulamanın kaynak kodu da web sürümü gibi GitHub\'da herkese açık — inceleyebilir, katkıda bulunabilirsiniz.',
+pEn:'Just like the web version, the mobile app\'s source code is public on GitHub — feel free to look through it or contribute.'}
+],
+
+outroTr:'Kısacası: ZenithW artık tarayıcıyla sınırlı değil, tek bir dokunuş uzağınızda.',
+outroEn:'In short: ZenithW is no longer confined to the browser — it\'s just one tap away.'
+},
+{ver:ZW_VERSION.ver,latest:false,dateTr:ZW_VERSION.dateTr,dateEn:ZW_VERSION.dateEn,
 titleTr:'kuyruk artık unutkan değil, hakkında sekmesi de biraz sadeleşti',
 titleEn:'the queue finally remembers, and the about tab got a little lighter',
 
