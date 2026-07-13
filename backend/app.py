@@ -227,7 +227,17 @@ def get_base_opts(url, use_cookies=True):
                 # 'ios' bilerek çıkarıldı: iOS client cookie kullanmıyor
                 # (OAuth tabanlı), yani cookiefile verilse bile sessizce
                 # yok sayılıyor ve cookie güvenilirliği düşüyor.
-                "player_client": ["web", "mweb", "android"],
+                #
+                # 'android_vr' EKLENDİ: web/mweb client'ları yüksek kaliteli
+                # (720p+) DASH formatlarının indirme URL'sini çözmek için
+                # YouTube'un nsig (signature) şifresini çözecek bir JS
+                # runtime istiyor. Runtime yoksa/başarısız olursa bu
+                # formatlar sessizce elenip elde kalan en garanti format
+                # (itag 18, 360p muxed) seçiliyor - kalite düşüşünün asıl
+                # sebebi buydu. android_vr client'ı nsig gerektirmeden
+                # yüksek kaliteli formatlara erişebiliyor, bu yüzden listeye
+                # eklendi ve öne alındı.
+                "player_client": ["android_vr", "web", "mweb", "android"],
             }
         }
     return opts

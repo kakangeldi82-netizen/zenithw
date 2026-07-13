@@ -58,7 +58,7 @@
 
   <div class="legal-body" style="max-width:640px;margin:0 auto;padding:24px 20px 80px;">
     <div class="upd-top-row">
-      <span class="upd-ver-badge" id="updBadge">v7.0</span>
+      <span class="upd-ver-badge" id="updBadge">v7.3</span>
       <span class="upd-top-date" id="updDate">temmuz 2026</span>
       <div class="upd-pick">
         <select id="verPicker" onchange="jumpTo(this.value)"></select>
@@ -75,7 +75,70 @@
 
 <script>
 const UPDATES=[
-{ver:'v7.1',latest:true,dateTr:'temmuz 2026',dateEn:'July 2026',
+{ver:ZW_VERSION.ver,latest:true,dateTr:ZW_VERSION.dateTr,dateEn:ZW_VERSION.dateEn,
+titleTr:'youtube kalitesi artık gerçekten kalite',
+titleEn:'youtube quality is now actually quality',
+
+introTr:[
+'Bir süredir içimizi kemiren bir şey vardı: 1080p, hatta 4K seçseniz bile bazı YouTube videoları elinize neden pikselli, 360p gibi duran bir dosya olarak geçiyordu? Kaputun altına girip kabloları tek tek takip ettik ve sonunda kaynağı bulduk.',
+'Kısa hikaye: YouTube, yüksek kaliteli video parçalarının gerçek indirme adresini gizli bir şifreyle koruyor. Sunucumuz bu şifreyi çözecek doğru araçlara sahip değildi, biz de sessizce en garanti (ve en düşük) kaliteye düşüyorduk. Artık değil.'
+],
+introEn:[
+'Something had been bugging us for a while: why would some YouTube videos land in your hands looking pixelated and 360p-ish, even when you picked 1080p or 4K? We went under the hood and traced every cable until we found the source.',
+'Short version: YouTube protects the real download address of its high-quality video streams behind a hidden signature. Our server did not have the right tools to crack it, so it was quietly falling back to the safest — and lowest — quality available. Not anymore.'
+],
+
+sections:[
+{hTr:'gerçek 1080p ve 4K artık gerçek',hEn:'real 1080p and 4K are actually real now',
+pTr:'İndirme motorumuzu, YouTube\'un yüksek kaliteli formatlarına şifre çözmeye ihtiyaç duymadan doğrudan erişebilen bir yönteme geçirdik. Sonuç: seçtiğiniz kalite artık gerçekten indirdiğiniz kalite. Test ettiğimiz videolarda dosya boyutu üç haneli megabaytlara, görüntü ise "cam gibi" dediğimiz seviyeye çıktı.',
+pEn:'We switched our download engine to a method that reaches YouTube\'s high-quality formats directly, without needing to crack any signature. The result: the quality you pick is now the quality you actually get. In our tests, file sizes jumped into the hundreds of megabytes and the picture came out crystal clear.'},
+{hTr:'daha sağlam bir yedekleme zinciri',hEn:'a sturdier fallback chain',
+pTr:'Bir video için birincil yöntem başarısız olursa, sunucumuz artık daha akıllı bir sırayla diğer yöntemleri deniyor — sessizce en kötü seçeneğe düşmek yerine, hâlâ mümkün olan en iyi kaliteyi kovalıyor.',
+pEn:'If the primary method fails for a video, our server now works through a smarter chain of fallbacks — instead of quietly settling for the worst option, it keeps chasing the best quality still available.'}
+],
+
+outroTr:'Uzun zamandır çözmek istediğimiz bir sorundu, sonunda kökünden hallettik. Artık "1080p seçtim ama neden bulanık" diye sormanıza gerek yok.',
+outroEn:'This one had been on our list for a long time, and we finally fixed it at the root. No more "I picked 1080p, why does this look blurry."'
+},
+{ver:'v7.2',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
+titleTr:'web sürümüne hız, altyazı ve daha sıkı güvenlik geldi',
+titleEn:'the web version gets speed, subtitles, and tighter security',
+
+introTr:[
+'Mobil uygulamada tanıttığımız birkaç özelliği artık web sürümüne de taşıdık: sponsor bölümlerini atlayan SponsorBlock, videoyla birlikte gömülü altyazı ve indirmeleri belirgin şekilde hızlandıran aria2 motoru artık tarayıcıdan kullandığınız ZenithW\'de de çalışıyor.',
+'Bunun yanında kaputun altında bir dizi güvenlik ve gizlilik sıkılaştırması yaptık — hiçbiri gösterişli değil ama hepsi önemliydi. Detaylara geçelim.'
+],
+introEn:[
+'We brought a few features we introduced in the mobile app over to the web version too: SponsorBlock to skip sponsor segments, subtitles embedded directly into the video, and the aria2 engine that noticeably speeds up downloads — all now live on the browser version of ZenithW as well.',
+'Alongside that, we tightened up a handful of security and privacy details under the hood. None of it is flashy, but all of it mattered. Let\'s get into it.'
+],
+
+sections:[
+{hTr:'SponsorBlock artık web sürümünde',hEn:'SponsorBlock is now on the web too',
+pTr:'YouTube videolarındaki sponsor, tanıtım ve giriş bölümlerini otomatik olarak atlayan SponsorBlock desteğini indirme ayarlarına ekledik. Tek bir anahtarı açmanız yeterli, video sponsor kısımları kesilmiş şekilde iniyor.',
+pEn:'Added SponsorBlock support to the download settings, which automatically skips sponsor, intro, and self-promo segments in YouTube videos. Just flip one toggle and the video arrives with those segments already cut out.'},
+
+{hTr:'altyazı artık videoya gömülüyor',hEn:'subtitles are now embedded into the video',
+pTr:'Altyazı seçeneğini açtığınızda, seçtiğiniz dildeki altyazılar artık ayrı bir dosya olarak değil, doğrudan video dosyasının içine gömülü şekilde iniyor. Ayrı bir .srt dosyasıyla uğraşmanıza gerek kalmıyor, videoyu hangi oynatıcıda açarsanız açın altyazı zaten orada.',
+pEn:'When you turn on the subtitles option, subtitles in your chosen language are now embedded directly into the video file instead of arriving separately. No more juggling a separate .srt file — open the video in any player and the subtitles are already baked in.'},
+
+{hTr:'aria2 ile daha hızlı indirme',hEn:'faster downloads with aria2',
+pTr:'İndirmelerin arkasında artık çoklu bağlantı kullanan aria2 motoru çalışıyor. Özellikle büyük dosyalarda ve yüksek çözünürlüklü videolarda indirme süresi belirgin şekilde kısalıyor, herhangi bir ayar yapmanıza gerek yok.',
+pEn:'Downloads now run through the aria2 engine, which uses multiple connections under the hood. This noticeably cuts download times, especially for large files and high-resolution video — no settings to change, it just works.'},
+
+{hTr:'kapak görselini tek dokunuşla indirme',hEn:'grab the cover image with one tap',
+pTr:'Video bilgisi ekranına, videonun kapak görselini (thumbnail) tek başına indirebileceğiniz bir buton eklendi. Videoyu indirmeden sadece kapak fotoğrafına ihtiyacınız varsa artık ekstra bir adım gerekmiyor.',
+pEn:'Added a button on the video info screen that downloads just the thumbnail on its own. If all you need is the cover image, that is now a single tap away.'},
+
+{hTr:'güvenlik ve gizlilik sıkılaştırıldı',hEn:'security and privacy hardened',
+pTr:'Sunucu tarafında birkaç önemli düzeltme yaptık: CORS artık sadece zenithw.space üzerinden gelen istekleri kabul ediyor (yerel geliştirme dışında localhost dahil değil), istek sınırlama (rate limit) daha sıkı çalışacak şekilde ayarlandı ve zamanla biriken gereksiz veriler otomatik temizleniyor. İndirme geçmişiniz de sunucuda değil, hâlâ sadece kendi tarayıcınızda tutuluyor — bu konuda hiçbir şey değişmedi, sadece daha da sağlamlaştırdık.',
+pEn:'Made several important fixes on the server side: CORS now only accepts requests from zenithw.space (localhost is no longer allowed outside local development), rate limiting was tightened, and leftover tracking data now gets cleaned up automatically instead of piling up. Your download history also continues to live only in your own browser, never on our servers — that has not changed, we just made the whole thing more solid.'}
+],
+
+outroTr:'Kısacası: web sürümü artık mobil kadar donanımlı, üstelik kaputun altı da daha sağlam.',
+outroEn:'In short: the web version is now just as well-equipped as the app, and what is under the hood is a lot sturdier too.'
+},
+{ver:'v7.1',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
 titleTr:'ZenithW artık cebinizde: mobil uygulama yayında',
 titleEn:"ZenithW is now in your pocket: the mobile app is live",
 
@@ -113,7 +176,7 @@ pEn:'Just like the web version, the mobile app\'s source code is public on GitHu
 outroTr:'Kısacası: ZenithW artık tarayıcıyla sınırlı değil, tek bir dokunuş uzağınızda.',
 outroEn:'In short: ZenithW is no longer confined to the browser — it\'s just one tap away.'
 },
-{ver:ZW_VERSION.ver,latest:false,dateTr:ZW_VERSION.dateTr,dateEn:ZW_VERSION.dateEn,
+{ver:'v7.0',latest:false,dateTr:'temmuz 2026',dateEn:'July 2026',
 titleTr:'kuyruk artık unutkan değil, hakkında sekmesi de biraz sadeleşti',
 titleEn:'the queue finally remembers, and the about tab got a little lighter',
 
