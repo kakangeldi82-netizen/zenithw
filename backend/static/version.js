@@ -3,7 +3,7 @@
 // "hakkında" bölümü hem de updates.html'deki değişiklik günlüğü buradan
 // otomatik senkronize olur, iki yerde ayrı ayrı elle güncellemeye gerek kalmaz.
 const ZW_VERSION = {
-  ver: 'v7.3',
+  ver: 'v7.4',
   dateTr: 'temmuz 2026',
   dateEn: 'July 2026',
   dateFr: 'juillet 2026',
