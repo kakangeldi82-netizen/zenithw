@@ -22,6 +22,9 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='/static')
 # env variable verilmezse her başlatmada yeni bir tane üretilir.
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 
+# /convert için maksimum upload boyutu (230 MB)
+app.config['MAX_CONTENT_LENGTH'] = 230 * 1024 * 1024
+
 # ── İzin verilen origin'ler ────────────────────────────
 # Yerel geliştirmede FLASK_ENV=development veya ALLOW_DEV_CORS=1 verilirse
 # localhost origin'lerine de izin verilir.
@@ -104,6 +107,19 @@ def find_ffmpeg():
 
 FFMPEG_DIR = find_ffmpeg()
 print(f"[INIT] ffmpeg={FFMPEG_DIR}")
+
+def find_aria2():
+    try:
+        result = subprocess.run(['which', 'aria2c'], capture_output=True, text=True)
+        path = result.stdout.strip()
+        if path: return path
+    except: pass
+    for p in ['/usr/bin/aria2c', '/usr/local/bin/aria2c', '/root/.nix-profile/bin/aria2c']:
+        if os.path.exists(p): return p
+    return None
+
+ARIA2_PATH = find_aria2()
+print(f"[INIT] aria2c={ARIA2_PATH or 'yok'}")
 
 # ── Temizlik ──────────────────────────────────────────
 def cleanup_old_files():
@@ -196,6 +212,13 @@ def get_base_opts(url, use_cookies=True):
     }
     if FFMPEG_DIR:
         opts["ffmpeg_location"] = FFMPEG_DIR
+    if ARIA2_PATH:
+        # aria2 çoklu bağlantı ile indirme hızını artırır; yt-dlp'nin
+        # dahili indiricisine göre büyük dosyalarda belirgin fark yaratır.
+        opts["external_downloader"] = {"default": "aria2c"}
+        opts["external_downloader_args"] = {
+            "aria2c": ["-x", "16", "-s", "16", "-k", "1M"]
+        }
     if use_cookies and os.path.exists(COOKIES_FILE) and not is_instagram(url):
         opts["cookiefile"] = COOKIES_FILE
     if is_youtube(url):
@@ -292,7 +315,7 @@ def cancel_route():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_frontend(path):
-    blocked = {"info", "download", "cancel", "health", "convert", "robots.txt", "sitemap.xml"}
+    blocked = {"info", "download", "cancel", "health", "convert", "thumbnail", "robots.txt", "sitemap.xml"}
     if path and path not in blocked:
         full = os.path.join(FRONTEND_DIR, path)
         if os.path.exists(full):
@@ -356,6 +379,9 @@ def get_info():
                         "items": items,
                         "platform": info.get("extractor_key", "").lower(),
                     })
+                subs = info.get("subtitles") or {}
+                auto_subs = info.get("automatic_captions") or {}
+                sub_langs = sorted(set(subs.keys()) | set(auto_subs.keys()))
                 return jsonify({
                     "is_playlist": False,
                     "title": info.get("title") or "Video",
@@ -363,6 +389,8 @@ def get_info():
                     "thumbnail": info.get("thumbnail"),
                     "uploader": info.get("uploader") or info.get("channel") or "",
                     "platform": info.get("extractor_key", "").lower(),
+                    "subtitles": sub_langs,
+                    "has_manual_subtitles": bool(subs),
                 })
         except Exception as e:
             last_err = e
@@ -394,6 +422,29 @@ def download():
     sid = data.get("sid", "")
     download_id = data.get("download_id") or str(uuid.uuid4())
     add_meta = bool(data.get("metadata", True))
+
+    # ── Altyazı seçenekleri ──
+    want_subs = bool(data.get("subtitles", False))
+    sub_langs = data.get("sub_langs") or ["en"]
+    if isinstance(sub_langs, str):
+        sub_langs = [sub_langs]
+    # Basit whitelist: sadece dil kodu formatına uyanları kabul et (ör. "en", "tr", "pt-BR")
+    sub_langs = [l for l in sub_langs if isinstance(l, str) and 1 <= len(l) <= 10 and all(c.isalnum() or c == '-' for c in l)][:5]
+    embed_subs = bool(data.get("embed_subs", True))
+
+    # ── SponsorBlock seçenekleri ──
+    want_sponsorblock = bool(data.get("sponsorblock", False))
+    ALLOWED_SB_CATEGORIES = {
+        "sponsor", "intro", "outro", "selfpromo", "preview",
+        "filler", "interaction", "music_offtopic", "poi_highlight",
+    }
+    sb_categories = data.get("sponsorblock_categories") or ["sponsor"]
+    if not isinstance(sb_categories, list):
+        sb_categories = ["sponsor"]
+    sb_categories = [c for c in sb_categories if c in ALLOWED_SB_CATEGORIES][:9] or ["sponsor"]
+    sb_mode = data.get("sponsorblock_mode", "remove")
+    if sb_mode not in ("remove", "mark"):
+        sb_mode = "remove"
 
     if not url:
         return jsonify({"error": "URL gerekli"}), 400
@@ -449,6 +500,17 @@ def download():
             ]
             if add_meta:
                 postprocessors.append({"key": "FFmpegMetadata", "add_metadata": True})
+            if want_sponsorblock:
+                postprocessors.append({
+                    "key": "SponsorBlock",
+                    "categories": sb_categories,
+                    "api": "https://sponsor.ajay.app",
+                })
+                if sb_mode == "remove":
+                    postprocessors.append({
+                        "key": "ModifyChapters",
+                        "remove_sponsor_segments": sb_categories,
+                    })
             extra = {
                 "format": fmt_str,
                 "outtmpl": filepath + ".%(ext)s",
@@ -475,12 +537,32 @@ def download():
             postprocessors = []
             if add_meta:
                 postprocessors.append({"key": "FFmpegMetadata", "add_metadata": True})
+            if want_sponsorblock:
+                postprocessors.append({
+                    "key": "SponsorBlock",
+                    "categories": sb_categories,
+                    "api": "https://sponsor.ajay.app",
+                })
+                if sb_mode == "remove":
+                    postprocessors.append({
+                        "key": "ModifyChapters",
+                        "remove_sponsor_segments": sb_categories,
+                    })
             extra = {
                 "format": fmt_str,
                 "outtmpl": filepath + ".%(ext)s",
                 "progress_hooks": [progress_hook],
                 "merge_output_format": merge_fmt,
             }
+            if want_subs and FFMPEG_DIR:
+                # Not: Şu an sadece videoya gömülü altyazı destekleniyor.
+                # Ayrı .srt indirmek, mevcut tek-dosya seçim mantığıyla
+                # (dosya adı prefix eşleşmesi) çakışacağından desteklenmiyor.
+                extra["writesubtitles"] = True
+                extra["writeautomaticsub"] = True
+                extra["subtitleslangs"] = sub_langs
+                extra["subtitlesformat"] = "srt/best"
+                postprocessors.append({"key": "FFmpegEmbedSubtitle"})
             if postprocessors:
                 extra["postprocessors"] = postprocessors
 
@@ -585,15 +667,83 @@ def download():
             return jsonify({"error": "instagram_ratelimit"}), 400
         return jsonify({"error": parsed}), 400
 
+# ── /thumbnail ─────────────────────────────────────────
+@app.route("/thumbnail", methods=["POST"])
+def download_thumbnail():
+    ip = get_client_ip()
+    if not check_rate_limit(ip):
+        return jsonify({"error": "Çok fazla istek. 1 dakika bekleyin."}), 429
+    data = request.json or {}
+    url = data.get("url", "").strip()
+    if not url:
+        return jsonify({"error": "URL gerekli"}), 400
+    if is_youtube_live_url(url):
+        return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
+    if is_unsupported_domain(url):
+        return jsonify({"error": "Bu platform desteklenmiyor."}), 400
+    if not FFMPEG_DIR:
+        return jsonify({"error": "FFmpeg gerekli"}), 400
+
+    filename = str(uuid.uuid4())
+    filepath = os.path.join(DOWNLOAD_DIR, filename)
+    extra = {
+        "skip_download": True,
+        "writethumbnail": True,
+        "outtmpl": filepath + ".%(ext)s",
+        "postprocessors": [
+            {"key": "FFmpegThumbnailsConvertor", "format": "jpg"},
+        ],
+    }
+    opts_list = get_opts_list(url, extra=extra)
+    last_err = None
+    for opts in opts_list:
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.download([url])
+            full_path = None
+            for f in sorted(os.listdir(DOWNLOAD_DIR)):
+                if f.startswith(filename):
+                    full_path = os.path.join(DOWNLOAD_DIR, f)
+                    break
+            if not full_path:
+                continue
+            response = send_file(full_path, as_attachment=True, download_name="thumbnail.jpg")
+
+            @response.call_on_close
+            def _cleanup_thumb():
+                try:
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
+                except: pass
+
+            return response
+        except Exception as e:
+            last_err = e
+            continue
+
+    error_msg = str(last_err) if last_err else "Thumbnail alınamadı"
+    print(f"[THUMB ERR] {error_msg[:150]}")
+    return jsonify({"error": parse_error(error_msg, url)}), 400
+
 # ── /convert ───────────────────────────────────────────
+ALLOWED_CONVERT_FORMATS = {
+    "mp3", "flac", "wav", "ogg", "opus", "m4a",
+    "mp4", "webm", "mkv", "avi", "mov",
+}
+
 @app.route("/convert", methods=["POST"])
 def convert_file():
+    ip = get_client_ip()
+    if not check_rate_limit(ip):
+        return jsonify({"error": "Çok fazla istek. 1 dakika bekleyin."}), 429
     if 'file' not in request.files:
         return jsonify({"error": "Dosya gerekli"}), 400
     file = request.files['file']
     target_format = request.form.get('target_format', 'mp3').lower()
     if not file or file.filename == '':
         return jsonify({"error": "Geçersiz dosya"}), 400
+    if target_format not in ALLOWED_CONVERT_FORMATS:
+        return jsonify({"error": "Desteklenmeyen hedef format"}), 400
     if not FFMPEG_DIR:
         return jsonify({"error": "FFmpeg gerekli"}), 400
 
@@ -606,7 +756,10 @@ def convert_file():
             input_path = input_temp.name
             file.save(input_path)
 
-        output_path = input_path.rsplit('.', 1)[0] + '.' + target_format
+        # target_format whitelist'te olduğu için path traversal riski yok,
+        # yine de savunma amaçlı basename ile garantiye alıyoruz.
+        base_no_ext = os.path.basename(input_path).rsplit('.', 1)[0]
+        output_path = os.path.join(os.path.dirname(input_path), base_no_ext + '.' + target_format)
 
         # Build ffmpeg command
         cmd = [
