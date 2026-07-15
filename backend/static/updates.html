@@ -24,6 +24,11 @@
 .upd-pick{margin-left:auto;position:relative;}
 .upd-pick select{background:var(--chip-bg);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:11.5px;padding:7px 10px;border-radius:8px;cursor:pointer;outline:none;}
 
+.upd-anma{font-size:13px;line-height:1.85;color:var(--text2);background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin:0 0 22px;}
+.upd-anma p{margin:0 0 10px;}
+.upd-anma p:last-child{margin-bottom:0;}
+.upd-anma strong{color:var(--text);}
+
 .upd-post-title{font-size:20px;font-weight:800;letter-spacing:-.3px;line-height:1.3;margin:0 0 22px;color:var(--text);}
 
 .upd-intro p{font-size:13.5px;line-height:1.8;color:var(--text2);margin:0 0 14px;}
@@ -64,6 +69,7 @@
         <select id="verPicker" onchange="jumpTo(this.value)"></select>
       </div>
     </div>
+    <div class="upd-anma" id="updAnma"></div>
     <h1 class="upd-post-title" id="updPostTitle"></h1>
     <div class="upd-intro" id="updIntro"></div>
     <div id="updSections"></div>
@@ -478,6 +484,21 @@ const TX={
     back:'← home',latestLabel:'LATEST',signoff:'~ the ZenithW team 🤍'}
 };
 
+const ANMA={
+  tr:[
+    '<strong>Bugün 15 Temmuz.</strong> Bu yazının altındaki başlığa geçmeden önce bir şeyi belirtmek istedik: bu bir güncelleme duyurusu değil, sadece bir hatırlatma.',
+    '2016 yılının bu gecesinde, bu ülkenin sokaklarında sıradan insanlar — memur, esnaf, öğrenci, emekli, hepsi — üzerlerine gelen tankların önüne siperlik yapmadan, hesap kitap yapmadan çıktılar. Kimse onlara bunu yapmalarını emretmedi; kimse onları göreve çağırmadı. Sadece bu topraklarda kendi iradeleriyle yaşamaya devam etmek istediler ve bunun bedelini en ağır şekilde, canlarıyla ödediler.',
+    'ZenithW gibi küçük bir proje bile, aslında bu özgürlüğün üzerinde durur — bir fikri özgürce paylaşabilmek, bir siteyi engellenme korkusu olmadan açık tutabilmek, kod yazıp insanlara ulaştırabilmek. Bunların hiçbiri verili değil, birilerinin bir yerde bedel ödemesiyle mümkün oluyor.',
+    'O gece hayatını kaybeden 251 şehidimizi ve o gece yaralanan gazilerimizi saygı ve minnetle anıyoruz. Ruhları şad olsun.'
+  ],
+  en:[
+    '<strong>Today is July 15th.</strong> Before we get to the headline below, we wanted to say something first: this isn\'t an update announcement, just a moment of remembrance.',
+    'On this night in 2016, ordinary people across this country — civil servants, shopkeepers, students, retirees — walked out in front of tanks with nothing to shield them and nothing to gain, without anyone ordering them to. No one called them to duty. They simply wanted to keep living on their own terms in their own country, and they paid the heaviest price for it, with their lives.',
+    'Even a small project like ZenithW stands on that freedom in its own way — being able to share an idea openly, keep a site running without fear of it being shut down, write code and put it in people\'s hands. None of that is guaranteed. It exists because someone, somewhere, paid for it.',
+    'We remember the 251 people who lost their lives that night, and the veterans who were wounded defending it, with respect and gratitude. May they rest in peace.'
+  ]
+};
+
 let CUR_LANG='tr';
 
 function jumpTo(ver){
@@ -499,6 +520,9 @@ function render(){
   document.getElementById('updBadge').classList.toggle('is-latest',!!u.latest);
   document.getElementById('updDate').textContent=CUR_LANG==='tr'?u.dateTr:u.dateEn;
   document.getElementById('updPostTitle').textContent=CUR_LANG==='tr'?u.titleTr:u.titleEn;
+
+  const anma=ANMA[CUR_LANG]||ANMA.en;
+  document.getElementById('updAnma').innerHTML=idx===0?anma.map(p=>`<p>${p}</p>`).join(''):'';
 
   const intro=CUR_LANG==='tr'?u.introTr:u.introEn;
   document.getElementById('updIntro').innerHTML=intro.map(p=>`<p>${p}</p>`).join('');
