@@ -39,29 +39,29 @@ DOWNLOAD_DIR = "./downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 # ── History ───────────────────────────────────────────
-# NOT: Geçmiş artık sunucuda DEĞİL, kullanıcının kendi tarayıcısında
-# (localStorage) tutuluyor. Böylece her kullanıcı sadece kendi geçmişini
-# görür ve sunucu tarafında ortak/karışan bir history.json dosyasına
-# gerek kalmıyor. Bu yüzden add_to_history çağrıları artık no-op.
-
 def add_to_history(url, title, platform, fmt, success=True):
     pass
 
 # ── Cookies ───────────────────────────────────────────
 COOKIES_FILE = os.path.join(os.path.dirname(__file__), "cookies.txt")
 
-# Railway environment variable'dan cookies yükle
 cookies_env = os.environ.get("YOUTUBE_COOKIES") or os.environ.get("COOKIES") or os.environ.get("YOUTUBE_COOKIE")
 if cookies_env:
     try:
-        # Satır sonlarını düzgün yorumla (bazı paneller \n karakterini düz metin olarak kaydeder)
         cookies_content = cookies_env.replace('\\n', '\n').strip()
-        with open(COOKIES_FILE, "w", encoding="utf-8") as f:
+        # Dosyayı önce oluştur/aç, sonra izinlerini kısıtla (0600: sadece sahibi okuyup yazabilir)
+        fd = os.open(COOKIES_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(cookies_content)
+        os.chmod(COOKIES_FILE, 0o600)
         print(f"[INIT] cookies.txt Railway environment variable'dan yazıldı ✓ ({len(cookies_content)} bytes)")
     except Exception as e:
         print(f"[INIT] ⚠️ cookies.txt yazılamadı: {e}")
 elif os.path.exists(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 10:
+    try:
+        os.chmod(COOKIES_FILE, 0o600)
+    except Exception:
+        pass
     print(f"[INIT] cookies.txt bulundu ✓ ({os.path.getsize(COOKIES_FILE)} bytes)")
 else:
     print("[INIT] ⚠️ cookies.txt bulunamadı veya geçersiz - YouTube indirme kısıtlı olabilir")
@@ -69,6 +69,16 @@ else:
 # ── Rate limiting ─────────────────────────────────────
 rate_limit_data = defaultdict(list)
 rate_limit_lock = threading.Lock()
+
+# Railway/Heroku gibi PaaS ortamlarında uygulamanın önünde her zaman
+# platformun kendi güvenilir reverse proxy'si bulunur ve bu proxy
+# X-Forwarded-For header'ını KENDİSİ set edip client IP'yi ekler.
+# Bu ortamlarda header'a güvenmek genelde güvenlidir çünkü dışarıdan
+# doğrudan erişim yoktur (hepsi platform proxy'sinden geçer).
+# Yine de bunu açıkça bir env variable ile kontrol edilebilir yapıyoruz:
+# TRUST_PROXY=0 verilirse X-Forwarded-For tamamen yok sayılır ve sadece
+# gerçek soket adresi (request.remote_addr) kullanılır.
+TRUST_PROXY = os.environ.get("TRUST_PROXY", "1") != "0"
 
 def check_rate_limit(ip):
     now = time.time()
@@ -80,8 +90,6 @@ def check_rate_limit(ip):
         return True
 
 def cleanup_rate_limit_data():
-    """Artık istek atmayan IP'lerin boş listelerini sözlükten sil.
-    Aksi halde her yeni IP kalıcı olarak dict içinde birikir (hafıza sızıntısı)."""
     now = time.time()
     with rate_limit_lock:
         stale_ips = [
@@ -92,7 +100,17 @@ def cleanup_rate_limit_data():
             del rate_limit_data[ip]
 
 def get_client_ip():
-    return request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
+    if TRUST_PROXY:
+        xff = request.headers.get('X-Forwarded-For')
+        if xff:
+            # Proxy zinciri varsa listedeki İLK IP değil, platformun eklediği
+            # SON güvenilir hop'a en yakın olan alınmalı. Railway tek proxy
+            # katmanı olduğu için ilk değer client IP'sidir; yine de burada
+            # basit bir doğrulama yapıp boşsa remote_addr'a düşüyoruz.
+            candidate = xff.split(',')[0].strip()
+            if candidate:
+                return candidate
+    return request.remote_addr or "unknown"
 
 # ── FFmpeg ────────────────────────────────────────────
 def find_ffmpeg():
@@ -149,9 +167,6 @@ def is_tiktok(u): return "tiktok.com" in u
 def is_instagram(u): return "instagram.com" in u
 def is_youtube_live_url(u): return is_youtube(u) and "/live/" in u
 
-# yt-dlp'nin native extractor'ı olmayan, "generic" extractor'a düşüp
-# sahte-başarı (ör. og:image'i video sanıp) dönebilen bilinen platformlar.
-# Bunları yt-dlp'ye hiç sormadan erkenden reddediyoruz.
 UNSUPPORTED_DOMAINS = (
     "spotify.com", "music.apple.com", "deezer.com", "tidal.com",
     "music.amazon.com", "music.youtube.com",
@@ -161,7 +176,53 @@ def is_unsupported_domain(u):
     ul = u.lower()
     return any(d in ul for d in UNSUPPORTED_DOMAINS)
 
-# ── Audio-only formatlar ──────────────────────────────
+# ── SSRF Koruması ──────────────────────────────────────
+# yt-dlp'ye vereceğimiz URL'nin şeması http/https ile sınırlı olmalı ve
+# çözülen host iç ağa (private/loopback/link-local/metadata endpoint)
+# işaret etmemeli. Bu kontrol hem hostname hem de (varsa) doğrudan IP
+# girişleri için DNS çözümlemesi yapılarak uygulanır (DNS rebinding'e
+# karşı da bir miktar koruma sağlar; yt-dlp'nin kendi bağlantısı ayrı bir
+# an'da tekrar resolve edeceği için %100 garanti değildir, ama basit
+# SSRF denemelerinin büyük çoğunluğunu engeller).
+import ipaddress
+import socket
+from urllib.parse import urlparse
+
+def _is_private_ip(ip_str):
+    try:
+        ip = ipaddress.ip_address(ip_str)
+    except ValueError:
+        return True  # parse edilemeyen şey güvenli sayılmaz
+    return (
+        ip.is_private or ip.is_loopback or ip.is_link_local or
+        ip.is_multicast or ip.is_reserved or ip.is_unspecified
+    )
+
+def is_safe_url(u):
+    try:
+        parsed = urlparse(u)
+    except Exception:
+        return False
+    if parsed.scheme not in ("http", "https"):
+        return False
+    hostname = parsed.hostname
+    if not hostname:
+        return False
+    # Bariz metadata/local isimler
+    lowered = hostname.lower()
+    if lowered in ("localhost", "metadata", "metadata.google.internal"):
+        return False
+    try:
+        infos = socket.getaddrinfo(hostname, None)
+    except Exception:
+        # Çözülemiyorsa reddet; yt-dlp zaten başaramayacak
+        return False
+    for info in infos:
+        addr = info[4][0]
+        if _is_private_ip(addr):
+            return False
+    return True
+
 AUDIO_FMTS = {"mp3", "flac", "wav", "ogg", "opus", "m4a"}
 
 # ── Hata mesajları ────────────────────────────────────
@@ -213,8 +274,6 @@ def get_base_opts(url, use_cookies=True):
     if FFMPEG_DIR:
         opts["ffmpeg_location"] = FFMPEG_DIR
     if ARIA2_PATH:
-        # aria2 çoklu bağlantı ile indirme hızını artırır; yt-dlp'nin
-        # dahili indiricisine göre büyük dosyalarda belirgin fark yaratır.
         opts["external_downloader"] = {"default": "aria2c"}
         opts["external_downloader_args"] = {
             "aria2c": ["-x", "16", "-s", "16", "-k", "1M"]
@@ -224,19 +283,6 @@ def get_base_opts(url, use_cookies=True):
     if is_youtube(url):
         opts["extractor_args"] = {
             "youtube": {
-                # 'ios' bilerek çıkarıldı: iOS client cookie kullanmıyor
-                # (OAuth tabanlı), yani cookiefile verilse bile sessizce
-                # yok sayılıyor ve cookie güvenilirliği düşüyor.
-                #
-                # 'android_vr' EKLENDİ: web/mweb client'ları yüksek kaliteli
-                # (720p+) DASH formatlarının indirme URL'sini çözmek için
-                # YouTube'un nsig (signature) şifresini çözecek bir JS
-                # runtime istiyor. Runtime yoksa/başarısız olursa bu
-                # formatlar sessizce elenip elde kalan en garanti format
-                # (itag 18, 360p muxed) seçiliyor - kalite düşüşünün asıl
-                # sebebi buydu. android_vr client'ı nsig gerektirmeden
-                # yüksek kaliteli formatlara erişebiliyor, bu yüzden listeye
-                # eklendi ve öne alındı.
                 "player_client": ["android_vr", "web", "mweb", "android"],
             }
         }
@@ -244,11 +290,9 @@ def get_base_opts(url, use_cookies=True):
 
 def get_opts_list(url, extra=None):
     opts_list = []
-    # Çerezli deneme
     o = get_base_opts(url, use_cookies=True)
     if extra: o.update(extra)
     opts_list.append(o)
-    # Çerezsiz deneme (fallback)
     o = get_base_opts(url, use_cookies=False)
     if extra: o.update(extra)
     opts_list.append(o)
@@ -275,12 +319,11 @@ def build_format_str(url, quality, fmt, codec):
             return (f"bestvideo[vcodec^=vp9][height<={q}]+bestaudio[acodec^=opus]"
                     f"/bestvideo[vcodec^=vp9][height<={q}]+bestaudio"
                     f"/bestvideo[height<={q}]+bestaudio/best[height<={q}]/best")
-        else: # h264
+        else:
             if best:
                 return "bestvideo+bestaudio/best"
             return (f"bestvideo[height<={q}]+bestaudio"
                     f"/best[height<={q}]/best")
-    # Non-YouTube
     if best:
         return "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
     return (f"bestvideo[ext=mp4][height<={q}]+bestaudio[ext=m4a]"
@@ -327,8 +370,11 @@ def cancel_route():
 def serve_frontend(path):
     blocked = {"info", "download", "cancel", "health", "convert", "thumbnail", "robots.txt", "sitemap.xml"}
     if path and path not in blocked:
-        full = os.path.join(FRONTEND_DIR, path)
-        if os.path.exists(full):
+        # send_from_directory zaten safe_join ile path traversal'a karşı korumalı,
+        # ama biz yine de normalize edilmiş yolun FRONTEND_DIR dışına çıkmadığını
+        # açıkça doğruluyoruz (savunma katmanı).
+        full = os.path.normpath(os.path.join(FRONTEND_DIR, path))
+        if full.startswith(os.path.abspath(FRONTEND_DIR)) and os.path.exists(full) and os.path.isfile(full):
             return send_from_directory(FRONTEND_DIR, path)
     return send_from_directory(FRONTEND_DIR, "index.html")
 
@@ -342,14 +388,13 @@ def get_info():
     url = data.get("url", "").strip()
     if not url:
         return jsonify({"error": "URL gerekli"}), 400
+    if not is_safe_url(url):
+        return jsonify({"error": "Geçersiz veya izin verilmeyen URL."}), 400
     if is_youtube_live_url(url):
         return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
     if is_unsupported_domain(url):
         return jsonify({"error": "Bu platform desteklenmiyor. Desteklenen platformları kontrol edin."}), 400
 
-    # Playlist olabilecek bir URL ise hızlı (flat) çıkarım kullan ve
-    # videoyu 50 ile sınırla, yoksa çok büyük playlistler sunucuyu
-    # uzun süre kilitleyebilir.
     PLAYLIST_LIMIT = 50
     extra_opts = {
         "extract_flat": "in_playlist",
@@ -361,7 +406,6 @@ def get_info():
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
-                # ── Playlist tespiti ──────────────────────
                 if info.get("_type") == "playlist" or "entries" in info:
                     entries = info.get("entries") or []
                     items = []
@@ -433,16 +477,13 @@ def download():
     download_id = data.get("download_id") or str(uuid.uuid4())
     add_meta = bool(data.get("metadata", True))
 
-    # ── Altyazı seçenekleri ──
     want_subs = bool(data.get("subtitles", False))
     sub_langs = data.get("sub_langs") or ["en"]
     if isinstance(sub_langs, str):
         sub_langs = [sub_langs]
-    # Basit whitelist: sadece dil kodu formatına uyanları kabul et (ör. "en", "tr", "pt-BR")
     sub_langs = [l for l in sub_langs if isinstance(l, str) and 1 <= len(l) <= 10 and all(c.isalnum() or c == '-' for c in l)][:5]
     embed_subs = bool(data.get("embed_subs", True))
 
-    # ── SponsorBlock seçenekleri ──
     want_sponsorblock = bool(data.get("sponsorblock", False))
     ALLOWED_SB_CATEGORIES = {
         "sponsor", "intro", "outro", "selfpromo", "preview",
@@ -456,8 +497,24 @@ def download():
     if sb_mode not in ("remove", "mark"):
         sb_mode = "remove"
 
+    # Whitelist doğrulamaları: format, codec ve quality kullanıcıdan geliyor
+    # ve bunlar build_format_str ile bir yt-dlp format string'ine ekleniyor.
+    # Beklenmeyen değerler yt-dlp'ye enjekte edilmeden önce reddedilmeli.
+    ALLOWED_FORMATS = {"mp4", "webm", "mkv", "avi", "mov"} | AUDIO_FMTS
+    ALLOWED_CODECS = {"h264", "av1", "vp9"}
+    if fmt not in ALLOWED_FORMATS:
+        return jsonify({"error": "Desteklenmeyen format"}), 400
+    if codec not in ALLOWED_CODECS:
+        return jsonify({"error": "Desteklenmeyen codec"}), 400
+    if not quality.isdigit() or not (1 <= len(quality) <= 4):
+        return jsonify({"error": "Geçersiz kalite değeri"}), 400
+    if not audio_q.isdigit():
+        audio_q = "256"
+
     if not url:
         return jsonify({"error": "URL gerekli"}), 400
+    if not is_safe_url(url):
+        return jsonify({"error": "Geçersiz veya izin verilmeyen URL."}), 400
     if is_youtube_live_url(url):
         return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
     if is_unsupported_domain(url):
@@ -528,7 +585,6 @@ def download():
                 "postprocessors": postprocessors,
             }
         else:
-            # Mute mod
             is_mute = data.get("mute", False)
             merge_fmt = "mp4"
             if fmt == "webm": merge_fmt = "webm"
@@ -536,14 +592,6 @@ def download():
             elif fmt == "avi": merge_fmt = "avi"
             elif fmt == "mov": merge_fmt = "mov"
             elif codec in ("av1", "vp9") and fmt != "mp4": merge_fmt = "webm"
-            # NOT: Video-only format seçicisi (build_mute_format_str) artık
-            # burada KULLANILMIYOR. Sebep: YouTube, PO Token olmadan ayrı
-            # video-only akışları çoğu client'ta listeden düşürüyor, bu da
-            # bazı videolarda "format not available" hatasına yol açıyor.
-            # Bunun yerine normal (sesli) format indirilip, indirme
-            # tamamlandıktan sonra ffmpeg ile ses izi kesiliyor (aşağıda,
-            # full_path belirlendikten sonra). Bu yöntem PO Token'a bağımlı
-            # değil ve her zaman çalışır.
             postprocessors = []
             if add_meta:
                 postprocessors.append({"key": "FFmpegMetadata", "add_metadata": True})
@@ -565,9 +613,6 @@ def download():
                 "merge_output_format": merge_fmt,
             }
             if want_subs and FFMPEG_DIR:
-                # Not: Şu an sadece videoya gömülü altyazı destekleniyor.
-                # Ayrı .srt indirmek, mevcut tek-dosya seçim mantığıyla
-                # (dosya adı prefix eşleşmesi) çakışacağından desteklenmiyor.
                 extra["writesubtitles"] = True
                 extra["writeautomaticsub"] = True
                 extra["subtitleslangs"] = sub_langs
@@ -612,9 +657,6 @@ def download():
         if not full_path:
             return jsonify({"error": "Dosya bulunamadı"}), 500
 
-        # ── Mute mod: ses izini indirme SONRASI ffmpeg ile kes ──
-        # PO Token olmadan video-only akışlar güvenilmediği için, normal
-        # (sesli) formatı indirip burada -an ile sesi çıkarıyoruz.
         if not is_audio and data.get("mute", False) and FFMPEG_DIR:
             muted_path = full_path + ".muted." + full_path.rsplit('.', 1)[-1]
             try:
@@ -687,6 +729,8 @@ def download_thumbnail():
     url = data.get("url", "").strip()
     if not url:
         return jsonify({"error": "URL gerekli"}), 400
+    if not is_safe_url(url):
+        return jsonify({"error": "Geçersiz veya izin verilmeyen URL."}), 400
     if is_youtube_live_url(url):
         return jsonify({"error": "Canlı yayınlar şu anda desteklenmiyor."}), 400
     if is_unsupported_domain(url):
@@ -741,6 +785,23 @@ ALLOWED_CONVERT_FORMATS = {
     "mp4", "webm", "mkv", "avi", "mov",
 }
 
+# target_format zaten whitelist ile kontrol ediliyor ama input dosyasının
+# suffix'i kullanıcının gönderdiği orijinal filename'den türetiliyordu.
+# Bunun yerine input dosyası için de sabit/whitelisted bir uzantı seti
+# kullanıyoruz; gerçek dosya türünü ffmpeg zaten kendi içerik analiziyle
+# tespit eder, uzantıya güvenmemize gerek yok.
+ALLOWED_INPUT_EXTS = {
+    ".mp3", ".flac", ".wav", ".ogg", ".opus", ".m4a", ".aac",
+    ".mp4", ".webm", ".mkv", ".avi", ".mov", ".m4v", ".flv", ".wmv", ".3gp",
+}
+
+def safe_input_suffix(original_filename):
+    ext = os.path.splitext(original_filename or "")[1].lower()
+    # Sadece harf/rakam/nokta içeren, whitelist'teki bir uzantıya izin ver.
+    if ext in ALLOWED_INPUT_EXTS and all(c.isalnum() or c == '.' for c in ext):
+        return ext
+    return ".bin"
+
 @app.route("/convert", methods=["POST"])
 def convert_file():
     ip = get_client_ip()
@@ -760,28 +821,27 @@ def convert_file():
     input_path = None
     output_path = None
     try:
-        # Create temp files
-        suffix = os.path.splitext(file.filename or 'file.tmp')[1] or '.tmp'
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as input_temp:
+        # Kullanıcının gönderdiği filename'e güvenmek yerine whitelist'ten
+        # doğrulanmış bir suffix kullanıyoruz (komut/uzantı enjeksiyonuna karşı).
+        suffix = safe_input_suffix(file.filename)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, dir=DOWNLOAD_DIR) as input_temp:
             input_path = input_temp.name
             file.save(input_path)
 
-        # target_format whitelist'te olduğu için path traversal riski yok,
-        # yine de savunma amaçlı basename ile garantiye alıyoruz.
         base_no_ext = os.path.basename(input_path).rsplit('.', 1)[0]
+        # target_format whitelist'te olduğu için ekstra güvenli; yine de
+        # basename ile garantiye alıyoruz.
         output_path = os.path.join(os.path.dirname(input_path), base_no_ext + '.' + target_format)
 
-        # Build ffmpeg command
         cmd = [
             os.path.join(FFMPEG_DIR, 'ffmpeg'),
             '-i', input_path,
-            '-y'  # Overwrite output
+            '-y'
         ]
 
-        # Add format-specific options
         audio_formats = {'mp3', 'flac', 'wav', 'ogg', 'opus', 'm4a'}
         if target_format in audio_formats:
-            cmd.extend(['-vn'])  # No video
+            cmd.extend(['-vn'])
             if target_format == 'mp3':
                 cmd.extend(['-codec:a', 'libmp3lame', '-q:a', '2'])
             elif target_format == 'flac':
@@ -795,7 +855,6 @@ def convert_file():
             elif target_format == 'm4a':
                 cmd.extend(['-codec:a', 'aac', '-b:a', '192k'])
         else:
-            # Video formats
             if target_format == 'mp4':
                 cmd.extend(['-c:v', 'libx264', '-c:a', 'aac'])
             elif target_format == 'webm':
@@ -809,12 +868,16 @@ def convert_file():
 
         cmd.append(output_path)
 
-        # Run ffmpeg
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        # timeout eklendi: kötü amaçlı/bozuk bir dosya ffmpeg'i sonsuz
+        # döngüye sokup worker'ı tıkayabilir (DoS riski).
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
         if result.returncode != 0:
-            return jsonify({"error": f"Dönüştürme hatası: {result.stderr[:200]}"}), 400
+            # stderr içeriği kullanıcıya döndürülmüyor artık; sunucu
+            # tarafında loglanıp kullanıcıya genel bir mesaj veriliyor
+            # (dosya yolu / sistem bilgisi sızıntısını önlemek için).
+            print(f"[CONV FFMPEG ERR] {result.stderr[:300]}")
+            return jsonify({"error": "Dönüştürme başarısız oldu. Dosya formatını kontrol edin."}), 400
 
-        # Cleanup input, send output; use call_on_close to delete output after streaming
         try:
             if input_path and os.path.exists(input_path):
                 os.unlink(input_path)
@@ -832,17 +895,24 @@ def convert_file():
 
         return response
 
+    except subprocess.TimeoutExpired:
+        print("[CONV ERR] ffmpeg timeout")
+        return jsonify({"error": "Dönüştürme zaman aşımına uğradı."}), 400
     except Exception as e:
-        # Clean up on error
+        error_msg = str(e)
+        print(f"[CONV ERR] {error_msg[:200]}")
+        # Kullanıcıya genel mesaj; iç hata detayı sadece logda.
+        return jsonify({"error": "Dönüştürme sırasında bir hata oluştu."}), 400
+    finally:
         try:
             if input_path and os.path.exists(input_path):
                 os.unlink(input_path)
             if output_path and os.path.exists(output_path):
-                os.unlink(output_path)
+                # Not: Başarılı senaryoda dosya send_file ile stream edilip
+                # call_on_close içinde silinir; burada tekrar silmeye
+                # çalışmak zaten var olmayan dosya için sessizce geçilir.
+                pass
         except: pass
-        error_msg = str(e)
-        print(f"[CONV ERR] {error_msg[:200]}")
-        return jsonify({"error": error_msg[:200]}), 400
 
 @socketio.on('connect')
 def on_connect():
@@ -854,4 +924,7 @@ def on_disconnect():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+    if not os.environ.get("SECRET_KEY"):
+        print("[UYARI] SECRET_KEY env variable set edilmemiş; her restart'ta yeni bir tane üretiliyor. "
+              "Üretimde Railway'de SECRET_KEY environment variable olarak sabit bir değer tanımlayın.")
     socketio.run(app, host="0.0.0.0", debug=False, port=port)
