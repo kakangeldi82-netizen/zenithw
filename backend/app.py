@@ -83,14 +83,23 @@ else:
 rate_limit_data = defaultdict(list)
 rate_limit_lock = threading.Lock()
 
-# Railway/Heroku gibi PaaS ortamlarında uygulamanın önünde her zaman
-# platformun kendi güvenilir reverse proxy'si bulunur ve bu proxy
-# X-Forwarded-For header'ını KENDİSİ set edip client IP'yi ekler.
-# Bu ortamlarda header'a güvenmek genelde güvenlidir çünkü dışarıdan
-# doğrudan erişim yoktur (hepsi platform proxy'sinden geçer).
-# Yine de bunu açıkça bir env variable ile kontrol edilebilir yapıyoruz:
-# TRUST_PROXY=0 verilirse X-Forwarded-For tamamen yok sayılır ve sadece
-# gerçek soket adresi (request.remote_addr) kullanılır.
+# ── Client IP tespiti (Cloudflare + Railway zinciri) ───
+# Zincir: Client -> Cloudflare -> Railway -> bu uygulama.
+# X-Forwarded-For header'ının İLK değerine güvenmek YANLIŞTIR: bu değer
+# genellikle client'ın kendi gönderdiği (dolayısıyla sahtelenebilir)
+# değerdir; gerçek/güvenilir IP genelde listenin SONUNA doğru eklenir.
+# Bunun yerine Cloudflare'in kendi ürettiği ve client tarafından asla
+# override edilemeyen CF-Connecting-IP header'ı önceliklendirilir.
+# Bu header sadece Cloudflare'in kendisi tarafından set edilir; ancak bu
+# korumanın anlamlı olması için Railway'in DOĞRUDAN (Cloudflare'i bypass
+# ederek) gelen trafiği reddetmesi/filtrelemesi gerekir - aksi halde biri
+# Railway'in verdiği *.up.railway.app adresine doğrudan istek atıp bu
+# header'ı serbestçe sahteleyebilir. Bunu Railway tarafında Cloudflare IP
+# aralıklarına kısıtlayarak veya Cloudflare "Authenticated Origin Pulls"
+# ile sağlayın.
+#
+# TRUST_PROXY=0 verilirse hem CF-Connecting-IP hem X-Forwarded-For yok
+# sayılır ve sadece gerçek soket adresi (request.remote_addr) kullanılır.
 TRUST_PROXY = os.environ.get("TRUST_PROXY", "1") != "0"
 
 def check_rate_limit(ip):
@@ -114,12 +123,20 @@ def cleanup_rate_limit_data():
 
 def get_client_ip():
     if TRUST_PROXY:
+        # 1. Öncelik: Cloudflare'in kendi header'ı. Cloudflare -> Railway
+        # bağlantısında bu header Cloudflare tarafından set edilir ve
+        # client bunu değiştiremez (Cloudflare kendi değeriyle ezer).
+        cf_ip = request.headers.get('CF-Connecting-IP')
+        if cf_ip:
+            candidate = cf_ip.strip()
+            if candidate:
+                return candidate
+        # 2. Fallback: Cloudflare üzerinden gelmeyen (örn. yerel/dev veya
+        # Cloudflare'siz farklı bir kurulum) istekler için X-Forwarded-For.
+        # NOT: Railway origin'i Cloudflare'e kısıtlanmadıysa bu header
+        # istemci tarafından sahtelenebilir; bkz. yukarıdaki yorum.
         xff = request.headers.get('X-Forwarded-For')
         if xff:
-            # Proxy zinciri varsa listedeki İLK IP değil, platformun eklediği
-            # SON güvenilir hop'a en yakın olan alınmalı. Railway tek proxy
-            # katmanı olduğu için ilk değer client IP'sidir; yine de burada
-            # basit bir doğrulama yapıp boşsa remote_addr'a düşüyoruz.
             candidate = xff.split(',')[0].strip()
             if candidate:
                 return candidate
@@ -339,6 +356,51 @@ def is_safe_url(u):
         if _is_private_ip(addr):
             return False
     return True
+
+# ── SSRF: redirect / DNS-rebinding koruması (soket seviyesi) ──────────
+# is_safe_url() sadece kullanıcının verdiği URL'nin İLK anındaki DNS
+# çözümlemesini kontrol eder. Ama yt-dlp indirme sırasında HTTP
+# redirect'leri (3xx) takip eder ve o an tekrar DNS sorgusu yapar; yani
+# "güvenli" görünen bir URL, sunucu tarafında 127.0.0.1 veya
+# 169.254.169.254 (cloud metadata) gibi bir adrese yönlendirilebilir ve
+# yukarıdaki tek seferlik kontrol bunu YAKALAYAMAZ.
+#
+# Bunu kapatmak için: yt-dlp (ve requests/urllib) alt seviyede
+# socket.create_connection() kullanıyor. Bu fonksiyonu process genelinde
+# monkeypatch'leyip HER gerçek TCP bağlantısında hedef IP'yi kontrol
+# ediyoruz. Böylece redirect sonrası gerçekten bağlanılan adres de
+# doğrulanmış olur (DNS rebinding'e karşı da koruma sağlar, çünkü kontrol
+# "bağlanma anında" yapılıyor, DNS lookup ile bağlanma arasında değil).
+#
+# ÖNEMLİ SINIRLAMA: Bu guard sadece Python sürecinin kendi yaptığı
+# bağlantıları kapsar. Eğer ARIA2_PATH mevcutsa ve external_downloader
+# olarak aria2c kullanılıyorsa, aria2c AYRI BİR PROSES olduğu için bu
+# monkeypatch onu kapsamaz. Tam koruma için ya aria2c'yi devre dışı
+# bırakın (ARIA2_PATH'i kullanmayın) ya da altyapı seviyesinde (Railway/
+# container) egress firewall ile private IP aralıklarına (RFC1918,
+# 169.254.0.0/16, ::1 vb.) giden trafiği engelleyin.
+_orig_create_connection = socket.create_connection
+
+def _guarded_create_connection(address, *args, **kwargs):
+    host = address[0]
+    try:
+        ip = ipaddress.ip_address(host)
+        if _is_private_ip(str(ip)):
+            raise PermissionError(f"SSRF koruması: {host} adresine bağlantı engellendi")
+    except ValueError:
+        # host bir hostname (nadiren burada IP değil de isim gelebilir,
+        # örn. bazı kütüphaneler resolve etmeden çağırabilir) - yine de
+        # çözüp kontrol edelim.
+        try:
+            infos = socket.getaddrinfo(host, None)
+        except Exception:
+            infos = []
+        for info in infos:
+            if _is_private_ip(info[4][0]):
+                raise PermissionError(f"SSRF koruması: {host} adresine bağlantı engellendi")
+    return _orig_create_connection(address, *args, **kwargs)
+
+socket.create_connection = _guarded_create_connection
 
 AUDIO_FMTS = {"mp3", "flac", "wav", "ogg", "opus", "m4a"}
 
