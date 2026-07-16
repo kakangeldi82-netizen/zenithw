@@ -4,3 +4,4 @@ download/
 *.pyc
 .env
 cookies.txt
+backend/cookies.txt

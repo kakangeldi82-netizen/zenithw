@@ -1,7 +1,9 @@
 from gevent import monkey
 monkey.patch_all()
 
-from flask import Flask, request, jsonify, send_file, send_from_directory
+import logging
+
+from flask import Flask, request, jsonify, send_file, send_from_directory, g
 from flask_cors import CORS
 from flask_socketio import SocketIO
 import yt_dlp
@@ -14,6 +16,17 @@ import secrets
 from collections import defaultdict
 import gevent
 import tempfile
+
+# ── Logging ─────────────────────────────────────────────
+# print yerine logging kullanıyoruz: zaman damgası, seviye (INFO/WARNING/
+# ERROR) ve gevent altında eşzamanlı isteklerde daha düzenli/okunabilir
+# çıktı sağlıyor. LOG_LEVEL env variable ile prod'da WARNING'e çekilebilir,
+# geliştirmede varsayılan INFO bırakılabilir.
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger("zenithw")
 
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='/static')
@@ -54,17 +67,17 @@ if cookies_env:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(cookies_content)
         os.chmod(COOKIES_FILE, 0o600)
-        print(f"[INIT] cookies.txt Railway environment variable'dan yazıldı ✓ ({len(cookies_content)} bytes)")
+        logger.info(f"[INIT] cookies.txt Railway environment variable'dan yazıldı ✓ ({len(cookies_content)} bytes)")
     except Exception as e:
-        print(f"[INIT] ⚠️ cookies.txt yazılamadı: {e}")
+        logger.warning(f"[INIT] ⚠️ cookies.txt yazılamadı: {e}")
 elif os.path.exists(COOKIES_FILE) and os.path.getsize(COOKIES_FILE) > 10:
     try:
         os.chmod(COOKIES_FILE, 0o600)
     except Exception:
         pass
-    print(f"[INIT] cookies.txt bulundu ✓ ({os.path.getsize(COOKIES_FILE)} bytes)")
+    logger.info(f"[INIT] cookies.txt bulundu ✓ ({os.path.getsize(COOKIES_FILE)} bytes)")
 else:
-    print("[INIT] ⚠️ cookies.txt bulunamadı veya geçersiz - YouTube indirme kısıtlı olabilir")
+    logger.warning("[INIT] ⚠️ cookies.txt bulunamadı veya geçersiz - YouTube indirme kısıtlı olabilir")
 
 # ── Rate limiting ─────────────────────────────────────
 rate_limit_data = defaultdict(list)
@@ -112,6 +125,110 @@ def get_client_ip():
                 return candidate
     return request.remote_addr or "unknown"
 
+# ── Aynı IP'den eşzamanlı istek sınırı ─────────────────
+# Dakikalık rate limit (10/dk) tek başına yetmiyor: biri aynı IP'den 10+
+# isteği aynı anda (t=0'da) patlatırsa hepsi limitten geçer ve sunucuyu
+# aynı anda meşgul eder. Bu hook tüm route'lara (statik dosyalar hariç
+# değil, hepsine) uygulanır ve bir IP'nin o an açık olan istek sayısını
+# MAX_CONCURRENT_PER_IP ile sınırlar.
+MAX_CONCURRENT_PER_IP = int(os.environ.get("MAX_CONCURRENT_PER_IP", 5))
+concurrent_ip_lock = threading.Lock()
+concurrent_ip_counts = defaultdict(int)
+
+@app.before_request
+def _limit_concurrent_requests_per_ip():
+    ip = get_client_ip()
+    with concurrent_ip_lock:
+        if concurrent_ip_counts[ip] >= MAX_CONCURRENT_PER_IP:
+            return jsonify({"error": "Aynı anda çok fazla istek gönderiyorsunuz. Lütfen bekleyin."}), 429
+        concurrent_ip_counts[ip] += 1
+    g._concurrent_ip = ip
+
+@app.teardown_request
+def _release_concurrent_request_per_ip(exc=None):
+    ip = getattr(g, "_concurrent_ip", None)
+    if ip is not None:
+        with concurrent_ip_lock:
+            if concurrent_ip_counts[ip] > 0:
+                concurrent_ip_counts[ip] -= 1
+            if concurrent_ip_counts[ip] == 0:
+                del concurrent_ip_counts[ip]
+
+# ── Eşzamanlı indirme/ffmpeg sınırı ────────────────────
+# /download tek bir istekte hem yt-dlp indirmesini hem de (varsa) ffmpeg
+# postprocess adımlarını yapıyor, yani "aktif indirme" ve "aktif ffmpeg"
+# burada fiilen aynı şey. Tek bir global semaphore ile CPU/bant genişliği
+# tüketimini sınırlıyoruz; slot boşalana kadar bekleyen istekler kuyrukta
+# tutulur ve sid varsa ilerleme olarak "queued" durumu gönderilir.
+MAX_CONCURRENT_DOWNLOADS = int(os.environ.get("MAX_CONCURRENT_DOWNLOADS", 2))
+download_slots = threading.Semaphore(MAX_CONCURRENT_DOWNLOADS)
+queue_lock = threading.Lock()
+queue_waiting = 0
+active_downloads_count = 0
+
+def _release_download_slot():
+    """download_slots.release() ile birlikte aktif indirme sayacını da
+    tutarlı şekilde azaltır. /health endpoint'i bu sayacı okuyor."""
+    global active_downloads_count
+    download_slots.release()
+    with queue_lock:
+        active_downloads_count = max(0, active_downloads_count - 1)
+
+def acquire_download_slot(sid, cancel_event):
+    """Slot boşalana kadar bekler; iptal edilirse DownloadCancelled fırlatır.
+    Slot alınca True döner (çağıran taraf finally içinde release etmeli)."""
+    global queue_waiting, active_downloads_count
+    with queue_lock:
+        queue_waiting += 1
+    try:
+        while True:
+            if cancel_event.is_set():
+                raise yt_dlp.utils.DownloadCancelled("İptal edildi")
+            if download_slots.acquire(blocking=True, timeout=1):
+                with queue_lock:
+                    active_downloads_count += 1
+                return True
+            if sid:
+                with queue_lock:
+                    ahead = max(0, queue_waiting - 1)
+                socketio.emit('progress', {
+                    'status': 'queued',
+                    'message': f"Sunucu yoğun, sırada bekleniyor... ({ahead} kişi önde)"
+                }, room=sid)
+    finally:
+        with queue_lock:
+            queue_waiting -= 1
+
+# ── Maksimum video süresi ──────────────────────────────
+MAX_VIDEO_DURATION_SECONDS = int(os.environ.get("MAX_VIDEO_DURATION_SECONDS", 90 * 60))
+
+# ── Maksimum indirme boyutu ─────────────────────────────
+# Site kalitesi konusunda taviz vermiyoruz (quality parametresine
+# dokunulmuyor); bunun yerine 1.5GB'ı aşan indirmeler iptal ediliyor.
+# Böylece son derece uzun/yüksek bitrate'li dosyalar disk ve bant
+# genişliğini tüketemiyor, ama normal kaliteli videolar etkilenmiyor.
+MAX_DOWNLOAD_SIZE_BYTES = int(os.environ.get("MAX_DOWNLOAD_SIZE_MB", 1536)) * 1024 * 1024
+
+def probe_duration(url):
+    """Gerçek indirmeye başlamadan önce hafif bir extract_info ile süreyi
+    öğrenir. Süre bilinmiyorsa (bazı platformlarda olabiliyor) None döner
+    ve indirmeye izin verilir (fail-open) — amaç sadece bariz uzun
+    videoları (canlı yayın kayıtları, uzun podcastler vb.) baştan elemek."""
+    try:
+        opts_list = get_opts_list(url, extra={"skip_download": True, "quiet": True})
+        for opts in opts_list:
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    if info.get("_type") == "playlist" or "entries" in info:
+                        return None  # playlist: tekil videolar zaten ayrı ayrı /download ile geliyor
+                    return info.get("duration") or None
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return None
+
 # ── FFmpeg ────────────────────────────────────────────
 def find_ffmpeg():
     try:
@@ -124,7 +241,7 @@ def find_ffmpeg():
     return None
 
 FFMPEG_DIR = find_ffmpeg()
-print(f"[INIT] ffmpeg={FFMPEG_DIR}")
+logger.info(f"[INIT] ffmpeg={FFMPEG_DIR}")
 
 def find_aria2():
     try:
@@ -137,7 +254,7 @@ def find_aria2():
     return None
 
 ARIA2_PATH = find_aria2()
-print(f"[INIT] aria2c={ARIA2_PATH or 'yok'}")
+logger.info(f"[INIT] aria2c={ARIA2_PATH or 'yok'}")
 
 # ── Temizlik ──────────────────────────────────────────
 def cleanup_old_files():
@@ -337,6 +454,9 @@ def health():
         "ffmpeg": f"OK ({FFMPEG_DIR})" if FFMPEG_DIR else "MISSING",
         "cookies": f"✓ Yüklü ({os.path.getsize(COOKIES_FILE)} bytes)" if os.path.exists(COOKIES_FILE) else "✗ Yok",
         "disk_files": len(os.listdir(DOWNLOAD_DIR)),
+        "active_downloads": active_downloads_count,
+        "max_concurrent_downloads": MAX_CONCURRENT_DOWNLOADS,
+        "queue_waiting": queue_waiting,
     }), 200
 
 @app.route("/robots.txt")
@@ -454,7 +574,7 @@ def get_info():
             continue
 
     error_msg = str(last_err) if last_err else "Bilinmeyen hata"
-    print(f"[INFO ERR] {url[:60]}: {error_msg[:150]}")
+    logger.error(f"[INFO ERR] {url[:60]}: {error_msg[:150]}")
     parsed = parse_error(error_msg, url)
     if parsed == "instagram_ratelimit":
         return jsonify({"error": "instagram_ratelimit"}), 400
@@ -522,8 +642,18 @@ def download():
 
     is_audio = fmt in AUDIO_FMTS
     cancel_event = threading.Event()
+    size_exceeded = {"flag": False}
     with cancel_events_lock:
         cancel_events[download_id] = cancel_event
+
+    # Maksimum video süresi kontrolü (gerçek indirmeye/slot kuyruğuna
+    # girmeden önce yapılır ki uzun videolar başkalarının sırasını tutmasın).
+    duration = probe_duration(url)
+    if duration and duration > MAX_VIDEO_DURATION_SECONDS:
+        with cancel_events_lock:
+            cancel_events.pop(download_id, None)
+        max_min = MAX_VIDEO_DURATION_SECONDS // 60
+        return jsonify({"error": f"Video çok uzun (maksimum {max_min} dakika)."}), 400
 
     filename = str(uuid.uuid4())
     filepath = os.path.join(DOWNLOAD_DIR, filename)
@@ -531,10 +661,21 @@ def download():
     def progress_hook(d):
         if cancel_event.is_set():
             raise yt_dlp.utils.DownloadCancelled("İptal edildi")
-        if d['status'] == 'downloading' and sid:
+        if d['status'] == 'downloading':
             total = d.get('total_bytes') or d.get('total_bytes_estimate', 0)
             downloaded = d.get('downloaded_bytes', 0)
-            if total > 0:
+            # Boyut limiti: ya toplam boyut baştan biliniyorsa (total) ya da
+            # indirilen miktar limiti şimdiden geçtiyse indirmeyi iptal et.
+            if (total and total > MAX_DOWNLOAD_SIZE_BYTES) or downloaded > MAX_DOWNLOAD_SIZE_BYTES:
+                size_exceeded["flag"] = True
+                cancel_event.set()
+                if sid:
+                    socketio.emit('progress', {
+                        'status': 'error',
+                        'message': f"Dosya boyutu limiti aşıldı (maksimum {MAX_DOWNLOAD_SIZE_BYTES // (1024*1024)} MB)."
+                    }, room=sid)
+                raise yt_dlp.utils.DownloadCancelled("Boyut limiti aşıldı")
+            if total > 0 and sid:
                 pct = max(5, int(downloaded / total * 82))
                 socketio.emit('progress', {
                     'percent': pct,
@@ -545,9 +686,15 @@ def download():
         elif d['status'] == 'finished' and sid:
             socketio.emit('progress', {'percent': 88, 'status': 'merging'}, room=sid)
 
+    # Aktif indirme/ffmpeg sayısı sınırına ulaşıldıysa burada kuyrukta
+    # bekler; slot alınamadan iptal edilirse DownloadCancelled fırlatılır
+    # ve aşağıdaki except bloğu bunu normal şekilde yakalar.
+    slot_acquired = False
     try:
+        acquire_download_slot(sid, cancel_event)
+        slot_acquired = True
         fmt_str = build_format_str(url, quality, fmt, codec)
-        print(f"[DL] q={quality} fmt={fmt} codec={codec} audio={is_audio}")
+        logger.info(f"[DL] q={quality} fmt={fmt} codec={codec} audio={is_audio}")
 
         if is_audio:
             if not FFMPEG_DIR:
@@ -637,7 +784,7 @@ def download():
             except Exception as e:
                 last_err = e
                 es = str(e).lower()
-                print(f"[DL FAIL] {es[:100]}")
+                logger.error(f"[DL FAIL] {es[:100]}")
                 if "login" in es or "private" in es or "cookie" in es:
                     break
                 continue
@@ -669,16 +816,42 @@ def download():
                     os.remove(full_path)
                     os.rename(muted_path, full_path)
                 else:
-                    print(f"[MUTE FFMPEG FAIL] {result.stderr[:200]}")
+                    logger.error(f"[MUTE FFMPEG FAIL] {result.stderr[:200]}")
             except Exception as e:
-                print(f"[MUTE FFMPEG ERR] {e}")
+                logger.error(f"[MUTE FFMPEG ERR] {e}")
                 try:
                     if os.path.exists(muted_path):
                         os.remove(muted_path)
                 except: pass
 
+        # Son güvenlik kontrolü: merge/mute sonrası dosya boyutu (ör. ses+video
+        # birleşiminde şişme olabilir) limiti aşmışsa dosyayı sil ve reddet.
+        try:
+            final_size = os.path.getsize(full_path)
+        except OSError:
+            final_size = 0
+        if final_size > MAX_DOWNLOAD_SIZE_BYTES:
+            try:
+                os.remove(full_path)
+            except: pass
+            with cancel_events_lock:
+                cancel_events.pop(download_id, None)
+            if slot_acquired:
+                _release_download_slot()
+                slot_acquired = False
+            if sid:
+                socketio.emit('progress', {'status': 'error', 'message': 'Dosya boyutu limiti aşıldı.'}, room=sid)
+            max_mb = MAX_DOWNLOAD_SIZE_BYTES // (1024 * 1024)
+            return jsonify({"error": f"Dosya boyutu limiti aşıldı (maksimum {max_mb} MB)."}), 400
+
         if sid:
             socketio.emit('progress', {'percent': 100, 'status': 'done'}, room=sid)
+
+        # Ağır iş (indirme + ffmpeg) bitti; slotu burada bırakıyoruz ki
+        # dosya kullanıcıya stream edilirken sıradaki iş beklemesin.
+        if slot_acquired:
+            _release_download_slot()
+            slot_acquired = False
 
         ext = full_path.rsplit('.', 1)[-1] if '.' in full_path else fmt
         download_name = f"zenithw.{ext}"
@@ -698,18 +871,29 @@ def download():
         return response
 
     except yt_dlp.utils.DownloadCancelled:
+        if slot_acquired:
+            _release_download_slot()
+            slot_acquired = False
         for f in os.listdir(DOWNLOAD_DIR):
             if f.startswith(filename):
                 try: os.remove(os.path.join(DOWNLOAD_DIR, f))
                 except: pass
         with cancel_events_lock:
             cancel_events.pop(download_id, None)
+        if size_exceeded["flag"]:
+            max_mb = MAX_DOWNLOAD_SIZE_BYTES // (1024 * 1024)
+            if sid:
+                socketio.emit('progress', {'status': 'error', 'message': f"Dosya boyutu limiti aşıldı (maksimum {max_mb} MB)."}, room=sid)
+            return jsonify({"error": f"Dosya boyutu limiti aşıldı (maksimum {max_mb} MB)."}), 400
         if sid:
             socketio.emit('progress', {'percent': 0, 'status': 'cancelled'}, room=sid)
         return jsonify({"error": "cancelled"}), 409
     except Exception as e:
+        if slot_acquired:
+            _release_download_slot()
+            slot_acquired = False
         error_msg = str(e)
-        print(f"[DL ERR] {error_msg[:200]}")
+        logger.error(f"[DL ERR] {error_msg[:200]}")
         with cancel_events_lock:
             cancel_events.pop(download_id, None)
         if sid:
@@ -776,7 +960,7 @@ def download_thumbnail():
             continue
 
     error_msg = str(last_err) if last_err else "Thumbnail alınamadı"
-    print(f"[THUMB ERR] {error_msg[:150]}")
+    logger.error(f"[THUMB ERR] {error_msg[:150]}")
     return jsonify({"error": parse_error(error_msg, url)}), 400
 
 # ── /convert ───────────────────────────────────────────
@@ -875,7 +1059,7 @@ def convert_file():
             # stderr içeriği kullanıcıya döndürülmüyor artık; sunucu
             # tarafında loglanıp kullanıcıya genel bir mesaj veriliyor
             # (dosya yolu / sistem bilgisi sızıntısını önlemek için).
-            print(f"[CONV FFMPEG ERR] {result.stderr[:300]}")
+            logger.error(f"[CONV FFMPEG ERR] {result.stderr[:300]}")
             return jsonify({"error": "Dönüştürme başarısız oldu. Dosya formatını kontrol edin."}), 400
 
         try:
@@ -896,11 +1080,11 @@ def convert_file():
         return response
 
     except subprocess.TimeoutExpired:
-        print("[CONV ERR] ffmpeg timeout")
+        logger.error("[CONV ERR] ffmpeg timeout")
         return jsonify({"error": "Dönüştürme zaman aşımına uğradı."}), 400
     except Exception as e:
         error_msg = str(e)
-        print(f"[CONV ERR] {error_msg[:200]}")
+        logger.error(f"[CONV ERR] {error_msg[:200]}")
         # Kullanıcıya genel mesaj; iç hata detayı sadece logda.
         return jsonify({"error": "Dönüştürme sırasında bir hata oluştu."}), 400
     finally:
@@ -916,15 +1100,15 @@ def convert_file():
 
 @socketio.on('connect')
 def on_connect():
-    print(f"+ {request.sid}")
+    logger.info(f"+ {request.sid}")
 
 @socketio.on('disconnect')
 def on_disconnect():
-    print(f"- {request.sid}")
+    logger.info(f"- {request.sid}")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     if not os.environ.get("SECRET_KEY"):
-        print("[UYARI] SECRET_KEY env variable set edilmemiş; her restart'ta yeni bir tane üretiliyor. "
+        logger.warning("[UYARI] SECRET_KEY env variable set edilmemiş; her restart'ta yeni bir tane üretiliyor. "
               "Üretimde Railway'de SECRET_KEY environment variable olarak sabit bir değer tanımlayın.")
     socketio.run(app, host="0.0.0.0", debug=False, port=port)

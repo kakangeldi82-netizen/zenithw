@@ -40,6 +40,7 @@
     <div class="status-row"><span class="status-row-name" id="rowServerName">Sunucu (API)</span><span class="status-row-val" id="rowServer">—</span></div>
     <div class="status-row"><span class="status-row-name">FFmpeg</span><span class="status-row-val" id="rowFfmpeg">—</span></div>
     <div class="status-row"><span class="status-row-name" id="rowCookiesName">Çerezler (YouTube erişimi)</span><span class="status-row-val" id="rowCookies">—</span></div>
+    <div class="status-row"><span class="status-row-name" id="rowQueueName">Aktif indirme</span><span class="status-row-val" id="rowQueue">—</span></div>
 
     <h2 id="pgH2a" style="margin-top:28px;">Bilinen durumlar</h2>
     <p id="pgP1">ZenithW, indirme işlemleri için üçüncü taraf platformlara (YouTube, TikTok, Instagram vb.) bağımlıdır. Bu platformlardan biri kendi tarafında bot koruması güncellerse veya erişimi geçici olarak kısıtlarsa, o platforma özel indirmeler etkilenebilir — bu, ZenithW sunucusunun çökmesi anlamına gelmez, genellikle birkaç dakika-saat içinde kendiliğinden düzelir.</p>
@@ -59,6 +60,8 @@ const TX={
     h1:'Sunucu Durumu', back:'← ana sayfa',
     checking:'kontrol ediliyor…', mainChecking:'durum kontrol ediliyor…',
     rowServerName:'Sunucu (API)', rowCookiesName:'Çerezler (YouTube erişimi)',
+    rowQueueName:'Aktif indirme',
+    queueStatus:(active,max,waiting)=>waiting>0?`${active}/${max} kullanılıyor · ${waiting} kişi sırada`:`${active}/${max} kullanılıyor`,
     h2a:'Bilinen durumlar',
     p1:'ZenithW, indirme işlemleri için üçüncü taraf platformlara (YouTube, TikTok, Instagram vb.) bağımlıdır. Bu platformlardan biri kendi tarafında bot koruması güncellerse veya erişimi geçici olarak kısıtlarsa, o platforma özel indirmeler etkilenebilir — bu, ZenithW sunucusunun çökmesi anlamına gelmez, genellikle birkaç dakika-saat içinde kendiliğinden düzelir.',
     h2b:'Sorun mu yaşıyorsunuz?',
@@ -74,6 +77,8 @@ const TX={
     h1:'Server Status', back:'← home',
     checking:'checking…', mainChecking:'checking status…',
     rowServerName:'Server (API)', rowCookiesName:'Cookies (YouTube access)',
+    rowQueueName:'Active downloads',
+    queueStatus:(active,max,waiting)=>waiting>0?`${active}/${max} in use · ${waiting} waiting`:`${active}/${max} in use`,
     h2a:'Known conditions',
     p1:'ZenithW depends on third-party platforms (YouTube, TikTok, Instagram, etc.) to perform downloads. If one of these platforms updates its bot protection or temporarily restricts access on their end, downloads specific to that platform may be affected — this does not mean the ZenithW server is down, and it usually resolves on its own within minutes to hours.',
     h2b:'Having an issue?',
@@ -96,6 +101,7 @@ function setLegalLang(l){
   document.getElementById('pgBack').textContent=t.back;
   document.getElementById('rowServerName').textContent=t.rowServerName;
   document.getElementById('rowCookiesName').textContent=t.rowCookiesName;
+  document.getElementById('rowQueueName').textContent=t.rowQueueName;
   document.getElementById('pgH2a').textContent=t.h2a;
   document.getElementById('pgP1').textContent=t.p1;
   document.getElementById('pgH2b').textContent=t.h2b;
@@ -110,7 +116,7 @@ const API="https://zenithw-production.up.railway.app";
 async function checkStatus(){
   const t=TX[CUR_LANG]||TX.en;
   const dot=document.getElementById('statusDot'),main=document.getElementById('statusMain');
-  const rowServer=document.getElementById('rowServer'),rowFfmpeg=document.getElementById('rowFfmpeg'),rowCookies=document.getElementById('rowCookies');
+  const rowServer=document.getElementById('rowServer'),rowFfmpeg=document.getElementById('rowFfmpeg'),rowCookies=document.getElementById('rowCookies'),rowQueue=document.getElementById('rowQueue');
   const lastCheck=document.getElementById('statusLastCheck');
   try{
     const t0=performance.now();
@@ -123,12 +129,16 @@ async function checkStatus(){
     rowServer.textContent=t.active(ms);
     rowFfmpeg.textContent=(d.ffmpeg&&d.ffmpeg.startsWith('OK'))?t.ready:t.problem;
     rowCookies.textContent=(d.cookies&&d.cookies.startsWith('✓'))?t.loaded:t.notLoaded;
+    rowQueue.textContent=(typeof d.active_downloads==='number'&&typeof d.max_concurrent_downloads==='number')
+      ?t.queueStatus(d.active_downloads,d.max_concurrent_downloads,d.queue_waiting||0)
+      :'—';
   }catch(e){
     dot.className='status-dot down';
     main.textContent=t.down;
     rowServer.textContent=t.unreachable;
     rowFfmpeg.textContent='—';
     rowCookies.textContent='—';
+    rowQueue.textContent='—';
   }
   lastCheck.textContent=t.lastCheck+new Date().toLocaleTimeString(t.locale);
 }
