@@ -56,24 +56,6 @@ if os.environ.get("FLASK_ENV") == "development" or os.environ.get("ALLOW_DEV_COR
 CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}})
 socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='gevent')
 
-# ── Cloudflare Origin Verify ───────────────────────────
-# Cloudflare'de bir Request Header Transform Rule ile her isteğe
-# X-Origin-Verify header'ı ekleniyor (sadece Cloudflare bunu set edebilir,
-# client tarafından taklit edilemez çünkü Cloudflare zaten kendi değeriyle
-# üzerine yazıyor). Railway'de de aynı secret ORIGIN_VERIFY_SECRET env
-# variable olarak duruyor. Bu ikisi eşleşmiyorsa (yani istek Cloudflare'i
-# bypass edip Railway'in *.up.railway.app adresine doğrudan gelmişse)
-# isteği reddediyoruz. Dev ortamında (env yoksa) kontrol atlanır.
-ORIGIN_VERIFY_SECRET = os.environ.get("ORIGIN_VERIFY_SECRET")
-
-@app.before_request
-def _verify_cloudflare_origin():
-    if not ORIGIN_VERIFY_SECRET:
-        return  # secret tanımlı değilse (örn. local dev) kontrolü atla
-    incoming = request.headers.get("X-Origin-Verify", "")
-    if not secrets.compare_digest(incoming, ORIGIN_VERIFY_SECRET):
-        return jsonify({"error": "Forbidden"}), 403
-
 DOWNLOAD_DIR = "./downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
