@@ -28,6 +28,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("zenithw")
 
+# socketio/engineio kendi iç bağlantı loglarını (client id'leri, polling
+# GET/POST istekleri) INFO seviyesinde basıyor; bunlar bizim asıl uygulama
+# loglarımızı gürültüye boğuyor. WARNING'e çekip sadece gerçek sorunları
+# görüyoruz.
+logging.getLogger("engineio").setLevel(logging.WARNING)
+logging.getLogger("socketio").setLevel(logging.WARNING)
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='/static')
 
@@ -47,6 +55,24 @@ if os.environ.get("FLASK_ENV") == "development" or os.environ.get("ALLOW_DEV_COR
 
 CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}})
 socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='gevent')
+
+# ── Cloudflare Origin Verify ───────────────────────────
+# Cloudflare'de bir Request Header Transform Rule ile her isteğe
+# X-Origin-Verify header'ı ekleniyor (sadece Cloudflare bunu set edebilir,
+# client tarafından taklit edilemez çünkü Cloudflare zaten kendi değeriyle
+# üzerine yazıyor). Railway'de de aynı secret ORIGIN_VERIFY_SECRET env
+# variable olarak duruyor. Bu ikisi eşleşmiyorsa (yani istek Cloudflare'i
+# bypass edip Railway'in *.up.railway.app adresine doğrudan gelmişse)
+# isteği reddediyoruz. Dev ortamında (env yoksa) kontrol atlanır.
+ORIGIN_VERIFY_SECRET = os.environ.get("ORIGIN_VERIFY_SECRET")
+
+@app.before_request
+def _verify_cloudflare_origin():
+    if not ORIGIN_VERIFY_SECRET:
+        return  # secret tanımlı değilse (örn. local dev) kontrolü atla
+    incoming = request.headers.get("X-Origin-Verify", "")
+    if not secrets.compare_digest(incoming, ORIGIN_VERIFY_SECRET):
+        return jsonify({"error": "Forbidden"}), 403
 
 DOWNLOAD_DIR = "./downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -226,6 +252,16 @@ MAX_VIDEO_DURATION_SECONDS = int(os.environ.get("MAX_VIDEO_DURATION_SECONDS", 90
 # genişliğini tüketemiyor, ama normal kaliteli videolar etkilenmiyor.
 MAX_DOWNLOAD_SIZE_BYTES = int(os.environ.get("MAX_DOWNLOAD_SIZE_MB", 1536)) * 1024 * 1024
 
+# ── İndirme zaman aşımı ─────────────────────────────────
+# yt-dlp'nin ydl.download() çağrısı, ayrı video+ses akışlarını birleştirmek
+# için kendi içinde ffmpeg'i çağırabiliyor (FFmpegMerger postprocessor).
+# Bu adımın kendi subprocess.run çağrımızdaki gibi bir timeout'u YOK - eğer
+# bu adım (nadir de olsa, örn. bozuk bir fragment veya Railway'in kısıtlı
+# CPU'sunda beklenmedik bir takılma yüzünden) donarsa, tüm istek süresiz
+# askıda kalır. Bunu önlemek için tüm download denemesini bir üst
+# zaman aşımıyla sarıyoruz.
+DOWNLOAD_TIMEOUT_SECONDS = int(os.environ.get("DOWNLOAD_TIMEOUT_SECONDS", 600))
+
 def probe_duration(url):
     """Gerçek indirmeye başlamadan önce hafif bir extract_info ile süreyi
     öğrenir. Süre bilinmiyorsa (bazı platformlarda olabiliyor) None döner
@@ -294,6 +330,22 @@ threading.Thread(target=periodic_cleanup, daemon=True).start()
 # ── İptal ─────────────────────────────────────────────
 cancel_events = {}
 cancel_events_lock = threading.Lock()
+
+# ── Bağlı Socket.IO sid'leri ────────────────────────────
+# /download isteğinde client kendi sid'ini body içinde gönderiyor (progress
+# eventlerini almak için). Bu sid'i doğrulamadan socketio.emit(room=sid) ile
+# kullanmak, biri başka bir kullanıcının sid'ini bilirse/tahmin ederse onun
+# indirme durumunu (ilerleme %, hata mesajı vb.) dinlemesine izin verir.
+# Burada aktif bağlantıları takip edip, gelen sid gerçekten bağlı değilse
+# sessizce yok sayıyoruz (indirme yine çalışır, sadece progress gönderilmez).
+connected_sids = set()
+connected_sids_lock = threading.Lock()
+
+def validate_sid(sid):
+    if not sid:
+        return ""
+    with connected_sids_lock:
+        return sid if sid in connected_sids else ""
 
 # ── Platform helpers ──────────────────────────────────
 def is_youtube(u): return "youtube.com" in u or "youtu.be" in u
@@ -537,13 +589,17 @@ def sitemap():
 
 @app.route("/cancel", methods=["POST"])
 def cancel_route():
+    ip = get_client_ip()
     data = request.json or {}
     download_id = data.get("download_id", "")
     if download_id:
         with cancel_events_lock:
-            ev = cancel_events.get(download_id)
-            if ev:
-                ev.set()
+            entry = cancel_events.get(download_id)
+            # Sadece indirmeyi başlatan IP iptal edebilir; başka birinin
+            # download_id'sini bilse/tahmin etse bile (UUID4 olduğu için
+            # zaten pratikte imkansız) onun indirmesini iptal edemesin.
+            if entry and entry[1] == ip:
+                entry[0].set()
         return jsonify({"ok": True}), 200
     return jsonify({"error": "download_id gerekli"}), 400
 
@@ -655,7 +711,7 @@ def download():
     fmt = data.get("format", "mp4").lower()
     codec = data.get("codec", "h264").lower()
     audio_q = str(data.get("audioQ", "256"))
-    sid = data.get("sid", "")
+    sid = validate_sid(data.get("sid", ""))
     download_id = data.get("download_id") or str(uuid.uuid4())
     add_meta = bool(data.get("metadata", True))
 
@@ -706,7 +762,7 @@ def download():
     cancel_event = threading.Event()
     size_exceeded = {"flag": False}
     with cancel_events_lock:
-        cancel_events[download_id] = cancel_event
+        cancel_events[download_id] = (cancel_event, ip)
 
     # Maksimum video süresi kontrolü (gerçek indirmeye/slot kuyruğuna
     # girmeden önce yapılır ki uzun videolar başkalarının sırasını tutmasın).
@@ -833,16 +889,24 @@ def download():
         opts_list = get_opts_list(url, extra=extra)
         success = False
         last_err = None
+        timed_out = False
+        logger.info(f"[DL] indirme başlıyor (timeout={DOWNLOAD_TIMEOUT_SECONDS}s)")
         for opts in opts_list:
             if cancel_event.is_set():
                 break
             try:
-                with yt_dlp.YoutubeDL(opts) as ydl:
-                    ydl.download([url])
+                with gevent.Timeout(DOWNLOAD_TIMEOUT_SECONDS, TimeoutError(f"{DOWNLOAD_TIMEOUT_SECONDS}s içinde tamamlanmadı")):
+                    with yt_dlp.YoutubeDL(opts) as ydl:
+                        ydl.download([url])
                 success = True
                 break
             except yt_dlp.utils.DownloadCancelled:
                 raise
+            except TimeoutError as e:
+                timed_out = True
+                last_err = e
+                logger.error(f"[DL TIMEOUT] {DOWNLOAD_TIMEOUT_SECONDS}s aşıldı, muhtemelen yt-dlp'nin içindeki ffmpeg merge adımı takıldı")
+                break
             except Exception as e:
                 last_err = e
                 es = str(e).lower()
@@ -854,8 +918,25 @@ def download():
         if cancel_event.is_set():
             raise yt_dlp.utils.DownloadCancelled("İptal edildi")
 
+        if timed_out:
+            with cancel_events_lock:
+                cancel_events.pop(download_id, None)
+            if slot_acquired:
+                _release_download_slot()
+                slot_acquired = False
+            # Yarım kalmış geçici dosyaları temizle
+            for f in os.listdir(DOWNLOAD_DIR):
+                if f.startswith(filename):
+                    try: os.remove(os.path.join(DOWNLOAD_DIR, f))
+                    except: pass
+            if sid:
+                socketio.emit('progress', {'status': 'error', 'message': 'İndirme zaman aşımına uğradı, lütfen tekrar deneyin.'}, room=sid)
+            return jsonify({"error": "İndirme zaman aşımına uğradı, lütfen tekrar deneyin."}), 504
+
         if not success:
             raise last_err or Exception("Tüm denemeler başarısız")
+
+        logger.info("[DL] indirme tamamlandı, dosya işleniyor...")
 
         full_path = None
         for f in sorted(os.listdir(DOWNLOAD_DIR)):
@@ -867,6 +948,7 @@ def download():
             return jsonify({"error": "Dosya bulunamadı"}), 500
 
         if not is_audio and data.get("mute", False) and FFMPEG_DIR:
+            logger.info("[DL] mute (sessizleştirme) adımı başlıyor")
             muted_path = full_path + ".muted." + full_path.rsplit('.', 1)[-1]
             try:
                 result = subprocess.run(
@@ -917,6 +999,7 @@ def download():
 
         ext = full_path.rsplit('.', 1)[-1] if '.' in full_path else fmt
         download_name = f"zenithw.{ext}"
+        logger.info(f"[DL] yanıt gönderiliyor: {download_name} ({os.path.getsize(full_path)} bytes)")
         response = send_file(full_path, as_attachment=True, download_name=download_name)
         response.headers['X-Download-Id'] = download_id
         response.headers['Access-Control-Expose-Headers'] = 'X-Download-Id'
@@ -1162,10 +1245,14 @@ def convert_file():
 
 @socketio.on('connect')
 def on_connect():
+    with connected_sids_lock:
+        connected_sids.add(request.sid)
     logger.info(f"+ {request.sid}")
 
 @socketio.on('disconnect')
 def on_disconnect():
+    with connected_sids_lock:
+        connected_sids.discard(request.sid)
     logger.info(f"- {request.sid}")
 
 if __name__ == "__main__":
