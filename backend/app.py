@@ -12,6 +12,7 @@ import uuid
 import threading
 import time
 import subprocess
+import shutil
 import secrets
 from collections import defaultdict
 import gevent
@@ -271,12 +272,14 @@ def probe_duration(url):
     return None
 
 # ── FFmpeg ────────────────────────────────────────────
+# shutil.which() Windows/Linux/Mac'te PATH'i (Windows'ta PATHEXT/.exe dahil)
+# doğru şekilde tarar. Eskiden 'which' komutunu subprocess ile çağırıyorduk;
+# bu Windows'ta böyle bir komut olmadığı için (which.exe yok) sessizce
+# başarısız oluyor ve ffmpeg PATH'te olsa bile hep None dönüyordu.
 def find_ffmpeg():
-    try:
-        result = subprocess.run(['which', 'ffmpeg'], capture_output=True, text=True)
-        path = result.stdout.strip()
-        if path: return os.path.dirname(path)
-    except: pass
+    path = shutil.which('ffmpeg')
+    if path:
+        return os.path.dirname(path)
     for p in ['/usr/bin', '/usr/local/bin', '/root/.nix-profile/bin', '/nix/store', '/opt/venv/bin']:
         if os.path.exists(os.path.join(p, 'ffmpeg')): return p
     return None
@@ -285,11 +288,9 @@ FFMPEG_DIR = find_ffmpeg()
 logger.info(f"[INIT] ffmpeg={FFMPEG_DIR}")
 
 def find_aria2():
-    try:
-        result = subprocess.run(['which', 'aria2c'], capture_output=True, text=True)
-        path = result.stdout.strip()
-        if path: return path
-    except: pass
+    path = shutil.which('aria2c')
+    if path:
+        return path
     for p in ['/usr/bin/aria2c', '/usr/local/bin/aria2c', '/root/.nix-profile/bin/aria2c']:
         if os.path.exists(p): return p
     return None
@@ -499,12 +500,15 @@ def get_base_opts(url, use_cookies=True):
         }
     if use_cookies and os.path.exists(COOKIES_FILE) and not is_instagram(url):
         opts["cookiefile"] = COOKIES_FILE
-    if is_youtube(url):
-        opts["extractor_args"] = {
-            "youtube": {
-                "player_client": ["android_vr", "web", "mweb", "android"],
-            }
-        }
+    # NOT: Eskiden burada YouTube için player_client=["android_vr","web","mweb","android"]
+    # zorlanıyordu — bu, yt-dlp'nin EJS/deno JS-challenge çözümü henüz kurulu
+    # olmadığı dönemde 360p'ye düşmeyi engellemek için eklenmiş bir workaround'du.
+    # yt-dlp-ejs kurulduktan sonra bu zorlama artık ZARARLI: "web" client'ı PO
+    # Token gerektirip yüksek kaliteli formatları reddediyor, "tv" client'ı
+    # (yt-dlp'nin varsayılan seçiminde olan, en iyi format erişimini sağlayan
+    # client) listeden dışarıda kalıyor. Sonuç: av1/vp9 format zinciri hiçbir
+    # üst seçenekte eşleşmiyor ve en sondaki /best fallback'ine (itag 18, 360p)
+    # düşülüyor. Artık yt-dlp'nin kendi varsayılan client seçimine bırakıyoruz.
     return opts
 
 def get_opts_list(url, extra=None):

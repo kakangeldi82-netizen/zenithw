@@ -6,3 +6,4 @@ gevent-websocket
 gunicorn
 requests
 yt-dlp @ git+https://github.com/yt-dlp/yt-dlp.git
+yt-dlp-ejs
