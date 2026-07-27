@@ -162,6 +162,12 @@ concurrent_ip_counts = defaultdict(int)
 
 @app.before_request
 def _limit_concurrent_requests_per_ip():
+    # GET/HEAD/OPTIONS (statik sayfa, CSS/JS, CORS preflight, health) bu
+    # limite dahil edilmez. Aksi halde sayfa yüklenirken birden fazla asset
+    # + uzun süren /download aynı IP'den 429'a düşer; Railway'de sık
+    # "site açılmıyor / yarım yükleniyor" hissi yaratır.
+    if request.method in ("GET", "HEAD", "OPTIONS"):
+        return None
     ip = get_client_ip()
     with concurrent_ip_lock:
         if concurrent_ip_counts[ip] >= MAX_CONCURRENT_PER_IP:
@@ -789,6 +795,10 @@ def download():
     # Aktif indirme/ffmpeg sayısı sınırına ulaşıldıysa burada kuyrukta
     # bekler; slot alınamadan iptal edilirse DownloadCancelled fırlatılır
     # ve aşağıdaki except bloğu bunu normal şekilde yakalar.
+    #
+    # slot_acquired True iken HER çıkış yolunda (early return dahil) finally
+    # bloğu slot'u serbest bırakır. Aksi halde (ffmpeg yok / dosya yok gibi
+    # return'lerde) semaphore kalıcı kilitlenir ve tüm indirmeler donar.
     slot_acquired = False
     try:
         acquire_download_slot(sid, cancel_event)
@@ -798,6 +808,8 @@ def download():
 
         if is_audio:
             if not FFMPEG_DIR:
+                with cancel_events_lock:
+                    cancel_events.pop(download_id, None)
                 return jsonify({"error": "Ses dönüşümü için FFmpeg gerekli."}), 400
             codec_map = {
                 "mp3": "mp3", "flac": "flac", "wav": "wav",
@@ -903,9 +915,6 @@ def download():
         if timed_out:
             with cancel_events_lock:
                 cancel_events.pop(download_id, None)
-            if slot_acquired:
-                _release_download_slot()
-                slot_acquired = False
             # Yarım kalmış geçici dosyaları temizle
             for f in os.listdir(DOWNLOAD_DIR):
                 if f.startswith(filename):
@@ -927,6 +936,8 @@ def download():
                 break
 
         if not full_path:
+            with cancel_events_lock:
+                cancel_events.pop(download_id, None)
             return jsonify({"error": "Dosya bulunamadı"}), 500
 
         if not is_audio and data.get("mute", False) and FFMPEG_DIR:
@@ -962,9 +973,6 @@ def download():
             except: pass
             with cancel_events_lock:
                 cancel_events.pop(download_id, None)
-            if slot_acquired:
-                _release_download_slot()
-                slot_acquired = False
             if sid:
                 socketio.emit('progress', {'status': 'error', 'message': 'Dosya boyutu limiti aşıldı.'}, room=sid)
             max_mb = MAX_DOWNLOAD_SIZE_BYTES // (1024 * 1024)
@@ -975,6 +983,7 @@ def download():
 
         # Ağır iş (indirme + ffmpeg) bitti; slotu burada bırakıyoruz ki
         # dosya kullanıcıya stream edilirken sıradaki iş beklemesin.
+        # finally bloğu slot_acquired False olduğu için tekrar release etmez.
         if slot_acquired:
             _release_download_slot()
             slot_acquired = False
@@ -998,9 +1007,6 @@ def download():
         return response
 
     except yt_dlp.utils.DownloadCancelled:
-        if slot_acquired:
-            _release_download_slot()
-            slot_acquired = False
         for f in os.listdir(DOWNLOAD_DIR):
             if f.startswith(filename):
                 try: os.remove(os.path.join(DOWNLOAD_DIR, f))
@@ -1016,19 +1022,28 @@ def download():
             socketio.emit('progress', {'percent': 0, 'status': 'cancelled'}, room=sid)
         return jsonify({"error": "cancelled"}), 409
     except Exception as e:
-        if slot_acquired:
-            _release_download_slot()
-            slot_acquired = False
         error_msg = str(e)
         logger.error(f"[DL ERR] {error_msg[:200]}")
         with cancel_events_lock:
             cancel_events.pop(download_id, None)
+        # Yarım kalmış indirme dosyalarını temizle
+        try:
+            for f in os.listdir(DOWNLOAD_DIR):
+                if f.startswith(filename):
+                    try: os.remove(os.path.join(DOWNLOAD_DIR, f))
+                    except: pass
+        except: pass
         if sid:
             socketio.emit('progress', {'status': 'error', 'message': error_msg[:100]}, room=sid)
         parsed = parse_error(error_msg, url)
         if parsed == "instagram_ratelimit":
             return jsonify({"error": "instagram_ratelimit"}), 400
         return jsonify({"error": parsed}), 400
+    finally:
+        # Erken return / exception fark etmeksizin slot sızıntısını önler.
+        if slot_acquired:
+            _release_download_slot()
+            slot_acquired = False
 
 # ── /thumbnail ─────────────────────────────────────────
 @app.route("/thumbnail", methods=["POST"])
@@ -1208,21 +1223,27 @@ def convert_file():
 
     except subprocess.TimeoutExpired:
         logger.error("[CONV ERR] ffmpeg timeout")
+        # Başarısız/timeout dönüşümde yarım output dosyasını da sil
+        try:
+            if output_path and os.path.exists(output_path):
+                os.unlink(output_path)
+        except: pass
         return jsonify({"error": "Dönüştürme zaman aşımına uğradı."}), 400
     except Exception as e:
         error_msg = str(e)
         logger.error(f"[CONV ERR] {error_msg[:200]}")
+        try:
+            if output_path and os.path.exists(output_path):
+                os.unlink(output_path)
+        except: pass
         # Kullanıcıya genel mesaj; iç hata detayı sadece logda.
         return jsonify({"error": "Dönüştürme sırasında bir hata oluştu."}), 400
     finally:
         try:
             if input_path and os.path.exists(input_path):
                 os.unlink(input_path)
-            if output_path and os.path.exists(output_path):
-                # Not: Başarılı senaryoda dosya send_file ile stream edilip
-                # call_on_close içinde silinir; burada tekrar silmeye
-                # çalışmak zaten var olmayan dosya için sessizce geçilir.
-                pass
+            # Başarılı senaryoda output_path send_file + call_on_close ile silinir;
+            # hata yollarında yukarıda zaten temizlendi.
         except: pass
 
 @socketio.on('connect')
