@@ -52,14 +52,11 @@
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <link rel="stylesheet" href="style.css">
 <script src="version.js"></script>
 </head>
 <body>
-<canvas id="space-canvas"></canvas>
-<div class="space-vignette"></div>
+<canvas id="bg-canvas"></canvas>
 <div class="page">
   <div class="services-chip-wrap">
     <div class="services-chip" id="servicesChip" onclick="toggleServices()">
@@ -85,19 +82,93 @@
   </div>
   <div class="logo-wrap" onclick="scrollToTop()"><h1 class="logo-name" style="font-size:30px;font-weight:700;letter-spacing:-1.5px;">ZenithW<span>.</span></h1></div>
   <div class="url-form">
-    <div class="url-field">
-      <div class="radar-pulse-wrap"><div class="radar-ring" id="radarRing"></div></div>
-      <div class="url-spinner-wrap" id="urlSpinWrap">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3)"><circle cx="12" cy="12" r="10"/></svg>
+    <div class="url-field-wrap">
+      <div class="url-field">
+        <div class="radar-pulse-wrap"><div class="radar-ring" id="radarRing"></div></div>
+        <div class="url-spinner-wrap" id="urlSpinWrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3)"><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <input class="url-input" id="urlInput" data-i18n-ph="placeholder" type="url" placeholder="bir video linki yapıştır…" autocomplete="off" spellcheck="false" oninput="onInput()"/>
+        <textarea class="url-textarea" id="urlTextarea" data-i18n-ph="bulkPlaceholder" placeholder="linkleri her satıra bir tane olacak şekilde yapıştır... (Enter ile indir, Shift+Enter ile yeni satır)"></textarea>
+        <button class="url-clear" id="urlClear" onclick="clearUrl()">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+        </button>
+        <button class="url-go-btn" onclick="fetchVideo()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
+        </button>
       </div>
-      <input class="url-input" id="urlInput" data-i18n-ph="placeholder" type="url" placeholder="bir video linki yapıştır…" autocomplete="off" spellcheck="false" oninput="onInput()"/>
-      <textarea class="url-textarea" id="urlTextarea" data-i18n-ph="bulkPlaceholder" placeholder="linkleri her satıra bir tane olacak şekilde yapıştır... (Enter ile indir, Shift+Enter ile yeni satır)"></textarea>
-      <button class="url-clear" id="urlClear" onclick="clearUrl()">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+      <button class="url-help-btn" id="urlHelpBtn" onclick="openHelp()" aria-label="Yardım">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-linecap="round" stroke-width="2.5"/></svg>
       </button>
-      <button class="url-go-btn" onclick="fetchVideo()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
-      </button>
+      <!-- GitHub Mona Octocat peeking & holding top border of input box -->
+      <div class="url-cat-wrap" id="urlCatWrap" aria-hidden="true" title="Beni sev! 🐱" onclick="catSpeak()">
+        <div class="gh-speech-bubble" id="catBubble"></div>
+        <svg class="gh-octocat" viewBox="0 0 76 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Distinct Paws Gripping Input Box Top Border -->
+          <g class="gh-cat-paws">
+            <g class="gh-cat-paw-l">
+              <path d="M5.5 28V39.5C5.5 43.5 11.5 43.5 11.5 39.5V28Z" class="gh-cat-paw-fill"/>
+              <!-- Toe hooks curling forward over the ledge -->
+              <path d="M6.3 39.2C6.3 40.6 7.6 41.3 8.5 41.3" class="gh-cat-paw-toe"/>
+              <path d="M8.5 39.6C8.5 41 9.5 41.6 10.2 41.5" class="gh-cat-paw-toe"/>
+              <path d="M10.2 39C10.2 40.1 10.9 40.7 11.4 40.6" class="gh-cat-paw-toe"/>
+            </g>
+            <g class="gh-cat-paw-r">
+              <path d="M49.5 28V39.5C49.5 43.5 55.5 43.5 55.5 39.5V28Z" class="gh-cat-paw-fill"/>
+              <path d="M50.3 39.2C50.3 40.6 51.6 41.3 52.5 41.3" class="gh-cat-paw-toe"/>
+              <path d="M52.5 39.6C52.5 41 53.5 41.6 54.2 41.5" class="gh-cat-paw-toe"/>
+              <path d="M54.2 39C54.2 40.1 54.9 40.7 55.4 40.6" class="gh-cat-paw-toe"/>
+            </g>
+          </g>
+
+          <!-- Head Base Contour (Official Mona Shape) -->
+          <path d="M12 31C9 23 12 13 19 9C20 6 25 3 29 5C34 7 38 7 43 5C47 3 52 6 53 9C60 13 63 23 60 31C57 38 48 42 36 42C24 42 15 38 12 31Z" class="gh-cat-fill"/>
+          
+          <!-- Inner Ears (each twitches independently) -->
+          <polygon points="22,10 27,6 29,12" class="gh-cat-ear-in gh-cat-ear-l"/>
+          <polygon points="50,10 45,6 43,12" class="gh-cat-ear-in gh-cat-ear-r"/>
+
+          <!-- Face Inner Plate -->
+          <path d="M18 28C16 23 18 17 23 14C27 12 31 13 36 13C41 13 45 12 49 14C54 17 56 23 54 28C52 33 45 36 36 36C27 36 20 33 18 28Z" class="gh-cat-face"/>
+
+          <!-- Normal Eyes -->
+          <g class="gh-eyes-normal">
+            <ellipse cx="28" cy="23" rx="2.8" ry="3.8" class="gh-cat-eye"/>
+            <ellipse cx="44" cy="23" rx="2.8" ry="3.8" class="gh-cat-eye"/>
+            <g class="gh-cat-pupils">
+              <circle cx="29.2" cy="21.8" r="1" fill="#ffffff"/>
+              <circle cx="45.2" cy="21.8" r="1" fill="#ffffff"/>
+            </g>
+          </g>
+
+          <!-- Happy Eyes (Shows on Input Focus/Hover/Petting) -->
+          <g class="gh-eyes-happy">
+            <path d="M25 24C27 21 30 21 32 24" stroke-width="2.2" stroke-linecap="round" fill="none" class="gh-cat-happy-eye"/>
+            <path d="M41 24C43 21 46 21 48 24" stroke-width="2.2" stroke-linecap="round" fill="none" class="gh-cat-happy-eye"/>
+          </g>
+
+          <!-- Cute Nose & Smile -->
+          <polygon points="35,26.5 37,26.5 36,28" class="gh-cat-nose"/>
+          <path d="M33.5 29.5C35 30.8 37 30.8 38.5 29.5" stroke-width="1.4" stroke-linecap="round" fill="none" class="gh-cat-smile"/>
+
+          <!-- Whiskers -->
+          <path d="M14 24L5 22.5M14 27L4 27M14 29.5L6 32" class="gh-cat-whisker" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M58 24L67 22.5M58 27L68 27M58 29.5L66 32" class="gh-cat-whisker" stroke-width="1.3" stroke-linecap="round"/>
+
+          <!-- Floating Interactive "?" / "♥" Badge -->
+          <g class="gh-q-group">
+            <circle cx="64" cy="9" r="8.5" class="gh-q-bg"/>
+            <text x="64" y="12.8" text-anchor="middle" class="gh-q-txt">?</text>
+            <path d="M64 12.5 C62.2 10.8 59.5 9.8 59.5 7.8 C59.5 6.2 61.2 5.3 64 7.2 C66.8 5.3 68.5 6.2 68.5 7.8 C68.5 9.8 65.8 10.8 64 12.5 Z" class="gh-heart-path"/>
+          </g>
+
+          <!-- Floating Petting Hearts (Pops when petted/hovered) -->
+          <g class="gh-pet-hearts">
+            <path d="M22 6 C20.8 4.8 18.8 4.2 18.8 2.5 C18.8 1.2 20.2 0.5 22 2 C23.8 0.5 25.2 1.2 25.2 2.5 C25.2 4.2 23.2 4.8 22 6 Z" class="gh-pet-h1"/>
+            <path d="M36 3 C34.8 1.8 32.8 1.2 32.8 -0.5 C32.8 -1.8 34.2 -2.5 36 -1 C37.8 -2.5 39.2 -1.8 39.2 -0.5 C39.2 1.2 37.2 1.8 36 3 Z" class="gh-pet-h2"/>
+          </g>
+        </svg>
+      </div>
     </div>
     <div class="clip-hint" id="clipHint" onclick="useClipboardHint()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -594,7 +665,7 @@
 <div class="toast" id="toast"><div class="toast-dot" id="toastDot"></div><span id="toastTxt"></span></div>
 
 <script>
-const API="https://zenithw-production.up.railway.app/";
+const API="https://zenithw-production.up.railway.app";
 async function downloadThumbnail(){
   if(!videoInfo||!videoInfo.url) return;
   try{
@@ -946,235 +1017,52 @@ function setAccent(acc){
   document.body.classList.add('theme-'+acc);
 }
 
-// ── SPACE BG — cinematic Three.js deep-space scene ────
+// ── BG — lightweight CSS-canvas particle layer (no Three.js) ────
 (function(){
-  const canvas=document.getElementById('space-canvas');
-  if(!window.THREE){canvas.style.background='radial-gradient(ellipse at 50% 30%,#141414,#060606 70%)';return;}
-  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isSmall=innerWidth<760;
-  const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0||window.matchMedia('(pointer:coarse)').matches;
-  const lowEnd=isSmall||isTouch||navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4;
-  // Real phones/tablets get the most aggressive cuts — decorative-only layers (nebula, galaxies)
-  // are skipped entirely and the frame rate is throttled harder, since those cost the most
-  // GPU time for the least visual payoff on a small screen. Desktop keeps the full scene.
-  const isMobile=isTouch&&isSmall;
-
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,3000);
-  camera.position.z=520;
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,isMobile?1:(lowEnd?1:1.75)));
-  renderer.setSize(innerWidth,innerHeight);
-
-  // soft glow sprite texture (shared for nebula / galaxies / particles / vortex)
-  function glowTexture(inner,outer){
-    const s=128,cv=document.createElement('canvas');cv.width=cv.height=s;
-    const cx2=cv.getContext('2d');
-    const g=cx2.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
-    g.addColorStop(0,inner);g.addColorStop(0.4,outer);g.addColorStop(1,'rgba(0,0,0,0)');
-    cx2.fillStyle=g;cx2.fillRect(0,0,s,s);
-    return new THREE.CanvasTexture(cv);
-  }
-  const texSoft=glowTexture('rgba(255,255,255,1)','rgba(255,255,255,0.25)');
-  const texBlue=glowTexture('rgba(120,170,255,0.9)','rgba(80,110,255,0.15)');
-  const texPurple=glowTexture('rgba(190,130,255,0.85)','rgba(130,70,220,0.12)');
-  const texCyan=glowTexture('rgba(120,235,255,0.85)','rgba(60,180,220,0.12)');
-  const texOrange=glowTexture('rgba(255,175,110,0.9)','rgba(255,130,60,0.12)');
-
-  // ── starfield ──
-  const starCount=isMobile?320:(lowEnd?1200:5200);
-  const starGeo=new THREE.BufferGeometry();
-  const starPos=new Float32Array(starCount*3);
-  const starCol=new Float32Array(starCount*3);
-  const palette=[[0.9,0.93,1],[0.7,0.82,1],[0.85,0.75,1],[0.7,0.95,1]];
-  for(let i=0;i<starCount;i++){
-    const r=900*Math.cbrt(Math.random())+80;
-    const th=Math.random()*Math.PI*2,ph=Math.acos(Math.random()*2-1);
-    starPos[i*3]=r*Math.sin(ph)*Math.cos(th);
-    starPos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*0.6;
-    starPos[i*3+2]=r*Math.cos(ph)-400;
-    const p=palette[Math.floor(Math.random()*palette.length)];
-    starCol[i*3]=p[0];starCol[i*3+1]=p[1];starCol[i*3+2]=p[2];
-  }
-  starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));
-  starGeo.setAttribute('color',new THREE.BufferAttribute(starCol,3));
-  const starMat=new THREE.PointsMaterial({size:1.7,map:texSoft,transparent:true,depthWrite:false,vertexColors:true,blending:THREE.AdditiveBlending,opacity:0.95,sizeAttenuation:true});
-  const starField=new THREE.Points(starGeo,starMat);
-  scene.add(starField);
-
-  // ── twinkling bright stars (small extra layer, opacity pulses for a lively sky) ──
-  const twinkleCount=isMobile?12:(lowEnd?60:280);
-  const twGeo=new THREE.BufferGeometry();
-  const twPos=new Float32Array(twinkleCount*3);
-  const twCol=new Float32Array(twinkleCount*3);
-  const twPhase=new Float32Array(twinkleCount);
-  const twSpeed=new Float32Array(twinkleCount);
-  for(let i=0;i<twinkleCount;i++){
-    const r=700*Math.cbrt(Math.random())+60;
-    const th=Math.random()*Math.PI*2,ph=Math.acos(Math.random()*2-1);
-    twPos[i*3]=r*Math.sin(ph)*Math.cos(th);
-    twPos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*0.6;
-    twPos[i*3+2]=r*Math.cos(ph)-350;
-    twCol[i*3]=1;twCol[i*3+1]=1;twCol[i*3+2]=1;
-    twPhase[i]=Math.random()*Math.PI*2;
-    twSpeed[i]=0.6+Math.random()*1.8;
-  }
-  twGeo.setAttribute('position',new THREE.BufferAttribute(twPos,3));
-  twGeo.setAttribute('color',new THREE.BufferAttribute(twCol,3));
-  const twMat=new THREE.PointsMaterial({size:2.8,map:texSoft,transparent:true,depthWrite:false,vertexColors:true,blending:THREE.AdditiveBlending,opacity:0.95,sizeAttenuation:true});
-  const twinkleField=new THREE.Points(twGeo,twMat);
-  scene.add(twinkleField);
-
-  // ── floating particles (closer, larger, orange-tinted) ──
-  const partCount=isMobile?6:(lowEnd?25:150);
-  const partGeo=new THREE.BufferGeometry();
-  const partPos=new Float32Array(partCount*3);
-  for(let i=0;i<partCount;i++){
-    partPos[i*3]=(Math.random()-0.5)*900;
-    partPos[i*3+1]=(Math.random()-0.5)*600;
-    partPos[i*3+2]=(Math.random()-0.5)*400+100;
-  }
-  partGeo.setAttribute('position',new THREE.BufferAttribute(partPos,3));
-  const partMat=new THREE.PointsMaterial({size:5,map:texOrange,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.35,sizeAttenuation:true});
-  const particles=new THREE.Points(partGeo,partMat);
-  scene.add(particles);
-
-  // ── nebula clouds (a handful of large soft sprites) — skipped on phones, kept everywhere else ──
-  const nebulae=[];
-  if(!isMobile){
-    const nebulaDefs=[
-      {tex:texPurple,x:-420,y:120,z:-600,s:900,sp:0.02},
-      {tex:texBlue,x:380,y:-160,z:-750,s:1000,sp:-0.015},
-      {tex:texCyan,x:60,y:260,z:-900,s:800,sp:0.012},
-      {tex:texPurple,x:-200,y:-260,z:-500,s:650,sp:-0.02}
-    ];
-    nebulaDefs.forEach(d=>{
-      const mat=new THREE.SpriteMaterial({map:d.tex,transparent:true,opacity:0.16,blending:THREE.AdditiveBlending,depthWrite:false});
-      const sp=new THREE.Sprite(mat);
-      sp.position.set(d.x,d.y,d.z);sp.scale.set(d.s,d.s,1);
-      sp.userData.drift=d.sp;sp.userData.baseX=d.x;sp.userData.baseY=d.y;
-      scene.add(sp);nebulae.push(sp);
-    });
-  }
-
-  // ── distant galaxies (small tilted elliptical smudges) — skipped on phones ──
-  const galaxies=[];
-  if(!isMobile)
-  [{x:-600,y:220,z:-1400,s:180,c:texBlue},{x:520,y:-280,z:-1600,s:140,c:texCyan},{x:180,y:340,z:-1500,s:110,c:texPurple}].forEach(d=>{
-    const mat=new THREE.SpriteMaterial({map:d.c,transparent:true,opacity:0.4,blending:THREE.AdditiveBlending,depthWrite:false});
-    const sp=new THREE.Sprite(mat);sp.position.set(d.x,d.y,d.z);sp.scale.set(d.s,d.s*0.4,1);
-    scene.add(sp);galaxies.push(sp);
-  });
-
-  // ── 3D planet — Saturn-like sphere with tilted rings + a small orbiting moon ──
-  const ambientLight=new THREE.AmbientLight(0x3a3f4d,1.15);
-  scene.add(ambientLight);
-  const sunLight=new THREE.DirectionalLight(0xfff2d8,1.35);
-  sunLight.position.set(-220,140,320);
-  scene.add(sunLight);
-
-  function planetTexture(bands){
-    const cv=document.createElement('canvas');cv.width=4;cv.height=256;
-    const ctx2=cv.getContext('2d');
-    const g=ctx2.createLinearGradient(0,0,0,256);
-    bands.forEach(b=>g.addColorStop(b[0],b[1]));
-    ctx2.fillStyle=g;ctx2.fillRect(0,0,4,256);
-    return new THREE.CanvasTexture(cv);
-  }
-  const saturnTex=planetTexture([[0,'#e7d9b8'],[0.22,'#d8c49a'],[0.38,'#eaddb9'],[0.52,'#c7ad80'],[0.68,'#e3d3aa'],[0.85,'#b79a6d'],[1,'#a68c62']]);
-
-  function ringTexture(){
-    const s=256,cv=document.createElement('canvas');cv.width=cv.height=s;
-    const ctx2=cv.getContext('2d');
-    const cx=s/2,cy=s/2;
-    for(let r=6;r<s/2;r++){
-      const t=r/(s/2);
-      let a=0.28+0.3*Math.abs(Math.sin(t*26))+0.15*Math.abs(Math.sin(t*7));
-      a=Math.max(0.05,Math.min(0.8,a))*(t>0.92?(1-t)*12:1);
-      ctx2.strokeStyle='rgba(224,206,168,'+a+')';
-      ctx2.beginPath();ctx2.arc(cx,cy,r,0,Math.PI*2);ctx2.stroke();
-    }
-    return new THREE.CanvasTexture(cv);
-  }
-
-  const planetGroup=new THREE.Group();
-  planetGroup.position.set(300,190,-420);
-  planetGroup.rotation.z=THREE.MathUtils.degToRad(18);
-  scene.add(planetGroup);
-
-  const planetMesh=new THREE.Mesh(new THREE.SphereGeometry(48,48,48),new THREE.MeshStandardMaterial({map:saturnTex,roughness:1,metalness:0}));
-  planetGroup.add(planetMesh);
-
-  const ringMesh=new THREE.Mesh(new THREE.RingGeometry(66,122,90),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:true,side:THREE.DoubleSide,opacity:0.88,depthWrite:false}));
-  ringMesh.rotation.x=Math.PI/2-0.38;
-  planetGroup.add(ringMesh);
-
-  const planetGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:texOrange,transparent:true,opacity:0.16,blending:THREE.AdditiveBlending,depthWrite:false}));
-  planetGlow.scale.set(160,160,1);
-  planetGroup.add(planetGlow);
-
-  const moonPivot=new THREE.Group();
-  const moonMesh=new THREE.Mesh(new THREE.SphereGeometry(8,20,20),new THREE.MeshStandardMaterial({color:0xc7cbd2,roughness:1}));
-  moonMesh.position.set(168,26,40);
-  moonPivot.add(moonMesh);
-  planetGroup.add(moonPivot);
+  const canvas=document.getElementById('bg-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  const COUNT=isTouch?55:130;
 
   function resize(){
-    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth,innerHeight);
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
   }
+  resize();
   addEventListener('resize',resize);
 
-  let tpx=0,tpy=0,px=0,py=0;
-  if(!reduceMotion&&!isMobile){
-    addEventListener('mousemove',e=>{tpx=(e.clientX/innerWidth-0.5);tpy=(e.clientY/innerHeight-0.5);});
-    addEventListener('deviceorientation',e=>{if(e.gamma!=null&&e.beta!=null){tpx=Math.max(-1,Math.min(1,e.gamma/30));tpy=Math.max(-1,Math.min(1,(e.beta-45)/30));}});
-  }
+  const stars=Array.from({length:COUNT},()=>({
+    x:Math.random()*innerWidth,
+    y:Math.random()*innerHeight,
+    r:Math.random()*1.1+0.2,
+    a:0.25+Math.random()*0.5,
+    spd:0.0004+Math.random()*0.0006,
+    ph:Math.random()*Math.PI*2,
+    hue:Math.random()<0.18?220+Math.random()*80:0,
+    sat:Math.random()<0.18?55:0
+  }));
 
-  let t=0,frameN=0;
-  function animate(){
-    frameN++;
-    // Real phones: render roughly 1 of every 4 frames (~15fps) — the biggest single win for
-    // battery/heat, since every skipped frame skips a full backdrop-filter composite too.
-    // Other low-end machines (old/low-core desktops): render every other frame (~30fps).
-    // Regular desktop: full 60fps, every frame.
-    if(isMobile&&(frameN%4!==0)){if(!reduceMotion)requestAnimationFrame(animate);return;}
-    if(!isMobile&&lowEnd&&(frameN%2===0)){if(!reduceMotion)requestAnimationFrame(animate);return;}
-    t+=isMobile?0.0096:(lowEnd?0.0064:0.0032);
-    px+=(tpx-px)*0.04;py+=(tpy-py)*0.04;
-    // parallax + very slow camera drift
-    camera.position.x=px*70+Math.sin(t*0.18)*22;
-    camera.position.y=-py*50+Math.cos(t*0.14)*14;
-    camera.lookAt(0,0,-400);
-    starField.rotation.y=t*0.02;
-    twinkleField.rotation.y=t*0.02;
-    {
-      const colAttr=twGeo.attributes.color;
-      for(let i=0;i<twinkleCount;i++){
-        const b=0.35+0.65*Math.max(0,Math.sin(t*twSpeed[i]*6+twPhase[i]));
-        colAttr.array[i*3]=b;colAttr.array[i*3+1]=b;colAttr.array[i*3+2]=b;
-      }
-      colAttr.needsUpdate=true;
-    }
-    particles.rotation.y=-t*0.015;
-    particles.position.y=Math.sin(t*0.3)*6;
-    nebulae.forEach((n,i)=>{
-      n.position.x=n.userData.baseX+Math.sin(t*n.userData.drift*6)*18;
-      n.position.y=n.userData.baseY+Math.cos(t*n.userData.drift*5)*14;
-      n.material.opacity=0.12+Math.sin(t*0.5+i*1.7)*0.06;
+  let frame=0;
+  function draw(){
+    frame++;
+    const t=frame;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(s=>{
+      const pulse=0.4+0.6*Math.abs(Math.sin(t*s.spd*60+s.ph));
+      const alpha=s.a*pulse;
+      ctx.fillStyle=s.sat>0
+        ?`hsla(${s.hue},${s.sat}%,82%,${alpha})`
+        :`rgba(218,226,255,${alpha})`;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fill();
     });
-    planetMesh.rotation.y=t*0.16;
-    ringMesh.rotation.z=t*0.06;
-    ringMesh.rotation.x=Math.PI/2-0.38+Math.sin(t*0.3)*0.025;
-    moonPivot.rotation.y=t*0.32;
-    planetGlow.material.opacity=0.14+Math.sin(t*1.2)*0.05;
-    planetGroup.position.x=300+px*14;
-    planetGroup.position.y=190-py*10;
-    renderer.render(scene,camera);
-    if(!reduceMotion)requestAnimationFrame(animate);
+    if(!reduceMotion)requestAnimationFrame(draw);
   }
-  animate();
-  if(reduceMotion)renderer.render(scene,camera);
+  if(!reduceMotion)requestAnimationFrame(draw);
+  else draw();
 })();
 
 socket.on('connect',()=>{socketId=socket.id;});
@@ -1226,12 +1114,55 @@ function fireRadar(){
   ring.classList.remove('fire');
   void ring.offsetWidth; // restart animation
   ring.classList.add('fire');
+  // The cat gets briefly excited too — big eyes, perked ears
+  const wrap=document.getElementById('urlCatWrap');
+  if(wrap){
+    wrap.classList.remove('bored','rare-yawn','rare-lookback');
+    wrap.classList.add('excited');
+    setTimeout(()=>wrap.classList.remove('excited'),900);
+  }
+}
+
+// ── CAT BORED (10s Idle Paw Nibble Easter Egg) ──
+let catIdleTimer = null;
+function resetCatTimer(){
+  const wrap=document.getElementById('urlCatWrap');
+  if(wrap)wrap.classList.remove('bored','rare-yawn','rare-lookback');
+  if(catIdleTimer)clearTimeout(catIdleTimer);
+  catIdleTimer=setTimeout(()=>{
+    const val=document.getElementById('urlInput')?.value.trim();
+    if(val||!wrap)return;
+    const roll=Math.random();
+    // ~2% of the time, something rarer than the usual paw-nibble shows up
+    if(roll<0.01)wrap.classList.add('rare-yawn');
+    else if(roll<0.02)wrap.classList.add('rare-lookback');
+    else wrap.classList.add('bored');
+  },10000); // 10 seconds
+}
+
+// ── CAT SPEECH BUBBLE (click to hear something) ──
+const CAT_LINES={
+  tr:['miyav 🐾','linki at, ben hallederim','beni okşadın mı şimdi?','pat pat istiyorum','hazır mısın?','naaav','şşt, bir link kokusu alıyorum'],
+  en:['meow 🐾','paste a link, i got this','did you just pet me?','pspsps','ready when you are','psst, i smell a link']
+};
+let catBubbleTimer=null;
+function catSpeak(){
+  const bubble=document.getElementById('catBubble');
+  if(!bubble)return;
+  const lines=CAT_LINES[LANG]||CAT_LINES.en;
+  bubble.textContent=lines[Math.floor(Math.random()*lines.length)];
+  bubble.classList.remove('show');
+  void bubble.offsetWidth; // restart animation
+  bubble.classList.add('show');
+  if(catBubbleTimer)clearTimeout(catBubbleTimer);
+  catBubbleTimer=setTimeout(()=>bubble.classList.remove('show'),1600);
 }
 
 // ── URL ───────────────────────────────────────────────
 function isYT(u){return u.includes('youtube.com')||u.includes('youtu.be');}
 function isValidUrl(u){try{const p=new URL(u);return p.protocol==='http:'||p.protocol==='https:';}catch(e){return false;}}
 function onInput(){
+  resetCatTimer();
   const v=document.getElementById('urlInput').value;
   document.getElementById('urlClear').classList.toggle('vis',v.length>0);
   document.getElementById('ytWarn').classList.toggle('show',isYT(v));
@@ -1659,12 +1590,36 @@ async function cancelDownload(){
 }
 
 // ── SAVE MODAL ────────────────────────────────────────
+// Small celebratory confetti burst — no deps, plain DOM + CSS
+const CONFETTI_COLORS=['#3bba64','#ff4a97','#f59e0b','#5b8def','#ffffff'];
+function fireConfetti(){
+  const host=document.createElement('div');
+  host.className='confetti-host';
+  document.body.appendChild(host);
+  const n=22;
+  for(let i=0;i<n;i++){
+    const p=document.createElement('span');
+    p.className='confetti-piece';
+    const angle=(Math.random()*140-70)*(Math.PI/180); // upward-ish spread
+    const dist=80+Math.random()*120;
+    const dx=Math.sin(angle)*dist;
+    const dy=-Math.abs(Math.cos(angle)*dist)-40;
+    p.style.setProperty('--dx',dx+'px');
+    p.style.setProperty('--dy',dy+'px');
+    p.style.setProperty('--rot',(Math.random()*720-360)+'deg');
+    p.style.background=CONFETTI_COLORS[i%CONFETTI_COLORS.length];
+    p.style.left='calc(50% + '+(Math.random()*40-20)+'px)';
+    p.style.animationDelay=(Math.random()*0.12)+'s';
+    host.appendChild(p);
+  }
+  setTimeout(()=>host.remove(),1400);
+}
 function openSaveModal(blob,filename){pendingBlob=blob;pendingFilename=filename;document.getElementById('saveOverlay').classList.add('open');document.body.style.overflow='hidden';}
 function saveAction(type){
   if(!pendingBlob)return;
   const url=URL.createObjectURL(pendingBlob);
-  if(type==='download'){const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(t('downloaded'),'#3bba64');closeOverlay('saveOverlay');}
-  else if(type==='share'){if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([pendingBlob],pendingFilename)]})){navigator.share({files:[new File([pendingBlob],pendingFilename)],title:pendingFilename}).catch(()=>{});}else{const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(t('downloaded'),'#3bba64');closeOverlay('saveOverlay');}}
+  if(type==='download'){const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(t('downloaded'),'#3bba64');fireConfetti();closeOverlay('saveOverlay');}
+  else if(type==='share'){if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([pendingBlob],pendingFilename)]})){navigator.share({files:[new File([pendingBlob],pendingFilename)],title:pendingFilename}).catch(()=>{});fireConfetti();}else{const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(t('downloaded'),'#3bba64');fireConfetti();closeOverlay('saveOverlay');}}
   else if(type==='copy'){
     const fallback=()=>{const a=document.createElement('a');a.href=url;a.download=pendingFilename;a.click();toast(LANG==='en'?'Copy not supported here, downloaded instead':'Bu tarayıcıda kopyalama desteklenmiyor, indirildi','#f59e0b');closeOverlay('saveOverlay');};
     if(navigator.clipboard&&window.ClipboardItem){
@@ -1832,6 +1787,7 @@ async function reDownload(url){
   setTheme(S.theme||'dark');
   setAccent(S.accent||'default');
   applyLang(); // LAST — after all functions are defined
+  resetCatTimer();
   window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.theme==='auto')setTheme('auto');});
 })();
 </script>

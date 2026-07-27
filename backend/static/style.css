@@ -31,15 +31,15 @@ body.theme-pink{--accent:#ff4a97;--accent-rgb:255,74,151;--btn-bg:var(--accent);
 body.theme-cobalt{--accent:#0056ff;--accent-rgb:0,86,255;--btn-bg:var(--accent);--btn-color:#fff;}
 body.light .bottom-bar{background:rgba(242,242,247,0.96);}
 body.light .spinner{border-color:rgba(0,0,0,0.12);border-top-color:rgba(0,0,0,0.6);}
-body.light #space-canvas{opacity:0.18;}
+body.light #bg-canvas{opacity:0.12;}
 body.light .dl-bar-fill{background:#0f0f0f;}
 body.light .dl-handle{background:rgba(0,0,0,0.18);}
 body.light .toggle::after{background:rgba(0,0,0,0.3);}
 
 html,body{height:100%;}
 body{background:radial-gradient(ellipse 120% 90% at 50% 20%,#131316,#060606 65%);color:var(--text);font-family:var(--font);display:flex;flex-direction:column;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background 0.2s,color 0.2s;}
-#space-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;display:block;}
-.space-vignette{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 65% at 50% 38%,transparent 0%,rgba(8,8,8,0.18) 55%,rgba(5,5,5,0.6) 100%);}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;display:block;opacity:0.75;}
+body.light #bg-canvas{opacity:0.12;}
 
 /* PAGE */
 .page{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px calc(var(--bar-height) + var(--safe-bottom) + 28px);min-height:100dvh;}
@@ -65,13 +65,12 @@ body{background:radial-gradient(ellipse 120% 90% at 50% 20%,#131316,#060606 65%)
 
 /* URL FORM */
 .url-form{width:100%;max-width:560px;display:flex;flex-direction:column;gap:8px;}
-.clip-hint{display:none;align-items:center;gap:8px;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;padding:9px 10px 9px 12px;font-size:11.5px;color:var(--text2);cursor:pointer;animation:clipHintIn .25s ease;}
+.clip-hint{display:none;align-items:center;gap:8px;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;padding:9px 10px 9px 12px;font-size:11.5px;color:var(--text2);cursor:pointer;}
 .clip-hint.show{display:flex;}
 .clip-hint svg{flex-shrink:0;color:var(--text3);}
 .clip-hint span{flex:1;}
 .clip-hint-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:3px 5px;flex-shrink:0;}
 .clip-hint-close:hover{color:var(--text);}
-@keyframes clipHintIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 .url-field{position:relative;display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:14px;transition:border-color 0.25s,box-shadow 0.3s;overflow:visible;backdrop-filter:blur(var(--glass-blur)) saturate(140%);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(140%);box-shadow:0 8px 32px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.03) inset;}
 .url-field::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(120deg,rgba(var(--accent-rgb),0.4),rgba(168,139,250,0.18) 45%,transparent 75%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0.55;transition:opacity 0.3s ease;}
 .url-field:focus-within::before{opacity:1;}
@@ -89,6 +88,303 @@ body{background:radial-gradient(ellipse 120% 90% at 50% 20%,#131316,#060606 65%)
   .url-go-btn{display:flex;}
   .url-input{font-size:14px;padding:14px 10px 14px 0;}
   .url-field{border-radius:12px;}
+}
+
+/* URL FIELD WRAPPER — gives positioning context for cat + help btn */
+.url-field-wrap{position:relative;overflow:visible;}
+.url-help-btn{display:none;} /* help btn hidden — cat replaced it */
+
+/* GITHUB OCTOCAT MASCOT PEEKING OVER URL BOX */
+.url-cat-wrap{
+  position:absolute;
+  top:-34px;
+  right:10px;
+  pointer-events:auto!important;
+  cursor:pointer;
+  z-index:3;
+  width:76px;
+  height:46px;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3));
+}
+.gh-octocat{
+  width:76px;
+  height:46px;
+  overflow:visible;
+  transition:transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dark Theme Colors */
+.gh-cat-fill{fill:#24292e;stroke:#444c56;stroke-width:1.2px;transition:fill 0.25s;}
+.gh-cat-ear-in{fill:#ff9aaa;opacity:0.65;}
+.gh-cat-face{fill:#161b22;transition:fill 0.25s;}
+.gh-cat-eye{fill:#f0f6fc;}
+.gh-cat-happy-eye{stroke:#f0f6fc;}
+.gh-cat-nose{fill:#ff9aaa;}
+.gh-cat-smile{stroke:#8b949e;}
+.gh-cat-whisker{stroke:#8b949e;}
+
+/* Distinct Paw Fills & Curled Toe Hooks (the bit that "grips" the ledge) */
+.gh-cat-paw-fill{fill:#24292e;stroke:#444c56;stroke-width:1.2px;}
+.gh-cat-paw-toe{fill:none;stroke:#8b949e;stroke-width:1.1px;stroke-linecap:round;}
+.gh-cat-paw-l,.gh-cat-paw-r{transform-origin:8.5px 30px;}
+.gh-cat-paw-r{transform-origin:52.5px 30px;}
+
+/* Floating "?" / Heart Badge */
+.gh-q-group{transition:transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);}
+.gh-q-bg{fill:var(--accent);stroke:rgba(255,255,255,0.25);stroke-width:1px;transition:fill 0.3s ease,stroke 0.3s ease;}
+.gh-q-txt{fill:#0d1117;font-size:11.5px;font-weight:800;font-family:var(--font);user-select:none;transition:opacity 0.25s ease,transform 0.25s ease;transform-origin:64px 9px;}
+.gh-heart-path{fill:#ffffff;opacity:0;transform:scale(0.4);transform-origin:64px 9px;transition:opacity 0.25s ease,transform 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+
+/* Petting Floating Hearts */
+.gh-pet-h1, .gh-pet-h2{
+  fill:#ff4a97;
+  opacity:0;
+  transform-origin:center;
+}
+
+/* Light Theme Colors */
+body.light .gh-cat-fill{fill:#24292e;stroke:#d0d7de;}
+body.light .gh-cat-face{fill:#ffffff;}
+body.light .gh-cat-eye{fill:#24292e;}
+body.light .gh-cat-happy-eye{stroke:#24292e;}
+body.light .gh-cat-smile{stroke:#57606a;}
+body.light .gh-cat-whisker{stroke:#57606a;}
+body.light .gh-cat-paw-fill{fill:#24292e;stroke:#d0d7de;}
+body.light .gh-cat-paw-toe{stroke:#57606a;}
+body.light .gh-q-bg{fill:#24292e;}
+body.light .gh-q-txt{fill:#ffffff;}
+body.light .gh-heart-path{fill:#ff4a97;}
+
+/* Eye State Toggle: Hide Happy Eyes by default, show on Focus/Hover */
+.gh-eyes-happy{opacity:0;transition:opacity 0.2s;}
+.gh-eyes-normal{opacity:1;transition:opacity 0.2s;}
+
+/* INTERACTIVE FOCUS / HOVER STATES */
+.url-field-wrap:focus-within .gh-eyes-happy,
+.url-field-wrap:hover .gh-eyes-happy,
+.url-cat-wrap:hover .gh-eyes-happy{
+  opacity:1;
+}
+.url-field-wrap:focus-within .gh-eyes-normal,
+.url-field-wrap:hover .gh-eyes-normal,
+.url-cat-wrap:hover .gh-eyes-normal{
+  opacity:0;
+}
+
+/* Badge Bounces & "?" turns into Heart "♥" on Focus/Hover */
+.url-field-wrap:focus-within .gh-q-group,
+.url-field-wrap:hover .gh-q-group,
+.url-cat-wrap:hover .gh-q-group{
+  transform:translateY(-4px) scale(1.15);
+}
+.url-field-wrap:focus-within .gh-q-bg,
+.url-cat-wrap:hover .gh-q-bg{
+  fill:#ff4a97; /* Pink heart badge background */
+  stroke:rgba(255,255,255,0.4);
+}
+.url-field-wrap:focus-within .gh-q-txt,
+.url-cat-wrap:hover .gh-q-txt{
+  opacity:0!important;
+  transform:scale(0.3);
+}
+.url-field-wrap:focus-within .gh-heart-path,
+.url-cat-wrap:hover .gh-heart-path{
+  opacity:1;
+  transform:scale(1);
+}
+
+/* DIRECT CAT PETTING (Hover or Click Directly on Cat Head) */
+.url-cat-wrap:hover .gh-octocat,
+.url-cat-wrap:active .gh-octocat{
+  transform: rotate(6deg) translateY(-3px) scale(1.05);
+}
+.url-cat-wrap:hover .gh-pet-h1,
+.url-cat-wrap:active .gh-pet-h1{
+  animation: petHeartPop1 0.85s ease-out infinite;
+}
+.url-cat-wrap:hover .gh-pet-h2,
+.url-cat-wrap:active .gh-pet-h2{
+  animation: petHeartPop2 0.85s ease-out 0.22s infinite;
+}
+
+@keyframes petHeartPop1{
+  0%{opacity:0; transform:translateY(3px) scale(0.4);}
+  40%{opacity:1; transform:translateY(-6px) scale(1.15);}
+  100%{opacity:0; transform:translateY(-14px) scale(0.7);}
+}
+@keyframes petHeartPop2{
+  0%{opacity:0; transform:translateY(3px) scale(0.4);}
+  40%{opacity:1; transform:translateY(-8px) scale(1.25);}
+  100%{opacity:0; transform:translateY(-17px) scale(0.7);}
+}
+
+/* Gentle Peeking Idle Float */
+@media(prefers-reduced-motion:no-preference){
+  .gh-octocat{animation:ghCatFloat 4s ease-in-out infinite;}
+  @keyframes ghCatFloat{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-2px);}
+  }
+  /* Occasional idle blink, so the cat feels alive even when nobody's touching it */
+  .gh-eyes-normal{animation:ghCatBlink 6s ease-in-out infinite;}
+  @keyframes ghCatBlink{
+    0%,92%,100%{transform:scaleY(1);}
+    95%{transform:scaleY(0.1);}
+  }
+
+  /* Paws rhythmically flex their grip on the ledge — tiny, out of sync, tactile */
+  .gh-cat-paw-l{animation:ghPawGripL 3.2s ease-in-out infinite;}
+  .gh-cat-paw-r{animation:ghPawGripR 3.2s ease-in-out infinite 0.6s;}
+  @keyframes ghPawGripL{
+    0%,100%{transform:scaleY(1) rotate(0deg);}
+    50%{transform:scaleY(0.93) rotate(-2deg);}
+  }
+  @keyframes ghPawGripR{
+    0%,100%{transform:scaleY(1) rotate(0deg);}
+    50%{transform:scaleY(0.93) rotate(2deg);}
+  }
+
+  /* One ear flicks now and then, like a cat half-listening to something */
+  .gh-cat-ear-l{transform-origin:24px 11px;animation:ghEarTwitch 5s ease-in-out infinite;}
+  .gh-cat-ear-r{transform-origin:48px 11px;animation:ghEarTwitch 5s ease-in-out infinite 2.6s;}
+  @keyframes ghEarTwitch{
+    0%,88%,100%{transform:rotate(0deg);}
+    90%{transform:rotate(-8deg);}
+    93%{transform:rotate(4deg);}
+    96%{transform:rotate(0deg);}
+  }
+
+  /* Curious glance — pupils drift slightly and settle back */
+  .gh-cat-pupils{animation:ghLookAround 8s ease-in-out infinite;}
+  @keyframes ghLookAround{
+    0%,20%,100%{transform:translate(0,0);}
+    23%,35%{transform:translate(1px,-0.4px);}
+    38%,55%{transform:translate(-1px,0.4px);}
+    58%{transform:translate(0,0);}
+  }
+}
+
+/* Paws grip a little harder while petting, instead of the idle flex */
+.url-cat-wrap:hover .gh-cat-paw-l,
+.url-cat-wrap:active .gh-cat-paw-l{animation:none;transform:scaleY(0.9) rotate(-3deg);}
+.url-cat-wrap:hover .gh-cat-paw-r,
+.url-cat-wrap:active .gh-cat-paw-r{animation:none;transform:scaleY(0.9) rotate(3deg);}
+
+/* ── BORED (10s idle, no text): a little paw nibble ── */
+.url-cat-wrap.bored .gh-octocat{animation:ghNibble 1.6s ease-in-out infinite!important;}
+@keyframes ghNibble{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  25%{transform:translateY(1px) rotate(-3deg);}
+  50%{transform:translateY(0) rotate(0deg);}
+  75%{transform:translateY(1px) rotate(3deg);}
+}
+
+/* ── EXCITED (a valid link just landed): big eyes, perked ears, quick happy shimmy ── */
+.url-cat-wrap.excited .gh-eyes-normal{transform:scale(1.18);transform-origin:36px 23px;animation:none!important;}
+.url-cat-wrap.excited .gh-cat-ear-l,
+.url-cat-wrap.excited .gh-cat-ear-r{transform:rotate(0deg) scale(1.08);animation:none!important;}
+.url-cat-wrap.excited .gh-octocat{animation:ghExcitedShake 0.35s ease-in-out 2!important;}
+@keyframes ghExcitedShake{
+  0%,100%{transform:translateY(-2px) rotate(0deg);}
+  25%{transform:translateY(-4px) rotate(-4deg);}
+  75%{transform:translateY(-4px) rotate(4deg);}
+}
+
+/* ── RARE EASTER EGGS (very occasional, replaces the plain bored nibble) ── */
+.url-cat-wrap.rare-yawn .gh-eyes-normal{animation:ghYawnEyes 2.4s ease-in-out!important;}
+.url-cat-wrap.rare-yawn .gh-cat-smile{animation:ghYawnMouth 2.4s ease-in-out!important;}
+@keyframes ghYawnEyes{0%,100%{transform:scaleY(1);}30%,70%{transform:scaleY(0.15);}}
+@keyframes ghYawnMouth{
+  0%,100%{transform:scaleY(1) translateY(0);}
+  40%,60%{transform:scaleY(2.2) translateY(-1px);}
+}
+.url-cat-wrap.rare-lookback .gh-octocat{animation:ghLookBack 2.2s ease-in-out!important;}
+@keyframes ghLookBack{
+  0%,100%{transform:scaleX(1) rotate(0deg);}
+  35%,65%{transform:scaleX(-1) rotate(-2deg);}
+}
+.url-cat-wrap.rare-lookback .gh-eyes-happy{animation:ghLookBackEyes 2.2s ease-in-out!important;}
+@keyframes ghLookBackEyes{0%,30%,70%,100%{opacity:0;}40%,60%{opacity:1;}}
+
+/* ── SPEECH BUBBLE (click the cat) ── */
+.gh-speech-bubble{
+  position:absolute;
+  bottom:calc(100% + 6px);
+  left:50%;
+  transform:translateX(-50%) translateY(4px) scale(0.85);
+  background:var(--text);
+  color:var(--bg);
+  font-family:var(--font);
+  font-size:10.5px;
+  font-weight:700;
+  padding:6px 10px;
+  border-radius:10px;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  z-index:5;
+  transition:opacity .15s ease, transform .15s ease;
+}
+.gh-speech-bubble::after{
+  content:'';
+  position:absolute;
+  top:100%;
+  left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color:var(--text);
+}
+.gh-speech-bubble.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0) scale(1);
+  animation:ghBubblePop .35s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes ghBubblePop{
+  0%{transform:translateX(-50%) translateY(4px) scale(0.6);}
+  60%{transform:translateX(-50%) translateY(-2px) scale(1.08);}
+  100%{transform:translateX(-50%) translateY(0) scale(1);}
+}
+
+/* ── DAY/NIGHT TEMPERAMENT ── */
+/* Light theme: a slightly more alert, quicker-blinking cat */
+body.light .gh-eyes-normal{animation-duration:4.5s;}
+body.light .gh-cat-ear-l,body.light .gh-cat-ear-r{animation-duration:4s;}
+/* Dark theme: sleepier — slower blink, and a periodic half-lidded doze */
+body:not(.light) .gh-eyes-normal{animation-duration:7s;}
+@media(prefers-reduced-motion:no-preference){
+  body:not(.light) .gh-octocat{animation:ghCatFloat 4s ease-in-out infinite, ghSleepyDoze 11s ease-in-out infinite;}
+  @keyframes ghSleepyDoze{0%,85%,100%{filter:brightness(1);}90%{filter:brightness(0.88);}}
+}
+
+/* ── CONFETTI BURST (fires on a successful save/share) ── */
+.confetti-host{position:fixed;left:0;top:0;width:0;height:0;z-index:9999;pointer-events:none;}
+.confetti-piece{
+  position:fixed;
+  top:60%;
+  width:7px;
+  height:10px;
+  border-radius:2px;
+  opacity:0;
+  animation:ghConfettiFall 1.1s cubic-bezier(0.2,0.6,0.4,1) forwards;
+}
+@keyframes ghConfettiFall{
+  0%{opacity:1;transform:translate(0,0) rotate(0deg);}
+  15%{opacity:1;}
+  100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 220px)) rotate(var(--rot));}
+}
+
+/* ── CLIP HINT: a bouncier entrance instead of a flat fade+slide ── */
+.clip-hint{animation:clipHintIn .4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes clipHintIn{
+  0%{opacity:0;transform:translateY(-8px) scale(0.92);}
+  60%{opacity:1;transform:translateY(2px) scale(1.02);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+
+/* Click Squish — quick tactile feedback distinct from the hover pet */
+.url-cat-wrap:active .gh-octocat{
+  transform: rotate(6deg) translateY(-1px) scale(0.92,1.08);
+  transition: transform 0.08s ease-out;
 }
 
 /* RADAR PULSE — signature element: fires once when a valid link is detected */
@@ -518,7 +814,7 @@ button:active,.services-chip:active,.mode-btn:active,.btn-paste:active,.vc-dl:ac
 /* REDUCED MOTION — respected everywhere; strips ambient/decorative animation, keeps state changes instant */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:0.001ms!important;animation-iteration-count:1!important;transition-duration:0.001ms!important;scroll-behavior:auto!important;}
-  #space-canvas{opacity:0.4;}
+  #bg-canvas{opacity:0.4;}
   .radar-ring.fire{animation:none;opacity:0;}
   .dl-bar-fill::after{display:none;}
   .overlay .modal-sheet>*,.overlay .save-modal>*,.overlay .remux-modal>*,.overlay .conv-modal>*,.overlay .st-modal>*,.overlay .upd-modal>*,.overlay .don-modal>*,.overlay .about-modal>*{opacity:1!important;transform:none!important;}
