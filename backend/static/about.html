@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title id="pgTitle">Hakkında — ZenithW</title>
+<meta name="description" id="pgDesc" content="ZenithW nedir, nasıl çalışır ve hangi teknolojilerle geliştirildi? Mimari, güvenlik yaklaşımı ve kullanılan araçlar hakkında detaylı bilgi.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://zenithw.space/about.html">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/png" href="zenithw.png">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.legal-lang-toggle{display:flex;gap:4px;background:var(--chip-bg);border:1px solid var(--border);border-radius:20px;padding:3px;}
+.legal-lang-toggle button{border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;transition:all .15s;}
+.legal-lang-toggle button.active{background:var(--text);color:var(--bg,#0a0a0a);}
+.legal-nav{gap:10px;flex-wrap:wrap;}
+.about-hero-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.about-hero-logo{font-size:26px;font-weight:700;letter-spacing:-1px;color:var(--text);}
+.about-hero-logo span{color:var(--accent);}
+.legal-body h3{font-size:12.5px;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.about-tag-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px;}
+.about-tag-row span{font-size:10.5px;font-weight:700;color:var(--text2);background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:5px 11px;}
+.about-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 4px;}
+@media (max-width:520px){.about-info-grid{grid-template-columns:1fr;}}
+.about-info-cell{background:var(--chip-bg,var(--surface2));border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.about-info-cell .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text3);margin-bottom:3px;}
+.about-info-cell .val{font-size:12px;color:var(--text);font-weight:600;}
+.about-info-cell .val a{color:var(--accent);text-decoration:none;}
+.about-info-cell .val a:hover{text-decoration:underline;}
+.legal-body ol{margin:0 0 12px;padding-left:18px;}
+.legal-body ol li{font-size:12.5px;line-height:1.75;color:var(--text2);margin-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="legal-page">
+  <div class="legal-nav">
+    <a href="/" class="legal-logo">ZenithW<span>.</span></a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="legal-lang-toggle" id="legalLangToggle">
+        <button data-lang="tr" onclick="setLegalLang('tr')">TR</button>
+        <button data-lang="en" onclick="setLegalLang('en')">EN</button>
+      </div>
+      <a href="/" class="legal-back" id="pgBack">← ana sayfa</a>
+    </div>
+  </div>
+  <div class="legal-hero">
+    <div class="about-hero-row"><div class="about-hero-logo">ZenithW<span>.</span></div></div>
+    <h1 id="pgH1">Hakkında</h1>
+    <div class="legal-updated" id="pgUpdated">Son güncelleme: 1 Ağustos 2026</div>
+  </div>
+  <div class="legal-body" id="pgBody"></div>
+  <div class="legal-footer" id="pgFooter"></div>
+</div>
+
+<script>
+const TX={
+tr:{
+title:'Hakkında — ZenithW',
+desc:'ZenithW nedir, nasıl çalışır ve hangi teknolojilerle geliştirildi? Mimari, güvenlik yaklaşımı ve kullanılan araçlar hakkında detaylı bilgi.',
+h1:'Hakkında', updated:'Son güncelleme: 1 Ağustos 2026', back:'← ana sayfa',
+body:`
+  <h2>ZenithW nedir?</h2>
+  <p>ZenithW; YouTube, TikTok, Instagram, X/Twitter, Reddit, Pinterest, SoundCloud, Twitch, Facebook, Snapchat, Vimeo, Dailymotion, Bilibili, Bluesky, Tumblr, Streamable, Rutube, OK.ru, VK, Loom, Pornhub, XVideos ve onlarca farklı platformdan video, ses ve playlist indirmeni sağlayan bağımsız, reklamsız bir web aracıdır. Projenin temel amacı; kullanıcıyı sahte indirme butonlarıyla, yönlendirme zincirleriyle ve takip amaçlı reklam ağlarıyla dolu klasik "video indirici" sitelerinden kurtarıp, tek bir linki yapıştırıp saniyeler içinde temiz bir dosya almasını sağlamaktır.</p>
+  <p>Araç herhangi bir video ya da ses dosyasını kendi sunucusunda kalıcı olarak barındırmaz. Kullanıcının verdiği kaynak URL üzerinden geçici bir aktarım (transcode/aktarma) işlemi yapılır; işlem bittikten kısa süre sonra dosya sunucudan otomatik olarak silinir. Bu sayede hem gizlilik korunur hem de sunucu depolama alanı şişmez.</p>
+
+  <h2>Nasıl çalışır?</h2>
+  <p>Kullanım akışı oldukça basittir, ama arka planda birkaç aşama art arda işler:</p>
+  <ol>
+    <li><strong>Link analizi:</strong> Kullanıcı bir video linki yapıştırdığında, sunucu tarafında bu link ayrıştırılır ve hangi platforma ait olduğu tespit edilir.</li>
+    <li><strong>Format keşfi:</strong> Sunucu, kaynak platformdan mevcut tüm video/ses akışlarını (farklı çözünürlük, codec ve bit hızı seçenekleriyle birlikte) sorgular ve bunları kullanıcıya bir seçenek listesi olarak sunar.</li>
+    <li><strong>Seçim:</strong> Kullanıcı istediği çözünürlüğü, formatı (mp4, webm, mp3, m4a vb.) ya da sessiz (mute) modu seçer. Toplu/playlist linkler için birden fazla video aynı anda kuyruğa alınabilir.</li>
+    <li><strong>İndirme ve aktarım:</strong> Sunucu seçilen akışı kaynağın kendisinden çeker; gerekirse ses ve video akışlarını birleştirir (remux) ya da başka bir formata dönüştürür (convert), ardından kullanıcının tarayıcısına akıtır.</li>
+    <li><strong>Temizlik:</strong> Aktarım tamamlandıktan kısa süre sonra sunucudaki geçici dosya otomatik olarak silinir; kalıcı bir kopya tutulmaz.</li>
+  </ol>
+  <p>Tüm süreç boyunca ilerleme durumu, WebSocket tabanlı gerçek zamanlı bir bağlantı (Socket.IO) üzerinden anlık olarak arayüze yansıtılır; bu sayede indirme yüzdesi, hız ve kalan süre gibi bilgiler sayfa yenilenmeden canlı güncellenir.</p>
+
+  <h2>Kullanılan teknolojiler</h2>
+  <p>ZenithW, sunucu ve istemci tarafında birbirini tamamlayan modern ve kanıtlanmış açık kaynak bileşenler üzerine inşa edilmiştir:</p>
+  <h3>Sunucu (backend)</h3>
+  <ul>
+    <li><strong>Python</strong> — Sunucu tarafının yazıldığı ana programlama dili. Okunabilirliği, geniş kütüphane ekosistemi ve medya işleme araçlarıyla olan uyumu nedeniyle tercih edilmiştir.</li>
+    <li><strong>Flask</strong> — Hafif ve esnek bir Python web çatısı (framework). API uç noktalarının (endpoint) tanımlanması, istek/yanıt yönetimi ve statik dosyaların sunulması bu çatı üzerinden yürütülür.</li>
+    <li><strong>yt-dlp</strong> — Dünyanın en gelişmiş, açık kaynaklı video/ses indirme motoru. Onlarca platformun oynatıcı yapısını çözebilen, aktif olarak geliştirilen bu araç, ZenithW'nin video keşif ve indirme mantığının çekirdeğini oluşturur. Videoyu her zaman kaynağın kendisinden, ekstra bir aracı sunucu üzerinden geçirmeden, en yüksek kalitede yakalar.</li>
+    <li><strong>FFmpeg</strong> — Ses ve video akışlarının birleştirilmesi (remux), formatlar arası dönüştürme (convert) ve codec işlemleri için kullanılan endüstri standardı multimedya işleme kütüphanesi/aracı.</li>
+    <li><strong>Flask-SocketIO / Socket.IO (sunucu tarafı)</strong> — İndirme ilerlemesi gibi olayların istemciye gerçek zamanlı, çift yönlü olarak iletilmesini sağlayan WebSocket katmanı.</li>
+    <li><strong>Gunicorn / Procfile tabanlı süreç yönetimi</strong> — Uygulamanın üretim ortamında (production) çoklu worker ile stabil şekilde ayakta tutulmasını sağlayan süreç yöneticisi yapılandırması.</li>
+    <li><strong>Docker</strong> — Uygulamanın ve tüm bağımlılıklarının (FFmpeg dahil) tutarlı, taşınabilir bir konteyner imajı içinde paketlenmesi için kullanılır; bu sayede geliştirme ve üretim ortamları arasında davranış farkı oluşmaz.</li>
+  </ul>
+  <h3>İstemci (frontend)</h3>
+  <ul>
+    <li><strong>Saf HTML5 / CSS3 / vanilla JavaScript</strong> — Arayüz herhangi bir ağır ön yüz çatısı (React, Vue vb.) kullanılmadan, doğrudan tarayıcı API'leri ile yazılmıştır. Bu yaklaşım sayfanın çok hızlı yüklenmesini ve düşük kaynak tüketimini sağlar.</li>
+    <li><strong>Socket.IO (istemci tarafı)</strong> — Sunucudan gelen ilerleme olaylarını dinleyip arayüzdeki ilerleme çubuklarını ve durum metinlerini anlık güncelleyen JavaScript istemci kütüphanesi.</li>
+    <li><strong>localStorage tabanlı yerel geçmiş</strong> — İndirme geçmişi sunucuda değil, doğrudan kullanıcının kendi tarayıcısının belleğinde tutulur; istenildiği an tek tıkla temizlenebilir.</li>
+    <li><strong>Canvas tabanlı arka plan efektleri</strong> — Sayfadaki dinamik arka plan animasyonu, doğrudan HTML5 Canvas API'si ile çizilir; harici bir grafik kütüphanesi gerektirmez.</li>
+    <li><strong>Çoklu dil (i18n) desteği</strong> — Arayüz metinleri; Türkçe, İngilizce, Fransızca ve Almanca dahil olmak üzere birden fazla dilde, istemci tarafında bir çeviri sözlüğü (translation map) üzerinden dinamik olarak değiştirilir.</li>
+  </ul>
+  <h3>Altyapı ve barındırma</h3>
+  <ul>
+    <li><strong>Railway.app</strong> — Uygulamanın canlı olarak barındırıldığı bulut platformu. Docker imajı üzerinden otomatik dağıtım (deployment) yapılır.</li>
+    <li><strong>GitHub</strong> — Kaynak kodun herkese açık olarak barındırıldığı, sürüm kontrolünün yapıldığı ve katkıların toplandığı platform.</li>
+  </ul>
+
+  <h2>Güvenlik ve gizlilik yaklaşımı</h2>
+  <p>Klasik "indirme" sitelerinin aksine ZenithW'de kullanıcıyı takip eden reklam ağı, sahte indirme butonu, zorunlu yönlendirme ya da pop-up bulunmaz. Güvenlik tarafında baştan itibaren şu önlemler uygulanır:</p>
+  <ul>
+    <li><strong>Yol geçişi (path traversal) engelleri:</strong> Sunucuya gelen dosya yolu isteklerinin, izin verilen dizin dışına çıkmasını önleyen kontroller.</li>
+    <li><strong>İstek sınırlama (rate limiting):</strong> Aşırı istek gönderen istemcilerin sınırlandırılarak sunucu kaynaklarının kötüye kullanımının önüne geçilmesi.</li>
+    <li><strong>Sahte IP koruması:</strong> İstemci IP bilgisinin güvenilir olmayan başlıklar (header) üzerinden sahtelenmesine karşı doğrulama.</li>
+    <li><strong>Geçici dosya yönetimi:</strong> İndirilen/aktarılan dosyalar sunucuda kalıcı tutulmaz, işlem sonrası otomatik olarak silinir.</li>
+    <li><strong>Yerelde saklanan geçmiş:</strong> Kullanıcının indirme geçmişi yalnızca kendi tarayıcısında (localStorage) tutulur, sunucu tarafında ayrı bir kullanıcı veritabanı veya günlük tutulmaz.</li>
+  </ul>
+
+  <h2>Açık kaynak</h2>
+  <p>ZenithW'nin tüm kaynak kodu <a href="https://github.com/kakangeldi82-netizen/zenithw" target="_blank">GitHub</a> üzerinde herkese açık ve MIT lisansıyla paylaşılmaktadır. Arka planda ne olduğunu merak eden herkes kodu satır satır inceleyebilir, katkıda bulunabilir ya da kendi sunucusunda kendi kopyasını çalıştırabilir. Gizli, kapalı kaynaklı bir bileşen bulunmaz.</p>
+
+  <h2>Proje bilgileri</h2>
+  <div class="about-info-grid">
+    <div class="about-info-cell"><div class="lbl">geliştirici</div><div class="val"><a href="https://www.instagram.com/boranseason" target="_blank">@boranseason</a></div></div>
+    <div class="about-info-cell"><div class="lbl">iletişim</div><div class="val"><a href="mailto:info@zenithw.space">info@zenithw.space</a></div></div>
+    <div class="about-info-cell"><div class="lbl">hosting</div><div class="val">Railway.app</div></div>
+    <div class="about-info-cell"><div class="lbl">lisans</div><div class="val">MIT</div></div>
+  </div>
+  <div class="about-tag-row">
+    <span>python</span><span>flask</span><span>yt-dlp</span><span>ffmpeg</span><span>socket.io</span><span>docker</span><span>github</span><span>railway</span>
+  </div>`,
+footer:'<a href="/">ana sayfa</a>·<a href="/privacy.html">gizlilik</a>·<a href="/terms.html">kullanım koşulları</a>·<a href="/dmca.html">telif bildirimi</a>·<a href="/status.html">durum</a>·<a href="/thanks.html">teşekkürler</a>'
+},
+en:{
+title:'About — ZenithW',
+desc:'What is ZenithW, how does it work, and what technologies power it? Detailed information about the architecture, security approach, and tools used.',
+h1:'About', updated:'Last updated: August 1, 2026', back:'← home',
+body:`
+  <h2>What is ZenithW?</h2>
+  <p>ZenithW is an independent, ad-free web tool that lets you download video, audio, and playlists from YouTube, TikTok, Instagram, X/Twitter, Reddit, Pinterest, SoundCloud, Twitch, Facebook, Snapchat, Vimeo, Dailymotion, Bilibili, Bluesky, Tumblr, Streamable, Rutube, OK.ru, VK, Loom, Pornhub, XVideos, and dozens of other platforms. The project's core goal is to free users from the typical "video downloader" sites full of fake download buttons, redirect chains, and tracking ad networks, letting them simply paste a link and get a clean file within seconds.</p>
+  <p>The tool does not permanently host any video or audio file on its own server. It performs a temporary transfer from the source URL the user provides; shortly after the process finishes, the file is automatically deleted from the server. This protects privacy and keeps server storage from filling up.</p>
+
+  <h2>How does it work?</h2>
+  <p>The user-facing flow is simple, but a few stages run behind the scenes:</p>
+  <ol>
+    <li><strong>Link analysis:</strong> When a user pastes a video link, the server parses it and identifies which platform it belongs to.</li>
+    <li><strong>Format discovery:</strong> The server queries the source platform for all available video/audio streams (with different resolutions, codecs, and bitrates) and presents them to the user as a list of options.</li>
+    <li><strong>Selection:</strong> The user picks the desired resolution, format (mp4, webm, mp3, m4a, etc.), or mute mode. For playlists/bulk links, multiple videos can be queued at once.</li>
+    <li><strong>Download and transfer:</strong> The server fetches the selected stream directly from the source, merges audio and video streams if needed (remux) or converts to another format (convert), then streams it to the user's browser.</li>
+    <li><strong>Cleanup:</strong> Shortly after the transfer completes, the temporary file on the server is automatically deleted; no permanent copy is kept.</li>
+  </ol>
+  <p>Throughout the process, progress is reflected live in the UI through a real-time WebSocket connection (Socket.IO), so download percentage, speed, and remaining time update instantly without a page refresh.</p>
+
+  <h2>Technologies used</h2>
+  <p>ZenithW is built on complementary, proven open-source components on both the server and client side:</p>
+  <h3>Backend</h3>
+  <ul>
+    <li><strong>Python</strong> — The main language the server is written in, chosen for its readability, broad library ecosystem, and strong compatibility with media-processing tools.</li>
+    <li><strong>Flask</strong> — A lightweight, flexible Python web framework used to define API endpoints, handle requests/responses, and serve static files.</li>
+    <li><strong>yt-dlp</strong> — The world's most advanced open-source video/audio download engine. Capable of parsing dozens of platforms' player structures and actively maintained, it forms the core of ZenithW's video discovery and download logic, always fetching the video directly from the source at the highest available quality.</li>
+    <li><strong>FFmpeg</strong> — The industry-standard multimedia processing tool/library used for merging audio and video streams (remux), converting between formats, and codec operations.</li>
+    <li><strong>Flask-SocketIO / Socket.IO (server side)</strong> — The WebSocket layer that delivers events like download progress to the client in real time, bidirectionally.</li>
+    <li><strong>Gunicorn / Procfile-based process management</strong> — Process manager configuration that keeps the app stable in production with multiple workers.</li>
+    <li><strong>Docker</strong> — Used to package the app and all its dependencies (including FFmpeg) into a consistent, portable container image, ensuring no behavior gap between development and production.</li>
+  </ul>
+  <h3>Frontend</h3>
+  <ul>
+    <li><strong>Plain HTML5 / CSS3 / vanilla JavaScript</strong> — The interface is built directly with browser APIs, without a heavy frontend framework (React, Vue, etc.), keeping the page fast to load and light on resources.</li>
+    <li><strong>Socket.IO (client side)</strong> — The JavaScript client library that listens for progress events from the server and updates progress bars and status text live.</li>
+    <li><strong>localStorage-based local history</strong> — Download history is kept only in the user's own browser memory, not on the server, and can be cleared with a single click at any time.</li>
+    <li><strong>Canvas-based background effects</strong> — The dynamic background animation on the page is drawn directly with the HTML5 Canvas API, with no external graphics library required.</li>
+    <li><strong>Multilingual (i18n) support</strong> — Interface text is dynamically switched client-side through a translation map, including Turkish, English, French, and German.</li>
+  </ul>
+  <h3>Infrastructure and hosting</h3>
+  <ul>
+    <li><strong>Railway.app</strong> — The cloud platform where the live application is hosted, with automatic deployment from the Docker image.</li>
+    <li><strong>GitHub</strong> — The platform where the source code is publicly hosted, version-controlled, and where contributions are collected.</li>
+  </ul>
+
+  <h2>Security and privacy approach</h2>
+  <p>Unlike typical "downloader" sites, ZenithW has no tracking ad networks, fake download buttons, forced redirects, or pop-ups. On the security side, the following measures are in place from the start:</p>
+  <ul>
+    <li><strong>Path traversal protections:</strong> Checks that prevent incoming file path requests from escaping the allowed directory.</li>
+    <li><strong>Rate limiting:</strong> Clients sending excessive requests are throttled to prevent abuse of server resources.</li>
+    <li><strong>Spoofed IP protection:</strong> Validation against client IP information being spoofed via untrusted headers.</li>
+    <li><strong>Temporary file management:</strong> Downloaded/transferred files are not kept permanently on the server and are automatically deleted after processing.</li>
+    <li><strong>Locally stored history:</strong> The user's download history is kept only in their own browser (localStorage); the server does not maintain a separate user database or log of it.</li>
+  </ul>
+
+  <h2>Open source</h2>
+  <p>ZenithW's entire source code is publicly available on <a href="https://github.com/kakangeldi82-netizen/zenithw" target="_blank">GitHub</a> under the MIT license. Anyone curious about what happens behind the scenes can review the code line by line, contribute, or run their own instance on their own server. There are no hidden, closed-source components.</p>
+
+  <h2>Project info</h2>
+  <div class="about-info-grid">
+    <div class="about-info-cell"><div class="lbl">developer</div><div class="val"><a href="https://www.instagram.com/boranseason" target="_blank">@boranseason</a></div></div>
+    <div class="about-info-cell"><div class="lbl">contact</div><div class="val"><a href="mailto:info@zenithw.space">info@zenithw.space</a></div></div>
+    <div class="about-info-cell"><div class="lbl">hosting</div><div class="val">Railway.app</div></div>
+    <div class="about-info-cell"><div class="lbl">license</div><div class="val">MIT</div></div>
+  </div>
+  <div class="about-tag-row">
+    <span>python</span><span>flask</span><span>yt-dlp</span><span>ffmpeg</span><span>socket.io</span><span>docker</span><span>github</span><span>railway</span>
+  </div>`,
+footer:'<a href="/">home</a>·<a href="/privacy.html">privacy</a>·<a href="/terms.html">terms of service</a>·<a href="/dmca.html">copyright notice</a>·<a href="/status.html">status</a>·<a href="/thanks.html">thanks</a>'
+}
+};
+function setLegalLang(l){
+  const t=TX[l]||TX.en;
+  document.documentElement.lang=l;
+  document.getElementById('pgTitle').textContent=t.title;
+  document.getElementById('pgDesc').setAttribute('content',t.desc);
+  document.getElementById('pgH1').textContent=t.h1;
+  document.getElementById('pgUpdated').textContent=t.updated;
+  document.getElementById('pgBack').textContent=t.back;
+  document.getElementById('pgBody').innerHTML=t.body;
+  document.getElementById('pgFooter').innerHTML=t.footer;
+  document.querySelectorAll('#legalLangToggle button').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));
+  try{localStorage.setItem('zw_lang',l);}catch(e){}
+}
+(function(){
+  let saved='tr';
+  try{saved=localStorage.getItem('zw_lang')||'tr';}catch(e){}
+  if(saved!=='tr')saved='en';
+  setLegalLang(saved);
+})();
+</script>
+</body>
+</html>

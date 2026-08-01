@@ -259,10 +259,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
     <span id="moreItemSettings">ayarlar</span>
   </button>
-  <button class="more-item" onclick="openAbout(); toggleMoreMenu()">
+  <a class="more-item" href="/about.html" style="text-decoration:none;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
     <span id="moreItemAbout">hakkında</span>
-  </button>
+  </a>
   <button class="more-item" onclick="openDonate(); toggleMoreMenu()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
     <span id="moreItemDonate">destek ol</span>
@@ -619,49 +619,6 @@
   </div>
 </div>
 
-<!-- ABOUT -->
-<div class="overlay tone-cool" id="aboutOverlay" onclick="handleOverlay(event,'aboutOverlay')">
-  <div class="heart-bg"></div>
-  <div class="about-modal">
-    <div class="handle" style="margin:-6px auto 12px;"></div>
-    <button class="modal-close-btn" onclick="closeOverlay('aboutOverlay')">✕</button>
-    <div class="about-name">ZenithW<span>.</span></div>
-    <div class="about-ver" id="aboutVer"></div>
-    <div class="about-content-wrap" style="text-align:left; margin-top:20px; font-size:11px; line-height:1.65; display:flex; flex-direction:column; gap:16px; margin-bottom:20px;">
-      <div>
-        <h4 id="aboutWhatTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
-        <p id="aboutWhatText" style="color:var(--text2);"></p>
-      </div>
-      <div>
-        <h4 id="aboutTrustTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
-        <p id="aboutTrustText" style="color:var(--text2);"></p>
-      </div>
-      <div>
-        <h4 id="aboutOpenTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
-        <p id="aboutOpenText" style="color:var(--text2);"></p>
-      </div>
-      <div>
-        <h4 id="aboutHowTitle" style="color:var(--text); font-weight:700; margin-bottom:4px; font-size:12.5px;"></h4>
-        <p id="aboutHowText" style="color:var(--text2);"></p>
-      </div>
-    </div>
-    <div class="about-row"><span class="about-row-label" id="aboutDevLabel">geliştirici</span><span class="about-row-val"><a href="https://www.instagram.com/boranseason" target="_blank">@boranseason</a></span></div>
-    <div class="about-row"><span class="about-row-label" id="aboutContactLabel">iletişim</span><span class="about-row-val"><a href="mailto:info@zenithw.space">info@zenithw.space</a></span></div>
-    <div class="about-row"><span class="about-row-label" id="aboutStackLabel">teknoloji</span><span class="about-row-val">flask · yt-dlp · socket.io</span></div>
-    <div class="about-row"><span class="about-row-label" id="aboutHostLabel">hosting</span><span class="about-row-val">railway.app</span></div>
-    <div class="about-row"><span class="about-row-label" id="aboutLicLabel">lisans</span><span class="about-row-val">MIT</span></div>
-    <div class="about-stack"><span class="about-tag">python</span><span class="about-tag">flask</span><span class="about-tag">yt-dlp</span><span class="about-tag">ffmpeg</span><span class="about-tag">socket.io</span></div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
-      <a href="/app.html" id="aboutAppLink" style="font-size:10.5px;font-weight:700;color:var(--btn-color);text-decoration:none;background:var(--btn-bg);border:1px solid transparent;border-radius:14px;padding:6px 12px;">📱 mobil uygulama</a>
-      <a href="/privacy.html" id="aboutPrivacyLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">gizlilik</a>
-      <a href="/terms.html" id="aboutTermsLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">kullanım koşulları</a>
-      <a href="/dmca.html" id="aboutDmcaLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">telif bildirimi</a>
-      <a href="/status.html" id="aboutStatusLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">durum</a>
-      <a href="/thanks.html" id="aboutThanksLink" style="font-size:10.5px;font-weight:600;color:var(--text2);text-decoration:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:14px;padding:6px 12px;">teşekkürler</a>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"><div class="toast-dot" id="toastDot"></div><span id="toastTxt"></span></div>
 
 <script>
@@ -721,7 +678,7 @@ const TX={
     stLblMeta:'dosya metadatası',stMetaName:'metadata göm',stMetaDesc:'dosyaya başlık, sanatçı ve platform bilgisi gömülür.',
     stLblFnf:'dosya adı formatı',stNoteFnf:'İndirme başlamadan önce dosya adı bu formata göre oluşturulur.',
     stLblFnfEx:'örnek formatlar',
-    connecting:'bağlanıyor...',downloading:'indiriliyor...',merging:'birleştiriliyor...',done:'tamamlandı!',
+    connecting:'bağlanıyor...',downloading:'indiriliyor...',merging:'birleştiriliyor...',queued:'sırada bekleniyor...',done:'tamamlandı!',
     found:'video bulundu ✓',downloaded:'indirildi ✓',cancelled:'iptal edildi',error:'hata',
     convTitleTxt:'dönüştür',convDropTitle:'dosya seç veya sürükle',convDropSub:'mp4, webm, mkv, mp3, flac, wav...',
     convFmtLabel:'ÇIKIŞ FORMATINI SEÇ',convBtnSel:'dosya seçin',
@@ -780,7 +737,7 @@ const TX={
     stLblMeta:'file metadata',stMetaName:'embed metadata',stMetaDesc:'title, artist, and platform info is embedded into the file.',
     stLblFnf:'filename format',stNoteFnf:'File will be named using this template before download.',
     stLblFnfEx:'example formats',
-    connecting:'connecting...',downloading:'downloading...',merging:'merging...',done:'done!',
+    connecting:'connecting...',downloading:'downloading...',merging:'merging...',queued:'waiting in queue...',done:'done!',
     found:'video found ✓',downloaded:'downloaded ✓',cancelled:'cancelled',error:'error',
     convTitleTxt:'convert',convDropTitle:'select or drag file',convDropSub:'mp4, webm, mkv, mp3, flac, wav...',
     convFmtLabel:'SELECT OUTPUT FORMAT',convBtnSel:'select a file',
@@ -1069,6 +1026,7 @@ socket.on('connect',()=>{socketId=socket.id;});
 socket.on('progress',d=>{
   if(d.status==='downloading')setProgress(d.percent,t('downloading'),d.speed,false);
   else if(d.status==='merging')setProgress(88,t('merging'),'',false);
+  else if(d.status==='queued')setProgress(3,d.message||t('queued'),'',false);
   else if(d.status==='done')setProgress(100,t('done'),'',true);
   else if(d.status==='error')toast(d.message||t('error'),'#ed4245');
 });
@@ -1192,12 +1150,13 @@ async function fetchBulkVideos(){
     document.getElementById('urlSpinWrap').innerHTML=`<div style="font-size:10px;color:var(--text2)">${i+1}/${urls.length}</div>`;
     try{
       document.getElementById('urlInput').value=url;
-      await fetchVideo();
-      if(videoInfo.url){
-        await startDownload();
-        successCount.push(url);
-      }else{
+      const infoOk=await fetchVideo({silent:true,forBulk:true});
+      if(!infoOk||!videoInfo.url||videoInfo.url!==url){
         failCount.push(url);
+      }else{
+        const dlOk=await startDownload({bulk:true});
+        if(dlOk)successCount.push(url);
+        else failCount.push(url);
       }
     }catch(e){
       failCount.push(url);
@@ -1265,9 +1224,13 @@ function dismissClipboardHint(){
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkClipboardForLink();});
 window.addEventListener('focus',checkClipboardForLink);
 
-async function fetchVideo(){
+async function fetchVideo(opts){
+  opts=opts||{};
   const url=document.getElementById('urlInput').value.trim();
-  if(!url){toast(t('enterLink'),'#ed4245');return;}
+  // Her denemede eski sonucu temizle — bulk'ta fail olan link bir önceki
+  // videoyu tekrar indirmesin / başarı sayılmasın.
+  videoInfo={};
+  if(!url){if(!opts.silent)toast(t('enterLink'),'#ed4245');return false;}
   document.getElementById('urlSpinWrap').innerHTML='<div class="spinner"></div>';
   document.getElementById('videoCard').classList.remove('show');
   document.getElementById('playlistCard').classList.remove('show');
@@ -1276,13 +1239,15 @@ async function fetchVideo(){
   try{
     const res=await fetch(API+'/info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
     const d=await res.json();
-    if(d.error==='instagram_ratelimit'){showErr('⏳',t('igBusy'));return;}
-    if(d.error){if(isYT(url))showYtErr();else showErr('❌',d.error);return;}
+    if(d.error==='instagram_ratelimit'){if(!opts.silent)showErr('⏳',t('igBusy'));return false;}
+    if(d.error){if(!opts.silent){if(isYT(url))showYtErr();else showErr('❌',d.error);}return false;}
 
     if(d.is_playlist){
+      // Toplu indirme tek video bekler; playlist bulursa bu URL fail sayılır.
+      if(opts.forBulk)return false;
       renderPlaylist(d,url);
       toast((d.playlist_count||0)+' video bulundu','#3bba64');
-      return;
+      return true;
     }
 
     const m=Math.floor((d.duration||0)/60),s=String((d.duration||0)%60).padStart(2,'0');
@@ -1291,8 +1256,12 @@ async function fetchVideo(){
     const th=document.getElementById('vcThumb');th.innerHTML=safeThumbHtml(d.thumbnail);
     document.getElementById('videoCard').classList.add('show');
     videoInfo={url,title:d.title,thumbnail:d.thumbnail,uploader:d.uploader,duration:d.duration};
-    toast(t('found'),'#3bba64');showQR(url);
-  }catch(e){if(isYT(document.getElementById('urlInput').value))showYtErr();else toast(t('connErr'),'#ed4245');}
+    if(!opts.silent){toast(t('found'),'#3bba64');showQR(url);}
+    return true;
+  }catch(e){
+    if(!opts.silent){if(isYT(document.getElementById('urlInput').value))showYtErr();else toast(t('connErr'),'#ed4245');}
+    return false;
+  }
   finally{document.getElementById('urlSpinWrap').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3)"><circle cx="12" cy="12" r="10"/></svg>';}
 }
 
@@ -1684,9 +1653,8 @@ async function startConvert(){
 function handleOverlay(e,id){if(e.target===document.getElementById(id)){if(id==='plQueueOverlay'){closePlaylistQueue();}else{closeOverlay(id);}}}
 function closeOverlay(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
 function openDonate(){document.getElementById('donOverlay').classList.add('open');document.body.style.overflow='hidden';}
-function openAbout(){document.getElementById('aboutOverlay').classList.add('open');document.body.style.overflow='hidden';}
 function openHistory(){document.getElementById('historyOverlay').classList.add('open');document.body.style.overflow='hidden';loadHistory();}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){['dlOverlay','stOverlay','remuxOverlay','convOverlay','donOverlay','aboutOverlay','saveOverlay','historyOverlay','servicesOverlay'].forEach(id=>closeOverlay(id));closePlaylistQueue();document.getElementById('servicesChip').classList.remove('open');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){['dlOverlay','stOverlay','remuxOverlay','convOverlay','donOverlay','saveOverlay','historyOverlay','servicesOverlay'].forEach(id=>closeOverlay(id));closePlaylistQueue();document.getElementById('servicesChip').classList.remove('open');}});
 
 // ── UTILS ─────────────────────────────────────────────
 function toast(msg,color){const el=document.getElementById('toast');document.getElementById('toastTxt').textContent=msg;document.getElementById('toastDot').style.background=color||'#e8e8e8';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
