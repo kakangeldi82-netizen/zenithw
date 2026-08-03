@@ -496,7 +496,14 @@ def get_base_opts(url, use_cookies=True):
     if ARIA2_PATH:
         opts["external_downloader"] = {"default": "aria2c"}
         opts["external_downloader_args"] = {
-            "aria2c": ["-x", "16", "-s", "16", "-k", "1M"]
+            # aria2c varsayılan olarak ilerleme özetini 60 saniyede bir
+            # basıyor (--summary-interval). Çoğu video bundan daha kısa
+            # sürede indiği için progress_hook'a HİÇ ara güncelleme
+            # gelmiyor, sadece bitişte tek seferde geliyor; bu da UI'da
+            # "bağlanıyor"da donup sonra aniden dolan bir bar olarak
+            # görünüyordu. 1 saniyeye çekiyoruz ki gerçek zamanlı ilerleme
+            # bilgisi aksın.
+            "aria2c": ["-x", "16", "-s", "16", "-k", "1M", "--summary-interval=1"]
         }
     if use_cookies and os.path.exists(COOKIES_FILE) and not is_instagram(url):
         opts["cookiefile"] = COOKIES_FILE
