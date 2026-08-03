@@ -768,6 +768,8 @@ def download():
     filename = str(uuid.uuid4())
     filepath = os.path.join(DOWNLOAD_DIR, filename)
 
+    dl_start_time = time.time()
+
     def progress_hook(d):
         if cancel_event.is_set():
             raise yt_dlp.utils.DownloadCancelled("İptal edildi")
@@ -785,8 +787,22 @@ def download():
                         'message': f"Dosya boyutu limiti aşıldı (maksimum {MAX_DOWNLOAD_SIZE_BYTES // (1024*1024)} MB)."
                     }, room=sid)
                 raise yt_dlp.utils.DownloadCancelled("Boyut limiti aşıldı")
-            if total > 0 and sid:
+            pct = None
+            if total > 0:
                 pct = max(5, int(downloaded / total * 82))
+            else:
+                # total_bytes bilinmiyor (HLS/DASH fragment indirmelerinde
+                # sık görülür, ör. YouTube/Instagram/TikTok). Bu durumda
+                # fragment sayacına göre kaba bir tahmin üretiyoruz ki bar
+                # "bağlanıyor"da donup indirme bitince aniden 100'e
+                # zıplamasın.
+                frag_idx = d.get('fragment_index')
+                frag_cnt = d.get('fragment_count')
+                if frag_idx is not None and frag_cnt:
+                    pct = max(5, int(frag_idx / frag_cnt * 82))
+                else:
+                    pct = min(80, 5 + int(time.time() - dl_start_time) * 2)
+            if pct is not None and sid:
                 socketio.emit('progress', {
                     'percent': pct,
                     'speed': d.get('_speed_str', '').strip(),
